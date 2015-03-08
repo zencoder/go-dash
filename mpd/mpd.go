@@ -21,7 +21,7 @@ type MPD struct {
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
-	Period                    *Period `xml:"Period"`
+	Period                    *Period `xml:"Period,omitempty"`
 }
 
 func (m MPD) String() string {
@@ -33,7 +33,7 @@ func (m MPD) String() string {
 }
 
 type Period struct {
-	AdaptationSets []*AdaptationSet `xml:"AdaptationSet"`
+	AdaptationSets []*AdaptationSet `xml:"AdaptationSet,omitempty"`
 }
 
 func (p Period) String() string {
@@ -50,8 +50,8 @@ type AdaptationSet struct {
 	SegmentAlignment *bool             `xml:"segmentAlignment,attr"`
 	StartWithSAP     *int64            `xml:"startWithSAP,attr"`
 	Lang             *string           `xml:"lang,attr"`
-	SegmentTemplate  *SegmentTemplate  `xml:"SegmentTemplate"` // Live Profile Only
-	Representations  []*Representation `xml:"Representation"`
+	SegmentTemplate  *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations  []*Representation `xml:"Representation,omitempty"`
 }
 
 func (as AdaptationSet) String() string {
@@ -87,8 +87,8 @@ type Representation struct {
 	FrameRate         *string      `xml:"frameRate,attr"`         // Video
 	Width             *int64       `xml:"width,attr"`             // Video
 	Height            *int64       `xml:"height,attr"`            // Video
-	BaseURL           *string      `xml:"xml:BaseURL"`            // On-Demand Profile
-	SegmentBase       *SegmentBase `xml:"SegmentBase"`            // On-Demand Profile
+	BaseURL           *string      `xml:"xml:BaseURL,omitempty"`  // On-Demand Profile
+	SegmentBase       *SegmentBase `xml:"SegmentBase,omitempty"`  // On-Demand Profile
 }
 
 func (r Representation) String() string {
@@ -102,7 +102,7 @@ func (r Representation) String() string {
 // On-Demand Profile
 type SegmentBase struct {
 	IndexRange     *string         `xml:"indexRange,attr"`
-	Initialization *Initialization `xml:"Initialization"`
+	Initialization *Initialization `xml:"Initialization,omitempty"`
 }
 
 func (sb SegmentBase) String() string {
@@ -194,8 +194,12 @@ func NewAdaptationSetVideo(scanType string, segmentAlignment bool, startWithSAP 
 	}
 }
 
-func (m *MPD) AddAdaptationSet(as *AdaptationSet) {
+func (m *MPD) AddAdaptationSet(as *AdaptationSet) error {
+	if as == nil {
+		return errors.New("Adaptation set is nil")
+	}
 	m.Period.AdaptationSets = append(m.Period.AdaptationSets, as)
+	return nil
 }
 
 func NewSegmentTemplate(duration int64, init string, media string, startNumber int64, timescale int64) *SegmentTemplate {
@@ -237,6 +241,14 @@ func NewRepresentationVideo(bandwidth int64, codecs string, id string, frameRate
 		Width:     Intptr(width),
 		Height:    Intptr(height),
 	}
+}
+
+func (as *AdaptationSet) AddRepresentation(r *Representation) error {
+	if r == nil {
+		return errors.New("Representation is nil")
+	}
+	as.Representations = append(as.Representations, r)
+	return nil
 }
 
 func (r *Representation) SetBaseURL(baseURL string, profile DashProfile) error {
