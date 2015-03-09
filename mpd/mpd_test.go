@@ -38,7 +38,18 @@ const (
 	VALID_INIT_PATH_AUDIO             string = "$RepresentationID$/audio/en/init.mp4"
 	VALID_MEDIA_PATH_AUDIO            string = "$RepresentationID$/audio/en/seg-$Number$.m4f"
 	VALID_START_NUMBER                int64  = 0
-	VALID_TIMESCALE                   int64  = 0
+	VALID_TIMESCALE                   int64  = 1000
+	VALID_AUDIO_SAMPLE_RATE           int64  = 44100
+	VALID_AUDIO_BITRATE               int64  = 67095
+	VALID_AUDIO_CODEC                 string = "mp4a.40.2"
+	VALID_AUDIO_ID                    string = "800"
+	VALID_VIDEO_BITRATE               int64  = 1518664
+	VALID_VIDEO_CODEC                 string = "avc1.4d401f"
+	VALID_VIDEO_ID                    string = "800"
+	VALID_VIDEO_FRAMERATE             string = "30000/1001"
+	VALID_VIDEO_WIDTH                 int64  = 960
+	VALID_VIDEO_HEIGHT                int64  = 540
+	VALID_BASE_URL_VIDEO              string = "800k/output-video-1.mp4"
 )
 
 func (s *MPDSuite) TestReadMPDLiveProfile() {
@@ -169,6 +180,113 @@ func (s *MPDSuite) TestSetNewSegmentTemplateErrorInvalidProfile() {
 	assert.Nil(s.T(), st)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrSegmentTemplateLiveProfileOnly, err)
+}
+
+func (s *MPDSuite) TestSetNewSegmentTemplateErrorNoDASHProfile() {
+	m := &MPD{
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: nil,
+		Type:     Strptr("static"),
+		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
+		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
+		Period:                    &Period{},
+	}
+	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
+	assert.Nil(s.T(), st)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
+}
+
+func (s *MPDSuite) TestAddRepresentationAudio() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+
+	r, err := audioAS.AddNewRepresentationAudio(VALID_AUDIO_SAMPLE_RATE, VALID_AUDIO_BITRATE, VALID_AUDIO_CODEC, VALID_AUDIO_ID)
+
+	assert.NotNil(s.T(), r)
+	assert.Nil(s.T(), err)
+}
+
+func (s *MPDSuite) TestAddRepresentationVideo() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	r, err := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
+
+	assert.NotNil(s.T(), r)
+	assert.Nil(s.T(), err)
+}
+
+func (s *MPDSuite) TestAddRepresentationErrorNil() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	err := videoAS.AddRepresentation(nil)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrRepresentationNil, err)
+}
+
+func (s *MPDSuite) TestSetSegmentTemplateErrorNil() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	err := audioAS.SetSegmentTemplate(nil)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrSegmentTemplateNil, err)
+}
+
+func (s *MPDSuite) TestSetNewBaseURL() {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
+
+	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
+
+	assert.Nil(s.T(), err)
+}
+
+func (s *MPDSuite) TestSetNewBaseURLErrorNoDASHProfile() {
+	m := &MPD{
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: nil,
+		Type:     Strptr("static"),
+		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
+		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
+		Period:                    &Period{},
+	}
+	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
+
+	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
+
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
+}
+
+func (s *MPDSuite) TestSetNewBaseURLErrorInvalidDASHProfile() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
+
+	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
+
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrBaseURLOnDemandProfileOnly, err)
+}
+
+func (s *MPDSuite) TestSetNewBaseURLErrorEmpty() {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
+
+	err := r.SetNewBaseURL("")
+
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrBaseURLEmpty, err)
 }
 
 func (s *MPDSuite) TestFullLiveProfileWriteToString() {
