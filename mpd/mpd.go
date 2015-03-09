@@ -1,11 +1,15 @@
 package mpd
 
 import (
+	"bufio"
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"errors"
-	"fmt"
+	"io"
 	"os"
+
+	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
 
 type DashProfile string
@@ -129,16 +133,28 @@ func (i Initialization) String() string {
 	return string(jb)
 }
 
-func ReadMPD(path string) (*MPD, error) {
-	var mpd MPD
+func ReadFromFile(path string) (*MPD, error) {
 	f, err := os.OpenFile(path, os.O_RDONLY, 0666)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	d := xml.NewDecoder(f)
-	d.Decode(&mpd)
 
+	return Read(f)
+}
+
+func ReadFromString(xmlStr string) (*MPD, error) {
+	b := bytes.NewBufferString(xmlStr)
+	return Read(b)
+}
+
+func Read(r io.Reader) (*MPD, error) {
+	var mpd MPD
+	d := xml.NewDecoder(r)
+	err := d.Decode(&mpd)
+	if err != nil {
+		return nil, err
+	}
 	return &mpd, nil
 }
 
@@ -149,25 +165,41 @@ func (m *MPD) WriteToFile(path string) error {
 		return err
 	}
 	defer f.Close()
-	// Write out the XML Header
-	f.Write([]byte(xml.Header))
-	// Write out the DASH XML manifest
-	e := xml.NewEncoder(f)
-	e.Indent("", "  ")
-	err = e.Encode(m)
-	if err != nil {
+	if err = m.Write(f); err != nil {
 		return err
 	}
-	f.Write([]byte("\n"))
-	return nil
+	if err = f.Sync(); err != nil {
+		return err
+	}
+	return err
 }
 
 func (m *MPD) WriteToString() (string, error) {
-	b, err := xml.MarshalIndent(m, "", "  ")
+	var b bytes.Buffer
+	w := bufio.NewWriter(&b)
+	err := m.Write(w)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s%s\n", xml.Header, b), nil
+	err = w.Flush()
+	if err != nil {
+		return "", err
+	}
+	return b.String(), err
+}
+
+func (m *MPD) Write(w io.Writer) error {
+	// Write out the XML Header
+	w.Write([]byte(xml.Header))
+	// Write out the DASH XML manifest
+	e := xml.NewEncoder(w)
+	e.Indent("", "  ")
+	err := e.Encode(m)
+	if err != nil {
+		return err
+	}
+	w.Write([]byte("\n"))
+	return nil
 }
 
 func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
 
 type MPDSuite struct {
@@ -36,14 +37,14 @@ const (
 )
 
 func (s *MPDSuite) TestReadMPDLiveProfile() {
-	m, err := ReadMPD("fixtures/live_profile.mpd")
+	m, err := ReadFromFile("fixtures/live_profile.mpd")
 	assert.NotNil(s.T(), m)
 	assert.Nil(s.T(), err)
 	//assert.Equal(s.T(), &MPD{}, m)
 }
 
 func (s *MPDSuite) TestReadMPDOnDemandProfile() {
-	m, err := ReadMPD("fixtures/ondemand_profile.mpd")
+	m, err := ReadFromFile("fixtures/ondemand_profile.mpd")
 	assert.NotNil(s.T(), m)
 	assert.Nil(s.T(), err)
 	//assert.Equal(s.T(), &MPD{}, m)
