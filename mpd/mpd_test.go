@@ -34,6 +34,11 @@ const (
 	VALID_SEGMENT_ALIGNMENT           bool   = true
 	VALID_START_WITH_SAP              int64  = 1
 	VALID_LANG                        string = "en"
+	VALID_DURATION                    int64  = 1968
+	VALID_INIT_PATH_AUDIO             string = "$RepresentationID$/audio/en/init.mp4"
+	VALID_MEDIA_PATH_AUDIO            string = "$RepresentationID$/audio/en/seg-$Number$.m4f"
+	VALID_START_NUMBER                int64  = 0
+	VALID_TIMESCALE                   int64  = 0
 )
 
 func (s *MPDSuite) TestReadMPDLiveProfile() {
@@ -96,7 +101,7 @@ func (s *MPDSuite) TestNewMPDOnDemandWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestNewAdaptationSetAudio() {
+func (s *MPDSuite) TestAddNewAdaptationSetAudio() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, err := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	assert.NotNil(s.T(), as)
@@ -111,7 +116,7 @@ func (s *MPDSuite) TestNewAdaptationSetAudio() {
 	assert.Equal(s.T(), expectedAS, as)
 }
 
-func (s *MPDSuite) TestNewAdaptationSetAudioWriteToString() {
+func (s *MPDSuite) TestAddNewAdaptationSetAudioWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
@@ -122,7 +127,7 @@ func (s *MPDSuite) TestNewAdaptationSetAudioWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestNewAdaptationSetVideo() {
+func (s *MPDSuite) TestAddNewAdaptationSetVideo() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	as, err := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
@@ -138,7 +143,7 @@ func (s *MPDSuite) TestNewAdaptationSetVideo() {
 	assert.Equal(s.T(), expectedAS, as)
 }
 
-func (s *MPDSuite) TestNewAdaptationSetVideoWriteToString() {
+func (s *MPDSuite) TestAddNewAdaptationSetVideoWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
@@ -147,6 +152,23 @@ func (s *MPDSuite) TestNewAdaptationSetVideoWriteToString() {
 	assert.Nil(s.T(), err)
 	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"video/mp4\" scanType=\"progressive\" segmentAlignment=\"true\" startWithSAP=\"1\"></AdaptationSet>\n  </Period>\n</MPD>\n"
 	assert.Equal(s.T(), expectedXML, xmlStr)
+}
+
+func (s *MPDSuite) TestSetNewSegmentTemplate() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
+	assert.NotNil(s.T(), st)
+	assert.Nil(s.T(), err)
+}
+
+func (s *MPDSuite) TestSetNewSegmentTemplateErrorInvalidProfile() {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
+	assert.Nil(s.T(), st)
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrSegmentTemplateLiveProfileOnly, err)
 }
 
 func (s *MPDSuite) TestFullLiveProfileWriteToString() {

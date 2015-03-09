@@ -19,6 +19,18 @@ const (
 	DASH_PROFILE_ONDEMAND DashProfile = "urn:mpeg:dash:profile:isoff-on-demand:2011"
 )
 
+var (
+	ErrNoDASHProfileSet               error = errors.New("No DASH profile set")
+	ErrAdaptationSetNil                     = errors.New("Adaptation Set nil")
+	ErrSegmentTemplateLiveProfileOnly       = errors.New("Segment template can only be used with Live Profile")
+	ErrSegmentTemplateNil                   = errors.New("Segment Template nil ")
+	ErrRepresentationNil                    = errors.New("Representation nil")
+	ErrBaseURLOnDemandProfileOnly           = errors.New("Base URL can only be used with On-Demand Profile")
+	ErrBaseURLEmpty                         = errors.New("Base URL empty")
+	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
+	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
+)
+
 type MPD struct {
 	XMLNs                     *string `xml:"xmlns,attr"`
 	Profiles                  *string `xml:"profiles,attr"`
@@ -243,7 +255,7 @@ func (m *MPD) AddNewAdaptationSetVideo(scanType string, segmentAlignment bool, s
 
 func (m *MPD) AddAdaptationSet(as *AdaptationSet) error {
 	if as == nil {
-		return errors.New("Adaptation set is nil")
+		return ErrAdaptationSetNil
 	}
 	as.MPD = m
 	m.Period.AdaptationSets = append(m.Period.AdaptationSets, as)
@@ -268,13 +280,13 @@ func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, medi
 
 func (as *AdaptationSet) SetSegmentTemplate(st *SegmentTemplate) error {
 	if as.MPD == nil || as.MPD.Profiles == nil {
-		return errors.New("No DASH profile set")
+		return ErrNoDASHProfileSet
 	}
 	if *as.MPD.Profiles != (string)(DASH_PROFILE_LIVE) {
-		return errors.New("Segment template can only be used with Live Profile")
+		return ErrSegmentTemplateLiveProfileOnly
 	}
 	if st == nil {
-		return errors.New("nil Segment template")
+		return ErrSegmentTemplateNil
 	}
 	st.AdaptationSet = as
 	as.SegmentTemplate = st
@@ -315,7 +327,7 @@ func (as *AdaptationSet) AddNewRepresentationVideo(bandwidth int64, codecs strin
 
 func (as *AdaptationSet) AddRepresentation(r *Representation) error {
 	if r == nil {
-		return errors.New("Representation is nil")
+		return ErrRepresentationNil
 	}
 	r.AdaptationSet = as
 	as.Representations = append(as.Representations, r)
@@ -324,13 +336,13 @@ func (as *AdaptationSet) AddRepresentation(r *Representation) error {
 
 func (r *Representation) SetNewBaseURL(baseURL string) error {
 	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
-		return errors.New("No DASH profile set")
+		return ErrNoDASHProfileSet
 	}
 	if *r.AdaptationSet.MPD.Profiles != (string)(DASH_PROFILE_ONDEMAND) {
-		return errors.New("Base URL can only be used with On-Demand Profile")
+		return ErrBaseURLOnDemandProfileOnly
 	}
 	if baseURL == "" {
-		return errors.New("Base URL empty")
+		return ErrBaseURLEmpty
 	}
 	r.BaseURL = Strptr(baseURL)
 	return nil
@@ -353,13 +365,13 @@ func (r *Representation) AddNewSegmentBase(indexRange string, init string) (*Seg
 
 func (r *Representation) SetSegmentBase(sb *SegmentBase) error {
 	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
-		return errors.New("No DASH profile set")
+		return ErrNoDASHProfileSet
 	}
 	if *r.AdaptationSet.MPD.Profiles != (string)(DASH_PROFILE_ONDEMAND) {
-		return errors.New("Segment Base can only be used with On-Demand Profile")
+		return ErrSegmentBaseOnDemandProfileOnly
 	}
 	if sb == nil {
-		return errors.New("Segment Base not set")
+		return ErrSegmentBaseNil
 	}
 	r.SegmentBase = sb
 	return nil
