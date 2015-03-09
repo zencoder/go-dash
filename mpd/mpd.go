@@ -45,6 +45,7 @@ func (p Period) String() string {
 }
 
 type AdaptationSet struct {
+	MPD              *MPD              `xml:"-"`
 	MimeType         *string           `xml:"mimeType,attr"`
 	ScanType         *string           `xml:"scanType,attr"`
 	SegmentAlignment *bool             `xml:"segmentAlignment,attr"`
@@ -64,11 +65,12 @@ func (as AdaptationSet) String() string {
 
 // Live Profile Only
 type SegmentTemplate struct {
-	Duration       *int64  `xml:"duration,attr"`
-	Initialization *string `xml:"initialization,attr"`
-	Media          *string `xml:"media,attr"`
-	StartNumber    *int64  `xml:"startNumber,attr"`
-	Timescale      *int64  `xml:"timescale,attr"`
+	AdaptationSet  *AdaptationSet `xml:"-"`
+	Duration       *int64         `xml:"duration,attr"`
+	Initialization *string        `xml:"initialization,attr"`
+	Media          *string        `xml:"media,attr"`
+	StartNumber    *int64         `xml:"startNumber,attr"`
+	Timescale      *int64         `xml:"timescale,attr"`
 }
 
 func (st SegmentTemplate) String() string {
@@ -80,15 +82,16 @@ func (st SegmentTemplate) String() string {
 }
 
 type Representation struct {
-	AudioSamplingRate *int64       `xml:"audioSamplingRate,attr"` // Audio
-	Bandwidth         *int64       `xml:"bandwidth,attr"`         // Audio + Video
-	Codecs            *string      `xml:"codecs,attr"`            // Audio + Video
-	ID                *string      `xml:"id,attr"`                // Audio + Video
-	FrameRate         *string      `xml:"frameRate,attr"`         // Video
-	Width             *int64       `xml:"width,attr"`             // Video
-	Height            *int64       `xml:"height,attr"`            // Video
-	BaseURL           *string      `xml:"xml:BaseURL,omitempty"`  // On-Demand Profile
-	SegmentBase       *SegmentBase `xml:"SegmentBase,omitempty"`  // On-Demand Profile
+	AdaptationSet     *AdaptationSet `xml:"-"`
+	AudioSamplingRate *int64         `xml:"audioSamplingRate,attr"` // Audio
+	Bandwidth         *int64         `xml:"bandwidth,attr"`         // Audio + Video
+	Codecs            *string        `xml:"codecs,attr"`            // Audio + Video
+	FrameRate         *string        `xml:"frameRate,attr"`         // Video
+	Height            *int64         `xml:"height,attr"`            // Video
+	ID                *string        `xml:"id,attr"`                // Audio + Video
+	Width             *int64         `xml:"width,attr"`             // Video
+	BaseURL           *string        `xml:"xml:BaseURL,omitempty"`  // On-Demand Profile
+	SegmentBase       *SegmentBase   `xml:"SegmentBase,omitempty"`  // On-Demand Profile
 }
 
 func (r Representation) String() string {
@@ -150,19 +153,21 @@ func (m *MPD) WriteToFile(path string) error {
 	f.Write([]byte(xml.Header))
 	// Write out the DASH XML manifest
 	e := xml.NewEncoder(f)
+	e.Indent("", "  ")
 	err = e.Encode(m)
 	if err != nil {
 		return err
 	}
+	f.Write([]byte("\n"))
 	return nil
 }
 
 func (m *MPD) WriteToString() (string, error) {
-	b, err := xml.Marshal(m)
+	b, err := xml.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s%s", xml.Header, b), nil
+	return fmt.Sprintf("%s%s\n", xml.Header, b), nil
 }
 
 func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
@@ -176,64 +181,91 @@ func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime
 	}
 }
 
-func NewAdaptationSetAudio(segmentAlignment bool, startWithSAP int64, lang string) *AdaptationSet {
-	return &AdaptationSet{
+func (m *MPD) AddNewAdaptationSetAudio(segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
+	as := &AdaptationSet{
 		MimeType:         Strptr("audio/mp4"),
 		SegmentAlignment: Boolptr(segmentAlignment),
 		StartWithSAP:     Intptr(startWithSAP),
 		Lang:             Strptr(lang),
 	}
+	err := m.AddAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
 }
 
-func NewAdaptationSetVideo(scanType string, segmentAlignment bool, startWithSAP int64) *AdaptationSet {
-	return &AdaptationSet{
+func (m *MPD) AddNewAdaptationSetVideo(scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
+	as := &AdaptationSet{
 		MimeType:         Strptr("video/mp4"),
 		ScanType:         Strptr(scanType),
 		SegmentAlignment: Boolptr(segmentAlignment),
 		StartWithSAP:     Intptr(startWithSAP),
 	}
+	err := m.AddAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
 }
 
 func (m *MPD) AddAdaptationSet(as *AdaptationSet) error {
 	if as == nil {
 		return errors.New("Adaptation set is nil")
 	}
+	as.MPD = m
 	m.Period.AdaptationSets = append(m.Period.AdaptationSets, as)
 	return nil
 }
 
-func NewSegmentTemplate(duration int64, init string, media string, startNumber int64, timescale int64) *SegmentTemplate {
-	return &SegmentTemplate{
+func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, media string, startNumber int64, timescale int64) (*SegmentTemplate, error) {
+	st := &SegmentTemplate{
 		Duration:       Intptr(duration),
 		Initialization: Strptr(init),
 		Media:          Strptr(media),
 		StartNumber:    Intptr(startNumber),
 		Timescale:      Intptr(timescale),
 	}
+
+	err := as.SetSegmentTemplate(st)
+	if err != nil {
+		return nil, err
+	}
+	return st, nil
 }
 
-func (as *AdaptationSet) SetSegmentTemplate(st *SegmentTemplate, profile DashProfile) error {
-	if profile != DASH_PROFILE_LIVE {
+func (as *AdaptationSet) SetSegmentTemplate(st *SegmentTemplate) error {
+	if as.MPD == nil || as.MPD.Profiles == nil {
+		return errors.New("No DASH profile set")
+	}
+	if *as.MPD.Profiles != (string)(DASH_PROFILE_LIVE) {
 		return errors.New("Segment template can only be used with Live Profile")
 	}
 	if st == nil {
 		return errors.New("nil Segment template")
 	}
+	st.AdaptationSet = as
 	as.SegmentTemplate = st
 	return nil
 }
 
-func NewRepresentationAudio(samplingRate int64, bandwidth int64, codecs string, id string) *Representation {
-	return &Representation{
+func (as *AdaptationSet) AddNewRepresentationAudio(samplingRate int64, bandwidth int64, codecs string, id string) (*Representation, error) {
+	r := &Representation{
 		AudioSamplingRate: Intptr(samplingRate),
 		Bandwidth:         Intptr(bandwidth),
 		Codecs:            Strptr(codecs),
 		ID:                Strptr(id),
 	}
+
+	err := as.AddRepresentation(r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
-func NewRepresentationVideo(bandwidth int64, codecs string, id string, frameRate string, width int64, height int64) *Representation {
-	return &Representation{
+func (as *AdaptationSet) AddNewRepresentationVideo(bandwidth int64, codecs string, id string, frameRate string, width int64, height int64) (*Representation, error) {
+	r := &Representation{
 		Bandwidth: Intptr(bandwidth),
 		Codecs:    Strptr(codecs),
 		ID:        Strptr(id),
@@ -241,18 +273,28 @@ func NewRepresentationVideo(bandwidth int64, codecs string, id string, frameRate
 		Width:     Intptr(width),
 		Height:    Intptr(height),
 	}
+
+	err := as.AddRepresentation(r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 func (as *AdaptationSet) AddRepresentation(r *Representation) error {
 	if r == nil {
 		return errors.New("Representation is nil")
 	}
+	r.AdaptationSet = as
 	as.Representations = append(as.Representations, r)
 	return nil
 }
 
-func (r *Representation) SetBaseURL(baseURL string, profile DashProfile) error {
-	if profile != DASH_PROFILE_ONDEMAND {
+func (r *Representation) SetBaseURL(baseURL string) error {
+	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
+		return errors.New("No DASH profile set")
+	}
+	if *r.AdaptationSet.MPD.Profiles != (string)(DASH_PROFILE_ONDEMAND) {
 		return errors.New("Base URL can only be used with On-Demand Profile")
 	}
 	if baseURL == "" {
@@ -262,21 +304,26 @@ func (r *Representation) SetBaseURL(baseURL string, profile DashProfile) error {
 	return nil
 }
 
-func NewSegmentBase(indexRange string, init *Initialization) *SegmentBase {
-	return &SegmentBase{
-		IndexRange:     Strptr(indexRange),
-		Initialization: init,
+func (r *Representation) AddNewSegmentBase(indexRange string, init string) (*SegmentBase, error) {
+	sb := &SegmentBase{
+		IndexRange: Strptr(indexRange),
+		Initialization: &Initialization{
+			Range: Strptr(init),
+		},
 	}
+
+	err := r.SetSegmentBase(sb)
+	if err != nil {
+		return nil, err
+	}
+	return sb, nil
 }
 
-func NewInitialization(initRange string) *Initialization {
-	return &Initialization{
-		Range: Strptr(initRange),
+func (r *Representation) SetSegmentBase(sb *SegmentBase) error {
+	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
+		return errors.New("No DASH profile set")
 	}
-}
-
-func (r *Representation) SetSegmentBase(sb *SegmentBase, profile DashProfile) error {
-	if profile != DASH_PROFILE_ONDEMAND {
+	if *r.AdaptationSet.MPD.Profiles != (string)(DASH_PROFILE_ONDEMAND) {
 		return errors.New("Segment Base can only be used with On-Demand Profile")
 	}
 	if sb == nil {
