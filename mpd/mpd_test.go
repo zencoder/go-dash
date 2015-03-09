@@ -169,3 +169,27 @@ func (s *MPDSuite) TestFullLiveProfileWriteToString() {
 	assert.Nil(s.T(), err)
 	assert.Equal(s.T(), (string)(expectedXML), xmlStr)
 }
+
+func (s *MPDSuite) TestFullOnDemandProfileWriteToString() {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, "PT30S", VALID_MIN_BUFFER_TIME)
+
+	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "und")
+	audioRep, _ := audioAS.AddNewRepresentationAudio(44100, 128558, "mp4a.40.5", "800k/audio-und")
+	audioRep.SetNewBaseURL("800k/output-audio-und.mp4")
+	audioRep.AddNewSegmentBase("629-756", "0-628")
+
+	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoRep1, _ := videoAS.AddNewRepresentationVideo(1100690, "avc1.4d401e", "800k/video-1", "30000/1001", 640, 360)
+	videoRep1.SetNewBaseURL("800k/output-video-1.mp4")
+	videoRep1.AddNewSegmentBase("686-813", "0-685")
+
+	videoRep2, _ := videoAS.AddNewRepresentationVideo(1633516, "avc1.4d401f", "1200k/video-1", "30000/1001", 960, 540)
+	videoRep2.SetNewBaseURL("1200k/output-video-1.mp4")
+	videoRep2.AddNewSegmentBase("686-813", "0-685")
+
+	xmlStr, err := m.WriteToString()
+	assert.Nil(s.T(), err)
+	expectedXML, err := ioutil.ReadFile("fixtures/ondemand_profile.mpd")
+	assert.Nil(s.T(), err)
+	assert.Equal(s.T(), (string)(expectedXML), xmlStr)
+}

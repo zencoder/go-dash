@@ -94,7 +94,7 @@ type Representation struct {
 	Height            *int64         `xml:"height,attr"`            // Video
 	ID                *string        `xml:"id,attr"`                // Audio + Video
 	Width             *int64         `xml:"width,attr"`             // Video
-	BaseURL           *string        `xml:"xml:BaseURL,omitempty"`  // On-Demand Profile
+	BaseURL           *string        `xml:"BaseURL,omitempty"`      // On-Demand Profile
 	SegmentBase       *SegmentBase   `xml:"SegmentBase,omitempty"`  // On-Demand Profile
 }
 
@@ -322,7 +322,7 @@ func (as *AdaptationSet) AddRepresentation(r *Representation) error {
 	return nil
 }
 
-func (r *Representation) SetBaseURL(baseURL string) error {
+func (r *Representation) SetNewBaseURL(baseURL string) error {
 	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
 		return errors.New("No DASH profile set")
 	}
