@@ -1,0 +1,20 @@
+checkout:
+  post:
+    - rm -rf ~/.go_workspace/src/github.com/zencoder
+    - mkdir -p ~/.go_workspace/src/github.com/zencoder
+    - cp -R ~/go-dash ~/.go_workspace/src/github.com/zencoder/go-dash
+dependencies:
+  cache_directories:
+    - "~/.rvm/gems"
+  override:
+    - go get github.com/tools/godep
+    - go get golang.org/x/tools/cmd/cover
+    - go get github.com/mattn/goveralls
+    - go get github.com/modocache/gover
+    - go get github.com/stretchr/testify
+test:
+  override:
+    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && make test
+  post:
+    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && make cover
+    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && make coveralls
