@@ -1,0 +1,78 @@
+package mpd
+
+import (
+	"bufio"
+	"bytes"
+	"encoding/xml"
+	"io"
+	"os"
+)
+
+func ReadFromFile(path string) (*MPD, error) {
+	f, err := os.OpenFile(path, os.O_RDONLY, 0666)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	return Read(f)
+}
+
+func ReadFromString(xmlStr string) (*MPD, error) {
+	b := bytes.NewBufferString(xmlStr)
+	return Read(b)
+}
+
+func Read(r io.Reader) (*MPD, error) {
+	var mpd MPD
+	d := xml.NewDecoder(r)
+	err := d.Decode(&mpd)
+	if err != nil {
+		return nil, err
+	}
+	return &mpd, nil
+}
+
+func (m *MPD) WriteToFile(path string) error {
+	// Open the file to write the XML to
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if err = m.Write(f); err != nil {
+		return err
+	}
+	if err = f.Sync(); err != nil {
+		return err
+	}
+	return err
+}
+
+func (m *MPD) WriteToString() (string, error) {
+	var b bytes.Buffer
+	w := bufio.NewWriter(&b)
+	err := m.Write(w)
+	if err != nil {
+		return "", err
+	}
+	err = w.Flush()
+	if err != nil {
+		return "", err
+	}
+	return b.String(), err
+}
+
+func (m *MPD) Write(w io.Writer) error {
+	// Write out the XML Header
+	w.Write([]byte(xml.Header))
+	// Write out the DASH XML manifest
+	e := xml.NewEncoder(w)
+	e.Indent("", "  ")
+	err := e.Encode(m)
+	if err != nil {
+		return err
+	}
+	w.Write([]byte("\n"))
+	return nil
+}

@@ -1,13 +1,7 @@
 package mpd
 
 import (
-	"bufio"
-	"bytes"
-	"encoding/json"
-	"encoding/xml"
 	"errors"
-	"io"
-	"os"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
@@ -40,24 +34,8 @@ type MPD struct {
 	Period                    *Period `xml:"Period,omitempty"`
 }
 
-func (m MPD) String() string {
-	jb, err := json.Marshal(m)
-	if err != nil {
-		return ""
-	}
-	return string(jb)
-}
-
 type Period struct {
 	AdaptationSets []*AdaptationSet `xml:"AdaptationSet,omitempty"`
-}
-
-func (p Period) String() string {
-	jb, err := json.Marshal(p)
-	if err != nil {
-		return ""
-	}
-	return string(jb)
 }
 
 type AdaptationSet struct {
@@ -71,14 +49,6 @@ type AdaptationSet struct {
 	Representations  []*Representation `xml:"Representation,omitempty"`
 }
 
-func (as AdaptationSet) String() string {
-	jb, err := json.Marshal(as)
-	if err != nil {
-		return ""
-	}
-	return string(jb)
-}
-
 // Live Profile Only
 type SegmentTemplate struct {
 	AdaptationSet  *AdaptationSet `xml:"-"`
@@ -87,14 +57,6 @@ type SegmentTemplate struct {
 	Media          *string        `xml:"media,attr"`
 	StartNumber    *int64         `xml:"startNumber,attr"`
 	Timescale      *int64         `xml:"timescale,attr"`
-}
-
-func (st SegmentTemplate) String() string {
-	jb, err := json.Marshal(st)
-	if err != nil {
-		return ""
-	}
-	return string(jb)
 }
 
 type Representation struct {
@@ -110,108 +72,15 @@ type Representation struct {
 	SegmentBase       *SegmentBase   `xml:"SegmentBase,omitempty"`  // On-Demand Profile
 }
 
-func (r Representation) String() string {
-	jb, err := json.Marshal(r)
-	if err != nil {
-		return ""
-	}
-	return string(jb)
-}
-
 // On-Demand Profile
 type SegmentBase struct {
 	IndexRange     *string         `xml:"indexRange,attr"`
 	Initialization *Initialization `xml:"Initialization,omitempty"`
 }
 
-func (sb SegmentBase) String() string {
-	jb, err := json.Marshal(sb)
-	if err != nil {
-		return ""
-	}
-	return string(jb)
-}
-
 // On-Demand Profile
 type Initialization struct {
 	Range *string `xml:"range,attr"`
-}
-
-func (i Initialization) String() string {
-	jb, err := json.Marshal(i)
-	if err != nil {
-		return ""
-	}
-	return string(jb)
-}
-
-func ReadFromFile(path string) (*MPD, error) {
-	f, err := os.OpenFile(path, os.O_RDONLY, 0666)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
-	return Read(f)
-}
-
-func ReadFromString(xmlStr string) (*MPD, error) {
-	b := bytes.NewBufferString(xmlStr)
-	return Read(b)
-}
-
-func Read(r io.Reader) (*MPD, error) {
-	var mpd MPD
-	d := xml.NewDecoder(r)
-	err := d.Decode(&mpd)
-	if err != nil {
-		return nil, err
-	}
-	return &mpd, nil
-}
-
-func (m *MPD) WriteToFile(path string) error {
-	// Open the file to write the XML to
-	f, err := os.OpenFile(path, os.O_WRONLY, 0666)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	if err = m.Write(f); err != nil {
-		return err
-	}
-	if err = f.Sync(); err != nil {
-		return err
-	}
-	return err
-}
-
-func (m *MPD) WriteToString() (string, error) {
-	var b bytes.Buffer
-	w := bufio.NewWriter(&b)
-	err := m.Write(w)
-	if err != nil {
-		return "", err
-	}
-	err = w.Flush()
-	if err != nil {
-		return "", err
-	}
-	return b.String(), err
-}
-
-func (m *MPD) Write(w io.Writer) error {
-	// Write out the XML Header
-	w.Write([]byte(xml.Header))
-	// Write out the DASH XML manifest
-	e := xml.NewEncoder(w)
-	e.Indent("", "  ")
-	err := e.Encode(m)
-	if err != nil {
-		return err
-	}
-	w.Write([]byte("\n"))
-	return nil
 }
 
 func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
