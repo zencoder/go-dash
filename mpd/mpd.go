@@ -2,6 +2,7 @@ package mpd
 
 import (
 	"errors"
+	"strings"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
@@ -23,6 +24,9 @@ var (
 	ErrBaseURLEmpty                         = errors.New("Base URL empty")
 	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
 	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
+	ErrInvalidDefaultKID                    = errors.New("Invalid Default KID string, should be 32 characters")
+	ErrPROEmpty                             = errors.New("PlayReady PRO empty")
+	ErrContentProtectionNil                 = errors.New("Content Protection nil")
 )
 
 type MPD struct {
@@ -39,14 +43,32 @@ type Period struct {
 }
 
 type AdaptationSet struct {
-	MPD              *MPD              `xml:"-"`
-	MimeType         *string           `xml:"mimeType,attr"`
-	ScanType         *string           `xml:"scanType,attr"`
-	SegmentAlignment *bool             `xml:"segmentAlignment,attr"`
-	StartWithSAP     *int64            `xml:"startWithSAP,attr"`
-	Lang             *string           `xml:"lang,attr"`
-	SegmentTemplate  *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations  []*Representation `xml:"Representation,omitempty"`
+	MPD               *MPD                 `xml:"-"`
+	MimeType          *string              `xml:"mimeType,attr"`
+	ScanType          *string              `xml:"scanType,attr"`
+	SegmentAlignment  *bool                `xml:"segmentAlignment,attr"`
+	StartWithSAP      *int64               `xml:"startWithSAP,attr"`
+	Lang              *string              `xml:"lang,attr"`
+	ContentProtection []*ContentProtection `xml:"ContentProtection,omitempty"`
+	SegmentTemplate   *SegmentTemplate     `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations   []*Representation    `xml:"Representation,omitempty"`
+}
+
+const (
+	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI  = "urn:mpeg:dash:mp4protection:2011"
+	CONTENT_PROTECTION_ROOT_VALUE          = "cenc"
+	CONTENT_PROTECTION_ROOT_XMLNS          = "urn:mpeg:cenc:2013"
+	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID  = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
+	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
+)
+
+type ContentProtection struct {
+	AdaptationSet *AdaptationSet `xml:"-"`
+	DefaultKID    *string        `xml:"cenc:default_KID,attr"`
+	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+	Value         *string        `xml:"value,attr"`       // Default: cenc
+	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
+	PlayreadyPRO  *string        `xml:"mspr:pro,omitempty"`
 }
 
 // Live Profile Only
@@ -128,6 +150,69 @@ func (m *MPD) AddAdaptationSet(as *AdaptationSet) error {
 	}
 	as.MPD = m
 	m.Period.AdaptationSets = append(m.Period.AdaptationSets, as)
+	return nil
+}
+
+func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*ContentProtection, error) {
+	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
+		return nil, ErrInvalidDefaultKID
+	}
+
+	// Convert the KID into the correct format
+	defaultKID := strings.ToLower(defaultKIDHex[0:8] + "-" + defaultKIDHex[8:12] + "-" + defaultKIDHex[12:16] + "-" + defaultKIDHex[16:32])
+
+	cp := &ContentProtection{
+		DefaultKID:  Strptr(defaultKID),
+		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
+		Value:       Strptr(CONTENT_PROTECTION_ROOT_VALUE),
+		XMLNS:       Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
+	}
+
+	err := as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+
+	return cp, nil
+}
+
+func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine() (*ContentProtection, error) {
+	cp := &ContentProtection{
+		SchemeIDURI: Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID),
+	}
+
+	err := as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+
+	return cp, nil
+}
+
+func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*ContentProtection, error) {
+	if pro == "" {
+		return nil, ErrPROEmpty
+	}
+
+	cp := &ContentProtection{
+		SchemeIDURI:  Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID),
+		PlayreadyPRO: Strptr(pro),
+	}
+
+	err := as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+
+	return cp, nil
+}
+
+func (as *AdaptationSet) AddContentProtection(cp *ContentProtection) error {
+	if cp == nil {
+		return ErrContentProtectionNil
+	}
+
+	as.ContentProtection = append(as.ContentProtection, cp)
 	return nil
 }
 

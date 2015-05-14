@@ -51,6 +51,9 @@ const (
 	VALID_BASE_URL_VIDEO              string = "800k/output-video-1.mp4"
 	VALID_INDEX_RANGE                 string = "629-756"
 	VALID_INIT_RANGE                  string = "0-628"
+	VALID_DEFAULT_KID_HEX             string = "09e367028f33436ca5dd60ffe6671e70"
+	VALID_DEFAULT_KID                 string = "09e36702-8f33-436c-a5dd60ffe6671e70"
+	VALID_PLAYREADY_PRO               string = "mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A"
 )
 
 func (s *MPDSuite) TestNewMPDLive() {
@@ -118,6 +121,79 @@ func (s *MPDSuite) TestAddAdaptationSetErrorNil() {
 	err := m.AddAdaptationSet(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrAdaptationSetNil, err)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionRoot() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionRoot(VALID_DEFAULT_KID_HEX)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), cp)
+	expectedCP := &ContentProtection{
+		DefaultKID:  Strptr(VALID_DEFAULT_KID),
+		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
+		Value:       Strptr(CONTENT_PROTECTION_ROOT_VALUE),
+		XMLNS:       Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
+	}
+	assert.Equal(s.T(), expectedCP, cp)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionRoot("invalidkid")
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrInvalidDefaultKID, err)
+	assert.Nil(s.T(), cp)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionRootErrorEmptyDefaultKID() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionRoot("")
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrInvalidDefaultKID, err)
+	assert.Nil(s.T(), cp)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionSchemeWidevine()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), cp)
+	expectedCP := &ContentProtection{
+		SchemeIDURI: Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID),
+	}
+	assert.Equal(s.T(), expectedCP, cp)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionSchemePlayready("")
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrPROEmpty, err)
+	assert.Nil(s.T(), cp)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionSchemePlayready() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionSchemePlayready(VALID_PLAYREADY_PRO)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), cp)
+	expectedCP := &ContentProtection{
+		SchemeIDURI:  Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID),
+		PlayreadyPRO: Strptr(VALID_PLAYREADY_PRO),
+	}
+	assert.Equal(s.T(), expectedCP, cp)
 }
 
 func (s *MPDSuite) TestSetNewSegmentTemplate() {
