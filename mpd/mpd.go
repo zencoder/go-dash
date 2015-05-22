@@ -10,8 +10,14 @@ import (
 type DashProfile string
 
 const (
-	DASH_PROFILE_LIVE     DashProfile = "urn:mpeg:dash:profile:isoff-live:2011"
-	DASH_PROFILE_ONDEMAND DashProfile = "urn:mpeg:dash:profile:isoff-on-demand:2011"
+	DASH_PROFILE_LIVE            DashProfile = "urn:mpeg:dash:profile:isoff-live:2011"
+	DASH_PROFILE_ONDEMAND        DashProfile = "urn:mpeg:dash:profile:isoff-on-demand:2011"
+	DASH_MIME_TYPE_VIDEO_MP4     string      = "video/mp4"
+	DASH_MIME_TYPE_AUDIO_MP4     string      = "audio/mp4"
+	DASH_MIME_TYPE_SUBTITLE_VTT  string      = "text/vtt"
+	DASH_MIME_TYPE_SUBTITLE_TTML string      = "application/ttaf+xml"
+	DASH_MIME_TYPE_SUBTITLE_SRT  string      = "application/x-subrip"
+	DASH_MIME_TYPE_SUBTITLE_DFXP string      = "application/ttaf+xml"
 )
 
 var (
@@ -116,9 +122,9 @@ func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime
 	}
 }
 
-func (m *MPD) AddNewAdaptationSetAudio(segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
+func (m *MPD) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		MimeType:         Strptr("audio/mp4"),
+		MimeType:         Strptr(mimeType),
 		SegmentAlignment: Boolptr(segmentAlignment),
 		StartWithSAP:     Intptr(startWithSAP),
 		Lang:             Strptr(lang),
@@ -130,13 +136,26 @@ func (m *MPD) AddNewAdaptationSetAudio(segmentAlignment bool, startWithSAP int64
 	return as, nil
 }
 
-func (m *MPD) AddNewAdaptationSetVideo(scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
+func (m *MPD) AddNewAdaptationSetVideo(mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		MimeType:         Strptr("video/mp4"),
+		MimeType:         Strptr(mimeType),
 		ScanType:         Strptr(scanType),
 		SegmentAlignment: Boolptr(segmentAlignment),
 		StartWithSAP:     Intptr(startWithSAP),
 	}
+	err := m.AddAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
+}
+
+func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
+	as := &AdaptationSet{
+		MimeType: Strptr(mimeType),
+		Lang:     Strptr(lang),
+	}
+
 	err := m.AddAdaptationSet(as)
 	if err != nil {
 		return nil, err
@@ -279,6 +298,19 @@ func (as *AdaptationSet) AddNewRepresentationVideo(bandwidth int64, codecs strin
 	return r, nil
 }
 
+func (as *AdaptationSet) AddNewRepresentationSubtitle(bandwidth int64, id string) (*Representation, error) {
+	r := &Representation{
+		Bandwidth: Intptr(bandwidth),
+		ID:        Strptr(id),
+	}
+
+	err := as.AddRepresentation(r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
 func (as *AdaptationSet) AddRepresentation(r *Representation) error {
 	if r == nil {
 		return ErrRepresentationNil
@@ -291,9 +323,6 @@ func (as *AdaptationSet) AddRepresentation(r *Representation) error {
 func (r *Representation) SetNewBaseURL(baseURL string) error {
 	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
 		return ErrNoDASHProfileSet
-	}
-	if *r.AdaptationSet.MPD.Profiles != (string)(DASH_PROFILE_ONDEMAND) {
-		return ErrBaseURLOnDemandProfileOnly
 	}
 	if baseURL == "" {
 		return ErrBaseURLEmpty
