@@ -34,9 +34,9 @@ Known Limitations (for now) (PRs welcome)
 Examples
 --------
 
-Live Profile:
+Live Profile
 
-```
+```go
 package main
 
 import (
@@ -75,8 +75,9 @@ mpdStr, _ := m.WriteToString()
 log.Println(mpdStr)
 ```
 
-On Demand Profile:
-```
+On Demand Profile
+
+```go
 package main
 
 import (
