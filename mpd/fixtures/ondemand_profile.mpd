@@ -33,5 +33,10 @@
         </SegmentBase>
       </Representation>
     </AdaptationSet>
+    <AdaptationSet mimeType="text/vtt" lang="en">
+      <Representation bandwidth="256" id="subtitle_en">
+        <BaseURL>http://example.com/content/sintel/subtitles/subtitles_en.vtt</BaseURL>
+      </Representation>
+    </AdaptationSet>
   </Period>
 </MPD>

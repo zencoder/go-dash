@@ -84,7 +84,7 @@ func (s *MPDSuite) TestNewMPDOnDemandWriteToString() {
 func (s *MPDSuite) TestAddNewAdaptationSetAudioWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
@@ -95,7 +95,7 @@ func (s *MPDSuite) TestAddNewAdaptationSetAudioWriteToString() {
 func (s *MPDSuite) TestAddNewAdaptationSetVideoWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
@@ -103,10 +103,21 @@ func (s *MPDSuite) TestAddNewAdaptationSetVideoWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
+func (s *MPDSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+
+	m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+
+	xmlStr, err := m.WriteToString()
+	assert.Nil(s.T(), err)
+	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"text/vtt\" lang=\"en\"></AdaptationSet>\n  </Period>\n</MPD>\n"
+	assert.Equal(s.T(), expectedXML, xmlStr)
+}
+
 func LiveProfile() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	audioAS.AddNewContentProtectionRoot("09e367028f33436ca5dd60ffe6671e70")
 	audioAS.AddNewContentProtectionSchemeWidevine()
@@ -115,7 +126,7 @@ func LiveProfile() *MPD {
 	audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
 	audioAS.AddNewRepresentationAudio(44100, 67095, "mp4a.40.2", "800")
 
-	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	videoAS.AddNewContentProtectionRoot("09e367028f33436ca5dd60ffe6671e70")
 	videoAS.AddNewContentProtectionSchemeWidevine()
@@ -126,6 +137,10 @@ func LiveProfile() *MPD {
 	videoAS.AddNewRepresentationVideo(1911775, "avc1.4d401f", "1000", "30000/1001", 1024, 576)
 	videoAS.AddNewRepresentationVideo(2295158, "avc1.4d401f", "1200", "30000/1001", 1024, 576)
 	videoAS.AddNewRepresentationVideo(2780732, "avc1.4d401f", "1500", "30000/1001", 1280, 720)
+
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	subtitleRep, _ := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
+	subtitleRep.SetNewBaseURL(VALID_SUBTITLE_URL)
 
 	return m
 }
@@ -150,7 +165,7 @@ func (s *MPDSuite) TestFullLiveProfileWriteToFile() {
 func OnDemandProfile() *MPD {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, "PT30S", VALID_MIN_BUFFER_TIME)
 
-	audioAS, _ := m.AddNewAdaptationSetAudio(VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "und")
+	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "und")
 
 	audioAS.AddNewContentProtectionRoot("09e367028f33436ca5dd60ffe6671e70")
 	audioAS.AddNewContentProtectionSchemeWidevine()
@@ -160,7 +175,7 @@ func OnDemandProfile() *MPD {
 	audioRep.SetNewBaseURL("800k/output-audio-und.mp4")
 	audioRep.AddNewSegmentBase("629-756", "0-628")
 
-	videoAS, _ := m.AddNewAdaptationSetVideo(VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	videoAS.AddNewContentProtectionRoot("09e367028f33436ca5dd60ffe6671e70")
 	videoAS.AddNewContentProtectionSchemeWidevine()
@@ -173,6 +188,10 @@ func OnDemandProfile() *MPD {
 	videoRep2, _ := videoAS.AddNewRepresentationVideo(1633516, "avc1.4d401f", "1200k/video-1", "30000/1001", 960, 540)
 	videoRep2.SetNewBaseURL("1200k/output-video-1.mp4")
 	videoRep2.AddNewSegmentBase("686-813", "0-685")
+
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	subtitleRep, _ := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
+	subtitleRep.SetNewBaseURL(VALID_SUBTITLE_URL)
 
 	return m
 }
