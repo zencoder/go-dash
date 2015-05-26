@@ -23,3 +23,8 @@ clean:
 	$(GO) clean
 	rm -f bin/go-dash
 	rm -rf coverage/
+make examples-live:
+	$(GO) run examples/live.go
+make examples-ondemand:
+	$(GO) run examples/live.go
+	
