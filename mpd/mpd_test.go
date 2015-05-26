@@ -136,7 +136,7 @@ func (s *MPDSuite) TestAddNewAdaptationSetSubtitle() {
 func (s *MPDSuite) TestAddAdaptationSetErrorNil() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	err := m.AddAdaptationSet(nil)
+	err := m.addAdaptationSet(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrAdaptationSetNil, err)
 }
@@ -282,7 +282,7 @@ func (s *MPDSuite) TestAddRepresentationErrorNil() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	err := videoAS.AddRepresentation(nil)
+	err := videoAS.addRepresentation(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrRepresentationNil, err)
 }
@@ -290,7 +290,7 @@ func (s *MPDSuite) TestAddRepresentationErrorNil() {
 func (s *MPDSuite) TestSetSegmentTemplateErrorNil() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	err := audioAS.SetSegmentTemplate(nil)
+	err := audioAS.setSegmentTemplate(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrSegmentTemplateNil, err)
 }
@@ -396,7 +396,7 @@ func (s *MPDSuite) TestSetSegmentBaseErrorNil() {
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
-	err := r.SetSegmentBase(nil)
+	err := r.setSegmentBase(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrSegmentBaseNil, err)
 }
