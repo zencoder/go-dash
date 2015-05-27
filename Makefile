@@ -26,4 +26,4 @@ clean:
 examples-live:
 	$(GO) run examples/live.go
 examples-ondemand:
-	$(GO) run examples/live.go
+	$(GO) run examples/ondemand.go

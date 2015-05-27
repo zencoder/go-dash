@@ -1,6 +1,6 @@
-go run examples/live.go
+go run examples/ondemand.go
 <?xml version="1.0" encoding="UTF-8"?>
-<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT30S" minBufferTime="PT1.97S">
   <Period>
     <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="und">
       <ContentProtection cenc:default_KID="08e36702-8f33-436c-a5dd60ffe5571e60" schemeIdUri="urn:mpeg:dash:mp4protection:2011" value="cenc" xmlns:cenc="urn:mpeg:cenc:2013"></ContentProtection>
@@ -8,8 +8,12 @@ go run examples/live.go
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95">
         <mspr:pro>mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A</mspr:pro>
       </ContentProtection>
-      <SegmentTemplate duration="1968" initialization="$RepresentationID$/audio/en/init.mp4" media="$RepresentationID$/audio/en/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
-      <Representation audioSamplingRate="44100" bandwidth="67095" codecs="mp4a.40.2" id="800"></Representation>
+      <Representation audioSamplingRate="44100" bandwidth="128558" codecs="mp4a.40.5" id="800k/audio-und">
+        <BaseURL>800k/output-audio-und.mp4</BaseURL>
+        <SegmentBase indexRange="629-756">
+          <Initialization range="0-628"></Initialization>
+        </SegmentBase>
+      </Representation>
     </AdaptationSet>
     <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1">
       <ContentProtection cenc:default_KID="08e36702-8f33-436c-a5dd60ffe5571e60" schemeIdUri="urn:mpeg:dash:mp4protection:2011" value="cenc" xmlns:cenc="urn:mpeg:cenc:2013"></ContentProtection>
@@ -17,14 +21,21 @@ go run examples/live.go
       <ContentProtection schemeIdUri="urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95">
         <mspr:pro>mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A</mspr:pro>
       </ContentProtection>
-      <SegmentTemplate duration="1968" initialization="$RepresentationID$/video/1/init.mp4" media="$RepresentationID$/video/1/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
-      <Representation bandwidth="1518664" codecs="avc1.4d401f" frameRate="30000/1001" height="540" id="800" width="960"></Representation>
-      <Representation bandwidth="1911775" codecs="avc1.4d401f" frameRate="30000/1001" height="576" id="1000" width="1024"></Representation>
-      <Representation bandwidth="2295158" codecs="avc1.4d401f" frameRate="30000/1001" height="576" id="1200" width="1024"></Representation>
-      <Representation bandwidth="2780732" codecs="avc1.4d401f" frameRate="30000/1001" height="720" id="1500" width="1280"></Representation>
+      <Representation bandwidth="1100690" codecs="avc1.4d401e" frameRate="30000/1001" height="360" id="800k/video-1" width="640">
+        <BaseURL>800k/output-video-1.mp4</BaseURL>
+        <SegmentBase indexRange="686-813">
+          <Initialization range="0-685"></Initialization>
+        </SegmentBase>
+      </Representation>
+      <Representation bandwidth="1633516" codecs="avc1.4d401f" frameRate="30000/1001" height="540" id="1200k/video-1" width="960">
+        <BaseURL>1200k/output-video-1.mp4</BaseURL>
+        <SegmentBase indexRange="686-813">
+          <Initialization range="0-685"></Initialization>
+        </SegmentBase>
+      </Representation>
     </AdaptationSet>
     <AdaptationSet mimeType="text/vtt" lang="en">
-      <Representation bandwidth="256" id="subtitle_en">
+      <Representation bandwidth="256" id="captions_en">
         <BaseURL>http://example.com/content/sintel/subtitles/subtitles_en.vtt</BaseURL>
       </Representation>
     </AdaptationSet>
