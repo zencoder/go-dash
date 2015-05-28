@@ -1,13 +1,13 @@
 # go-dash
 
-[![godoc](https://godoc.org/github.com/zencoder/go-dash?status.svg)](http://godoc.org/github.com/zencoder/go-dash)
+[![godoc](https://godoc.org/github.com/zencoder/go-dash/mpd?status.svg)](http://godoc.org/github.com/zencoder/go-dash/mpd)
 
 A Go library for generating MPEG-DASH manifests.
 
 Install
 -------
 
-	go get github.com/zencoder/go-dash
+	go get github.com/zencoder/go-dash/mpd
 
 Supported Features
 -------
