@@ -54,6 +54,7 @@ type MPD struct {
 }
 
 type Period struct {
+	BaseURL        string           `xml:"BaseURL,omitempty"`
 	AdaptationSets []*AdaptationSet `xml:"AdaptationSet,omitempty"`
 }
 
@@ -125,14 +126,15 @@ type Initialization struct {
 // profile - DASH Profile (Live or OnDemand).
 // mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
 // minBufferTime - Min Buffer Time (i.e. PT1.97S).
-func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
+// baseURL - base url to use to fetch fragments. Nil will be ignored.
+func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string, baseURL string) *MPD {
 	return &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(profile)),
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(mediaPresentationDuration),
 		MinBufferTime:             Strptr(minBufferTime),
-		Period:                    &Period{},
+		Period:                    &Period{BaseURL: baseURL},
 	}
 }
 
