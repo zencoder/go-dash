@@ -4,13 +4,11 @@
 
 A Go library for generating MPEG-DASH manifests.
 
-Install
--------
+## Install
 
 	go get github.com/zencoder/go-dash/mpd
 
-Supported Features
--------
+## Supported Features
 
 * Profiles
   * Live
@@ -23,14 +21,13 @@ Supported Features
   * PlayReady
   * Widevine
 
-Known Limitations (for now) (PRs welcome)
---------
+## Known Limitations (for now) (PRs welcome)
+
 * Single Period
 * No PSSH/PRO generation
 * Limited Profile Support
 
-Examples
---------
+## Example Usage
 
 See [examples/](https://github.com/zencoder/go-dash/tree/master/examples)
 
@@ -43,3 +40,21 @@ To run (OnDemand Profile example):
 ```
 make examples-ondemand
 ```
+
+## Development
+
+### Dependencies
+
+Tested on go 1.5.1.
+
+### Build and run unit tests
+
+    make test
+    
+### CI
+
+[This library builds on Circle CI, here.](https://circleci.com/gh/zencoder/go-dash/)
+
+## License
+
+[Apache License Version 2.0](LICENSE)
