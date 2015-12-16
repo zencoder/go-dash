@@ -54,6 +54,7 @@ type MPD struct {
 }
 
 type Period struct {
+	BaseURL        string           `xml:"BaseURL,omitempty"`
 	AdaptationSets []*AdaptationSet `xml:"AdaptationSet,omitempty"`
 }
 
@@ -136,6 +137,13 @@ func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime
 		MinBufferTime:             Strptr(minBufferTime),
 		Period:                    &Period{},
 	}
+}
+
+// Sets a Period level base url for when the manifests and fragments are served by two different hosts.
+// baseURL - Http fragment source. (i.e. http://storage.server.com/)
+func (m *MPD) SetBaseURL(BaseURL string) *Period {
+	m.Period.BaseURL = BaseURL
+	return m.Period
 }
 
 // Create a new Adaptation Set for Audio Assets.
