@@ -76,15 +76,17 @@ const (
 	CONTENT_PROTECTION_ROOT_XMLNS          = "urn:mpeg:cenc:2013"
 	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID  = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
 	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
+	CONTENT_PROTECTION_PLAYREADY_XMLNS     = "urn:microsoft:playready"
 )
 
 type ContentProtection struct {
-	AdaptationSet *AdaptationSet `xml:"-"`
-	DefaultKID    *string        `xml:"cenc:default_KID,attr"`
-	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	Value         *string        `xml:"value,attr"`       // Default: cenc
-	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
-	PlayreadyPRO  *string        `xml:"mspr:pro,omitempty"`
+	AdaptationSet  *AdaptationSet `xml:"-"`
+	DefaultKID     *string        `xml:"cenc:default_KID,attr"`
+	SchemeIDURI    *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+	Value          *string        `xml:"value,attr"`       // Default: cenc
+	XMLNS          *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
+	PlayreadyXMLNS *string        `xml:"xmlns:mspr,attr,omitempty"`
+	PlayreadyPRO   *string        `xml:"mspr:pro,omitempty"`
 }
 
 // Segment Template is for Live Profile Only
@@ -249,8 +251,9 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Co
 	}
 
 	cp := &ContentProtection{
-		SchemeIDURI:  Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID),
-		PlayreadyPRO: Strptr(pro),
+		SchemeIDURI:    Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID),
+		PlayreadyXMLNS: Strptr(CONTENT_PROTECTION_PLAYREADY_XMLNS),
+		PlayreadyPRO:   Strptr(pro),
 	}
 
 	err := as.addContentProtection(cp)
