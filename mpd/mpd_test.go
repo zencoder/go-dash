@@ -77,7 +77,7 @@ func (s *MPDSuite) TestNewMPDLive() {
 
 func (s *MPDSuite) TestNewMPDLiveWithBaseURLInPeriod() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	m.Period.BaseURL = "http://www.foo.com/bar"
+	m.Period.BaseURL = VALID_BASE_URL_VIDEO
 	assert.NotNil(s.T(), m)
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -85,8 +85,8 @@ func (s *MPDSuite) TestNewMPDLiveWithBaseURLInPeriod() {
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
-		Period:                    &Period{
-			BaseURL: "http://www.foo.com/bar",
+		Period: &Period{
+			BaseURL: VALID_BASE_URL_VIDEO,
 		},
 	}
 	assert.Equal(s.T(), expectedMPD, m)
