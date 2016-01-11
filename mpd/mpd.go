@@ -55,6 +55,7 @@ type MPD struct {
 
 type Period struct {
 	AdaptationSets []*AdaptationSet `xml:"AdaptationSet,omitempty"`
+	BaseURL        string           `xml:"BaseURL,omitempty"`
 }
 
 type AdaptationSet struct {
