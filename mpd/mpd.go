@@ -50,8 +50,8 @@ type MPD struct {
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
-	Period                    *Period `xml:"Period,omitempty"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
+	Period                    *Period `xml:"Period,omitempty"`
 }
 
 type Period struct {
