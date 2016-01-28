@@ -1,6 +1,7 @@
 package mpd
 
 import (
+	"encoding/xml"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -85,8 +86,8 @@ func (s *MPDSuite) TestNewMPDLiveWithBaseURLInMPD() {
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
-		Period: &Period{},
-		BaseURL: VALID_BASE_URL_VIDEO,
+		Period:                    &Period{},
+		BaseURL:                   VALID_BASE_URL_VIDEO,
 	}
 	assert.Equal(s.T(), expectedMPD, m)
 }
@@ -189,6 +190,32 @@ func (s *MPDSuite) TestAddNewContentProtectionRoot() {
 		XMLNS:       Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
 	}
 	assert.Equal(s.T(), expectedCP, cp)
+}
+
+type TestProprietaryContentProtection struct {
+	ContentProtection
+	TestAttrA string `xml:"a,attr,omitempty"`
+	TestAttrB string `xml:"b,attr,omitempty"`
+}
+
+func (s *TestProprietaryContentProtection) ContentProtected() {}
+
+func (s *MPDSuite) TestAddNewContentProtection_Proprietary() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp := &ContentProtection{
+		DefaultKID:  Strptr(VALID_DEFAULT_KID),
+		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
+		Value:       Strptr(CONTENT_PROTECTION_ROOT_VALUE),
+		XMLNS:       Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
+	}
+
+	pcp := &TestProprietaryContentProtection{*cp, "foo", "bar"}
+	x, _ := xml.Marshal(pcp)
+	s.Equal(`<ContentProtection cenc:default_KID="08e36702-8f33-436c-a5dd60ffe5571e60" schemeIdUri="urn:mpeg:dash:mp4protection:2011" value="cenc" xmlns:cenc="urn:mpeg:cenc:2013" a="foo" b="bar"></ContentProtection>`, string(x))
+	as.AddContentProtection(pcp)
+	s.Equal(as.ContentProtection, []ContentProtectioner{pcp})
 }
 
 func (s *MPDSuite) TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID() {
