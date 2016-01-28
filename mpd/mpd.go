@@ -1,6 +1,7 @@
 package mpd
 
 import (
+	"encoding/xml"
 	"errors"
 	"strings"
 
@@ -60,15 +61,15 @@ type Period struct {
 }
 
 type AdaptationSet struct {
-	MPD               *MPD                 `xml:"-"`
-	MimeType          *string              `xml:"mimeType,attr"`
-	ScanType          *string              `xml:"scanType,attr"`
-	SegmentAlignment  *bool                `xml:"segmentAlignment,attr"`
-	StartWithSAP      *int64               `xml:"startWithSAP,attr"`
-	Lang              *string              `xml:"lang,attr"`
-	ContentProtection []*ContentProtection `xml:"ContentProtection,omitempty"`
-	SegmentTemplate   *SegmentTemplate     `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations   []*Representation    `xml:"Representation,omitempty"`
+	MPD               *MPD                  `xml:"-"`
+	MimeType          *string               `xml:"mimeType,attr"`
+	ScanType          *string               `xml:"scanType,attr"`
+	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
+	StartWithSAP      *int64                `xml:"startWithSAP,attr"`
+	Lang              *string               `xml:"lang,attr"`
+	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
+	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations   []*Representation     `xml:"Representation,omitempty"`
 }
 
 // Constants for DRM / ContentProtection
@@ -81,8 +82,13 @@ const (
 	CONTENT_PROTECTION_PLAYREADY_XMLNS     = "urn:microsoft:playready"
 )
 
+type ContentProtectioner interface {
+	ContentProtected()
+}
+
 type ContentProtection struct {
 	AdaptationSet  *AdaptationSet `xml:"-"`
+	XMLName        xml.Name       `xml:"ContentProtection"`
 	DefaultKID     *string        `xml:"cenc:default_KID,attr"`
 	SchemeIDURI    *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
 	Value          *string        `xml:"value,attr"`       // Default: cenc
@@ -90,6 +96,8 @@ type ContentProtection struct {
 	PlayreadyXMLNS *string        `xml:"xmlns:mspr,attr,omitempty"`
 	PlayreadyPRO   *string        `xml:"mspr:pro,omitempty"`
 }
+
+func (s *ContentProtection) ContentProtected() {}
 
 // Segment Template is for Live Profile Only
 type SegmentTemplate struct {
@@ -222,7 +230,7 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*Con
 		XMLNS:       Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
 	}
 
-	err := as.addContentProtection(cp)
+	err := as.AddContentProtection(cp)
 	if err != nil {
 		return nil, err
 	}
@@ -237,7 +245,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine() (*ContentProtec
 		SchemeIDURI: Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID),
 	}
 
-	err := as.addContentProtection(cp)
+	err := as.AddContentProtection(cp)
 	if err != nil {
 		return nil, err
 	}
@@ -258,7 +266,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Co
 		PlayreadyPRO:   Strptr(pro),
 	}
 
-	err := as.addContentProtection(cp)
+	err := as.AddContentProtection(cp)
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +275,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Co
 }
 
 // Internal helper method for adding a ContentProtection to an AdaptationSet.
-func (as *AdaptationSet) addContentProtection(cp *ContentProtection) error {
+func (as *AdaptationSet) AddContentProtection(cp ContentProtectioner) error {
 	if cp == nil {
 		return ErrContentProtectionNil
 	}
