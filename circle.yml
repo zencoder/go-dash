@@ -1,3 +1,6 @@
+machine:
+  environment:
+    GO15VENDOREXPERIMENT: 1
 checkout:
   post:
     - rm -rf ~/.go_workspace/src/github.com/zencoder
