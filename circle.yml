@@ -1,3 +1,6 @@
+machine:
+  environment:
+    GO15VENDOREXPERIMENT: 1
 checkout:
   post:
     - rm -rf ~/.go_workspace/src/github.com/zencoder
@@ -9,14 +12,17 @@ dependencies:
   pre:
     - sudo apt-get remove --purge golang
     - sudo rm -rf /usr/local/go/
-    - mkdir /tmp/go && wget 'https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz' -O /tmp/go/go1.5.1.linux-amd64.tar.gz
-    - sudo tar -xzf /tmp/go/go1.5.1.linux-amd64.tar.gz -C /usr/local
+    - mkdir /tmp/go && wget 'https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz' -O /tmp/go/go1.5.3.linux-amd64.tar.gz
+    - sudo tar -xzf /tmp/go/go1.5.3.linux-amd64.tar.gz -C /usr/local
+    - wget 'https://github.com/Masterminds/glide/releases/download/0.8.3/glide-0.8.3-linux-amd64.tar.gz' -O /tmp/go/glide-0.8.3-linux-amd64.tar.gz
+    - tar -xzf /tmp/go/glide-0.8.3-linux-amd64.tar.gz -C /tmp/go
+    - sudo cp /tmp/go/linux-amd64/glide /usr/local/bin/glide
   override:
-    - go get github.com/tools/godep
     - go get golang.org/x/tools/cmd/cover
     - go get github.com/mattn/goveralls
     - go get github.com/modocache/gover
     - go get github.com/stretchr/testify
+    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && glide install
 test:
   override:
     - cd ~/.go_workspace/src/github.com/zencoder/go-dash && make test

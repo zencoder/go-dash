@@ -6,7 +6,17 @@ A Go library for generating MPEG-DASH manifests.
 
 ## Install
 
-	go get github.com/zencoder/go-dash/mpd
+This library uses [Glide](https://github.com/Masterminds/glide) to manage it's dependencies. Please refer to the Glide documentation to see how to install glide.
+
+```bash
+mkdir -p $GOPATH/zencoder
+cd $GOPATH/zencoder
+git clone https://github.com/zencoder/go-dash
+cd go-dash
+export GO15VENDOREXPERIMENT=1
+glide install
+go install ./...
+```
 
 ## Supported Features
 
@@ -45,12 +55,12 @@ make examples-ondemand
 
 ### Dependencies
 
-Tested on go 1.5.1.
+Tested on go 1.5.3.
 
 ### Build and run unit tests
 
     make test
-    
+
 ### CI
 
 [This library builds on Circle CI, here.](https://circleci.com/gh/zencoder/go-dash/)

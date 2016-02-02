@@ -1,0 +1,4 @@
+package: github.com/zencoder/go-dash
+import:
+  - package: github.com/stretchr/testify
+    version: ^v1.1.3
