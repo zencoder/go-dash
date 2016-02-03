@@ -9,8 +9,8 @@ A Go library for generating MPEG-DASH manifests.
 This library uses [Glide](https://github.com/Masterminds/glide) to manage it's dependencies. Please refer to the Glide documentation to see how to install glide.
 
 ```bash
-mkdir -p $GOPATH/github.com/zencoder
-cd $GOPATH/github.com/zencoder
+mkdir -p $GOPATH/src/github.com/zencoder
+cd $GOPATH/src/github.com/zencoder
 git clone https://github.com/zencoder/go-dash
 cd go-dash
 export GO15VENDOREXPERIMENT=1
