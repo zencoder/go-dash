@@ -1,31 +1,44 @@
 machine:
   environment:
+    AWS_ACCESS_KEY_ID: 1
+    AWS_SECRET_ACCESS_KEY: 1
     GO15VENDOREXPERIMENT: 1
+    GOPATH: $HOME/gocode
+    PATH: $GOPATH/bin:$PATH
+    ZENPATH: $HOME/gocode/src/github.com/zencoder
+    SRC_DIR: $ZENPATH/go-dash
 checkout:
   post:
-    - rm -rf ~/.go_workspace/src/github.com/zencoder
-    - mkdir -p ~/.go_workspace/src/github.com/zencoder
-    - cp -R ~/go-dash ~/.go_workspace/src/github.com/zencoder/go-dash
+    - mv "$ZENPATH" /tmp || echo
+    - mkdir -p "$ZENPATH"
+    - cp -R ~/go-dash "$SRC_DIR"
+    - mkdir -p ~/download_cache
 dependencies:
   cache_directories:
-    - "~/.rvm/gems"
+    - "~/download_cache"
+    - "~/gocode/bin"
   pre:
     - sudo apt-get remove --purge golang
     - sudo rm -rf /usr/local/go/
-    - mkdir /tmp/go && wget 'https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz' -O /tmp/go/go1.5.3.linux-amd64.tar.gz
-    - sudo tar -xzf /tmp/go/go1.5.3.linux-amd64.tar.gz -C /usr/local
-    - wget 'https://github.com/Masterminds/glide/releases/download/0.8.3/glide-0.8.3-linux-amd64.tar.gz' -O /tmp/go/glide-0.8.3-linux-amd64.tar.gz
-    - tar -xzf /tmp/go/glide-0.8.3-linux-amd64.tar.gz -C /tmp/go
-    - sudo cp /tmp/go/linux-amd64/glide /usr/local/bin/glide
+    - cd ~/download_cache && wget --no-clobber 'https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz'
+    - cd ~/download_cache && sudo tar -xzf go1.5.3.linux-amd64.tar.gz -C /usr/local
+    - cd ~/download_cache && wget --no-clobber 'https://github.com/Masterminds/glide/releases/download/0.8.3/glide-0.8.3-linux-amd64.tar.gz'
+    - cd ~/download_cache && tar -xzf glide-0.8.3-linux-amd64.tar.gz
+    - cd ~/download_cache && sudo cp linux-amd64/glide /usr/local/bin/glide
   override:
-    - go get golang.org/x/tools/cmd/cover
-    - go get github.com/mattn/goveralls
-    - go get github.com/modocache/gover
-    - go get github.com/stretchr/testify
-    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && glide install
+    - type cover     || go get golang.org/x/tools/cmd/cover
+    - type goveralls || go get github.com/mattn/goveralls
+    - type gover     || go get github.com/modocache/gover
+    - cd "$SRC_DIR" && glide install
+  post:
+    - mv ~/.go_workspace /tmp || echo
+    - mv ~/.gradle /tmp       || echo
+    - mv ~/.ivy2 /tmp         || echo
+    - mv ~/.m2 /tmp           || echo
+    - mv ~/.rvm /tmp          || echo
 test:
   override:
-    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && make test
+    - cd "$SRC_DIR" && make test
   post:
-    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && make cover
-    - cd ~/.go_workspace/src/github.com/zencoder/go-dash && make coveralls
+    - cd "$SRC_DIR" && make cover
+    - cd "$SRC_DIR" && make coveralls
