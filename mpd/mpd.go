@@ -1,6 +1,7 @@
 package mpd
 
 import (
+	"encoding/base64"
 	"encoding/xml"
 	"errors"
 	"strings"
@@ -36,7 +37,6 @@ var (
 	ErrSegmentTemplateLiveProfileOnly       = errors.New("Segment template can only be used with Live Profile")
 	ErrSegmentTemplateNil                   = errors.New("Segment Template nil ")
 	ErrRepresentationNil                    = errors.New("Representation nil")
-	ErrBaseURLOnDemandProfileOnly           = errors.New("Base URL can only be used with On-Demand Profile")
 	ErrBaseURLEmpty                         = errors.New("Base URL empty")
 	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
 	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
@@ -87,17 +87,30 @@ type ContentProtectioner interface {
 }
 
 type ContentProtection struct {
-	AdaptationSet  *AdaptationSet `xml:"-"`
-	XMLName        xml.Name       `xml:"ContentProtection"`
-	DefaultKID     *string        `xml:"cenc:default_KID,attr"`
-	SchemeIDURI    *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	Value          *string        `xml:"value,attr"`       // Default: cenc
-	XMLNS          *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
-	PlayreadyXMLNS *string        `xml:"xmlns:mspr,attr,omitempty"`
-	PlayreadyPRO   *string        `xml:"mspr:pro,omitempty"`
+	AdaptationSet *AdaptationSet `xml:"-"`
+	XMLName       xml.Name       `xml:"ContentProtection"`
+	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
 }
 
-func (s *ContentProtection) ContentProtected() {}
+type CENCContentProtection struct {
+	ContentProtection
+	DefaultKID *string `xml:"cenc:default_KID,attr"`
+	Value      *string `xml:"value,attr"`      // Default: cenc
+	XMLNS      *string `xml:"xmlns:cenc,attr"` // Default: urn:mpeg:cenc:2013
+}
+
+type PlayreadyContentProtection struct {
+	ContentProtection
+	PlayreadyXMLNS *string `xml:"xmlns:mspr,attr,omitempty"`
+	PRO            *string `xml:"mspr:pro,omitempty"`
+}
+
+type WidevineContentProtection struct {
+	ContentProtection
+	PSSH *string `xml:"cenc:pssh,omitempty"`
+}
+
+func (s ContentProtection) ContentProtected() {}
 
 // Segment Template is for Live Profile Only
 type SegmentTemplate struct {
@@ -215,7 +228,7 @@ func (m *MPD) addAdaptationSet(as *AdaptationSet) error {
 // Adds a ContentProtection tag at the root level of an AdaptationSet.
 // This ContentProtection tag does not include signaling for any particular DRM scheme.
 // defaultKIDHex - Default Key ID as a Hex String.
-func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*ContentProtection, error) {
+func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CENCContentProtection, error) {
 	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
 		return nil, ErrInvalidDefaultKID
 	}
@@ -223,12 +236,12 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*Con
 	// Convert the KID into the correct format
 	defaultKID := strings.ToLower(defaultKIDHex[0:8] + "-" + defaultKIDHex[8:12] + "-" + defaultKIDHex[12:16] + "-" + defaultKIDHex[16:32])
 
-	cp := &ContentProtection{
-		DefaultKID:  Strptr(defaultKID),
-		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
-		Value:       Strptr(CONTENT_PROTECTION_ROOT_VALUE),
-		XMLNS:       Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
+	cp := &CENCContentProtection{
+		DefaultKID: Strptr(defaultKID),
+		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
+		XMLNS:      Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
 	}
+	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
 
 	err := as.AddContentProtection(cp)
 	if err != nil {
@@ -240,10 +253,17 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*Con
 
 // Adds a new content protection scheme for Widevine DRM.
 // This does not include the PSSH headers in the Manifest.
-func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine() (*ContentProtection, error) {
-	cp := &ContentProtection{
-		SchemeIDURI: Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID),
+func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(pssh *string) (*WidevineContentProtection, error) {
+	if pssh != nil {
+		if _, err := base64.StdEncoding.DecodeString(*pssh); err != nil {
+			return nil, err
+		}
 	}
+
+	cp := &WidevineContentProtection{
+		PSSH: pssh,
+	}
+	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
 
 	err := as.AddContentProtection(cp)
 	if err != nil {
@@ -255,16 +275,16 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine() (*ContentProtec
 
 // Adds a new content protection scheme for PlayReady DRM.
 // pro - PlayReady Object Header, as a Base64 encoded string.
-func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*ContentProtection, error) {
+func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*PlayreadyContentProtection, error) {
 	if pro == "" {
 		return nil, ErrPROEmpty
 	}
 
-	cp := &ContentProtection{
-		SchemeIDURI:    Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID),
+	cp := &PlayreadyContentProtection{
 		PlayreadyXMLNS: Strptr(CONTENT_PROTECTION_PLAYREADY_XMLNS),
-		PlayreadyPRO:   Strptr(pro),
+		PRO:            Strptr(pro),
 	}
+	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
 
 	err := as.AddContentProtection(cp)
 	if err != nil {
