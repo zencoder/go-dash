@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/zencoder/go-dash/helpers"
+	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
