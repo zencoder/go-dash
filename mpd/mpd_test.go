@@ -211,9 +211,9 @@ func (s *MPDSuite) TestAddNewContentProtectionRoot() {
 	expectedCP := &CENCContentProtection{
 		DefaultKID: Strptr(VALID_DEFAULT_KID),
 		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
-		XMLNS:      Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
+	expectedCP.XMLNS = Strptr(CENC_XMLNS)
 
 	assert.Equal(s.T(), expectedCP, cp)
 }
@@ -273,6 +273,7 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine() {
 		PSSH: &wvHeader,
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
+	expectedCP.XMLNS = Strptr(CENC_XMLNS)
 	assert.Equal(s.T(), expectedCP, cp)
 }
 
@@ -307,6 +308,7 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemePlayready() {
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
+	expectedCP.XMLNS = Strptr(CENC_XMLNS)
 
 	assert.Equal(s.T(), expectedCP, cp)
 }
