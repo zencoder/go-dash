@@ -76,7 +76,7 @@ type AdaptationSet struct {
 const (
 	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI  = "urn:mpeg:dash:mp4protection:2011"
 	CONTENT_PROTECTION_ROOT_VALUE          = "cenc"
-	CONTENT_PROTECTION_ROOT_XMLNS          = "urn:mpeg:cenc:2013"
+	CENC_XMLNS                             = "urn:mpeg:cenc:2013"
 	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID  = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
 	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
 	CONTENT_PROTECTION_PLAYREADY_XMLNS     = "urn:microsoft:playready"
@@ -90,13 +90,13 @@ type ContentProtection struct {
 	AdaptationSet *AdaptationSet `xml:"-"`
 	XMLName       xml.Name       `xml:"ContentProtection"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
 }
 
 type CENCContentProtection struct {
 	ContentProtection
 	DefaultKID *string `xml:"cenc:default_KID,attr"`
-	Value      *string `xml:"value,attr"`      // Default: cenc
-	XMLNS      *string `xml:"xmlns:cenc,attr"` // Default: urn:mpeg:cenc:2013
+	Value      *string `xml:"value,attr"` // Default: cenc
 }
 
 type PlayreadyContentProtection struct {
@@ -239,15 +239,14 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CEN
 	cp := &CENCContentProtection{
 		DefaultKID: Strptr(defaultKID),
 		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
-		XMLNS:      Strptr(CONTENT_PROTECTION_ROOT_XMLNS),
 	}
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
+	cp.XMLNS = Strptr(CENC_XMLNS)
 
 	err := as.AddContentProtection(cp)
 	if err != nil {
 		return nil, err
 	}
-
 	return cp, nil
 }
 
@@ -264,12 +263,12 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(pssh *string) (*W
 		PSSH: pssh,
 	}
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
+	cp.XMLNS = Strptr(CENC_XMLNS)
 
 	err := as.AddContentProtection(cp)
 	if err != nil {
 		return nil, err
 	}
-
 	return cp, nil
 }
 
@@ -285,12 +284,12 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Pl
 		PRO:            Strptr(pro),
 	}
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
+	cp.XMLNS = Strptr(CENC_XMLNS)
 
 	err := as.AddContentProtection(cp)
 	if err != nil {
 		return nil, err
 	}
-
 	return cp, nil
 }
 
