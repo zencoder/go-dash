@@ -1,6 +1,7 @@
 package mpd
 
 import (
+	"fmt"
 	"os"
 	"testing"
 

@@ -47,6 +47,7 @@ var (
 
 type MPD struct {
 	XMLNs                     *string `xml:"xmlns,attr"`
+	XMLNsCENC                 *string `xml:"xmlns:cenc,attr"`
 	Profiles                  *string `xml:"profiles,attr"`
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
@@ -247,7 +248,6 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CEN
 	if err != nil {
 		return nil, err
 	}
-
 	return cp, nil
 }
 
@@ -269,7 +269,6 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(pssh *string) (*W
 	if err != nil {
 		return nil, err
 	}
-
 	return cp, nil
 }
 
@@ -290,7 +289,6 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Pl
 	if err != nil {
 		return nil, err
 	}
-
 	return cp, nil
 }
 
@@ -301,6 +299,7 @@ func (as *AdaptationSet) AddContentProtection(cp ContentProtectioner) error {
 	}
 
 	as.ContentProtection = append(as.ContentProtection, cp)
+	as.setMPDCENCXMLNs()
 	return nil
 }
 
@@ -410,6 +409,12 @@ func (as *AdaptationSet) addRepresentation(r *Representation) error {
 	r.AdaptationSet = as
 	as.Representations = append(as.Representations, r)
 	return nil
+}
+
+func (as *AdaptationSet) setMPDCENCXMLNs() {
+	if as.MPD != nil && as.MPD.XMLNsCENC == nil {
+		as.MPD.XMLNsCENC = Strptr("urn:mpeg:cenc:2013")
+	}
 }
 
 // Sets the BaseURL for a Representation.
