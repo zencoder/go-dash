@@ -74,12 +74,14 @@ type AdaptationSet struct {
 
 // Constants for DRM / ContentProtection
 const (
-	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI  = "urn:mpeg:dash:mp4protection:2011"
-	CONTENT_PROTECTION_ROOT_VALUE          = "cenc"
-	CENC_XMLNS                             = "urn:mpeg:cenc:2013"
-	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID  = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
-	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
-	CONTENT_PROTECTION_PLAYREADY_XMLNS     = "urn:microsoft:playready"
+	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI   = "urn:mpeg:dash:mp4protection:2011"
+	CONTENT_PROTECTION_ROOT_VALUE           = "cenc"
+	CENC_XMLNS                              = "urn:mpeg:cenc:2013"
+	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID   = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
+	CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX  = "edef8ba979d64acea3c827dcd51d21ed"
+	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID  = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
+	CONTENT_PROTECTION_PLAYREADY_SCHEME_HEX = "9a04f07998404286ab92e65be0885f95"
+	CONTENT_PROTECTION_PLAYREADY_XMLNS      = "urn:microsoft:playready"
 )
 
 type ContentProtectioner interface {
@@ -103,6 +105,7 @@ type PlayreadyContentProtection struct {
 	ContentProtection
 	PlayreadyXMLNS *string `xml:"xmlns:mspr,attr,omitempty"`
 	PRO            *string `xml:"mspr:pro,omitempty"`
+	PSSH           *string `xml:"cenc:pssh,omitempty"`
 }
 
 type WidevineContentProtection struct {
