@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"testing"
 
+	"encoding/base64"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	. "github.com/zencoder/go-dash/helpers/ptrs"
@@ -57,7 +59,7 @@ const (
 	VALID_DEFAULT_KID                 string = "08e36702-8f33-436c-a5dd60ffe5571e60"
 	VALID_PLAYREADY_XMLNS             string = "urn:microsoft:playready"
 	VALID_PLAYREADY_PRO               string = "mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A"
-	VALID_WV_HEADER                   string = "CAESIDA5ZTM2NzAyOGYzMzQzNmNhNWRkNjBmZmU2NjcxZTcwGg13aWRldmluZV90ZXN0IggwMTIzNDU2NyoCU0Q="
+	VALID_WV_HEADER                   string = "CAESEFq91S9VSk8quNBh92FCUVUaCGNhc3RsYWJzIhhXcjNWTDFWS1R5cTQwR0gzWVVKUlZRPT0yB2RlZmF1bHQ="
 	VALID_SUBTITLE_BANDWIDTH          int64  = 256
 	VALID_SUBTITLE_ID                 string = "subtitle_en"
 	VALID_SUBTITLE_URL                string = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
@@ -265,25 +267,34 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	wvHeader := VALID_WV_HEADER
-	cp, err := as.AddNewContentProtectionSchemeWidevine(&wvHeader)
+	cp, err := as.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes())
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), cp)
 	expectedCP := &WidevineContentProtection{
-		PSSH: &wvHeader,
+		PSSH: Strptr("AAAAYXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAEEIARIQWr3VL1VKTyq40GH3YUJRVRoIY2FzdGxhYnMiGFdyM1ZMMVZLVHlxNDBHSDNZVUpSVlE9PTIHZGVmYXVsdA=="),
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
 	expectedCP.XMLNS = Strptr(CENC_XMLNS)
 	assert.Equal(s.T(), expectedCP, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine_RequiresBase64() {
+func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine_NoPSSH() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	wvHeader := "not a real wv header"
-	_, err := as.AddNewContentProtectionSchemeWidevine(&wvHeader)
-	assert.Error(s.T(), err)
+	cp, err := as.AddNewContentProtectionSchemeWidevine()
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), cp)
+	expectedCP := &WidevineContentProtection{}
+	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
+	assert.Equal(s.T(), expectedCP, cp)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine_MultipleWVHeaders() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	s.Panics(func() { as.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes(), getValidWVHeaderBytes()) })
 }
 
 func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO() {
@@ -498,4 +509,12 @@ func (s *MPDSuite) TestSetSegmentBaseErrorNil() {
 	err := r.setSegmentBase(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrSegmentBaseNil, err)
+}
+
+func getValidWVHeaderBytes() []byte {
+	wvHeader, err := base64.StdEncoding.DecodeString(VALID_WV_HEADER)
+	if err != nil {
+		panic(err.Error())
+	}
+	return wvHeader
 }

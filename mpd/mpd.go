@@ -1,10 +1,12 @@
 package mpd
 
 import (
-	"encoding/base64"
+	"encoding/hex"
 	"encoding/xml"
 	"errors"
 	"strings"
+
+	"encoding/base64"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
@@ -253,20 +255,32 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CEN
 	return cp, nil
 }
 
-// Adds a new content protection scheme for Widevine DRM.
-// This does not include the PSSH headers in the Manifest.
-func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(pssh *string) (*WidevineContentProtection, error) {
-	if pssh != nil {
-		if _, err := base64.StdEncoding.DecodeString(*pssh); err != nil {
-			return nil, err
-		}
+// AddNewContentProtectionSchemeWidevine adds a new content protection scheme for Widevine DRM to the adaptation set.
+// If wvHeader is not nil then the ContentProtection element will contain a <cenc:pssh> element which is a base64
+// representation of the PSSH box that would be found in the media init segment.
+// !!! Note: this function will accept any wvHeader value !!!
+func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(wvHeaders ...[]byte) (*WidevineContentProtection, error) {
+	if len(wvHeaders) > 1 {
+		panic("AddNewContentProtectionSchemeWidevine accepts at most 1 wvHeader slice")
 	}
 
-	cp := &WidevineContentProtection{
-		PSSH: pssh,
-	}
+	cp := &WidevineContentProtection{}
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
-	cp.XMLNS = Strptr(CENC_XMLNS)
+
+	if len(wvHeaders) == 1 {
+		cp.XMLNS = Strptr(CENC_XMLNS)
+		wvSystemID, err := hex.DecodeString(CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX)
+		if err != nil {
+			panic(err.Error())
+		}
+		psshBox, err := makePSSHBox(wvSystemID, wvHeaders[0])
+		if err != nil {
+			return nil, err
+		}
+
+		psshB64 := base64.StdEncoding.EncodeToString(psshBox)
+		cp.PSSH = &psshB64
+	}
 
 	err := as.AddContentProtection(cp)
 	if err != nil {
