@@ -12,7 +12,7 @@ func makePSSHBox(systemID, payload []byte) ([]byte, error) {
 	}
 
 	psshBuf := &bytes.Buffer{}
-	size := uint32(12 + 16 + 4 + len(payload)) // 3 ints, systemID, "pssh" string and payload
+	size := uint32(12 + 16 + 4 + len(payload)) // 3 uint32s, systemID, "pssh" string and payload
 	if err := binary.Write(psshBuf, binary.BigEndian, size); err != nil {
 		return nil, err
 	}
