@@ -256,8 +256,9 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CEN
 }
 
 // AddNewContentProtectionSchemeWidevine adds a new content protection scheme for Widevine DRM to the adaptation set.
-// If wvHeader is not nil then the ContentProtection element will contain a <cenc:pssh> element which is a base64
+// If wvHeader is empty or nil then the ContentProtection element will contain a <cenc:pssh> element which is a base64
 // representation of the PSSH box that would be found in the media init segment.
+// wvHeader - can be at most 1 byte slice
 // !!! Note: this function will accept any wvHeader value !!!
 func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(wvHeaders ...[]byte) (*WidevineContentProtection, error) {
 	if len(wvHeaders) > 1 {
@@ -267,7 +268,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(wvHeaders ...[]by
 	cp := &WidevineContentProtection{}
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
 
-	if len(wvHeaders) == 1 {
+	if len(wvHeaders) == 1 && len(wvHeaders[0]) > 0 {
 		cp.XMLNS = Strptr(CENC_XMLNS)
 		wvSystemID, err := hex.DecodeString(CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX)
 		if err != nil {
@@ -289,9 +290,22 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(wvHeaders ...[]by
 	return cp, nil
 }
 
-// Adds a new content protection scheme for PlayReady DRM.
+// AddNewContentProtectionSchemePlayready adds a new content protection scheme for PlayReady DRM.
 // pro - PlayReady Object Header, as a Base64 encoded string.
 func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*PlayreadyContentProtection, error) {
+	cp, err := makePlayreadyContentProtection(pro)
+	if err != nil {
+		return nil, err
+	}
+
+	err = as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+	return cp, nil
+}
+
+func makePlayreadyContentProtection(pro string) (*PlayreadyContentProtection, error) {
 	if pro == "" {
 		return nil, ErrPROEmpty
 	}
@@ -301,9 +315,36 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Pl
 		PRO:            Strptr(pro),
 	}
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
-	cp.XMLNS = Strptr(CENC_XMLNS)
 
-	err := as.AddContentProtection(cp)
+	return cp, nil
+}
+
+// AddNewContentProtectionSchemePlayreadyWithPSSH adds a new content protection scheme for PlayReady DRM. The scheme
+// will include both ms:pro and cenc:pssh subelements
+// pro - PlayReady Object Header, as a Base64 encoded string.
+func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyWithPSSH(pro string) (*PlayreadyContentProtection, error) {
+	cp, err := makePlayreadyContentProtection(pro)
+	if err != nil {
+		return nil, err
+	}
+	cp.XMLNS = Strptr(CENC_XMLNS)
+	prSystemID, err := hex.DecodeString(CONTENT_PROTECTION_PLAYREADY_SCHEME_HEX)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	proBin, err := base64.StdEncoding.DecodeString(pro)
+	if err != nil {
+		return nil, err
+	}
+
+	psshBox, err := makePSSHBox(prSystemID, proBin)
+	if err != nil {
+		return nil, err
+	}
+	cp.PSSH = Strptr(base64.StdEncoding.EncodeToString(psshBox))
+
+	err = as.AddContentProtection(cp)
 	if err != nil {
 		return nil, err
 	}
