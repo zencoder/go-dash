@@ -1,12 +1,11 @@
 package mpd
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
 	"strings"
-
-	"encoding/base64"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 )

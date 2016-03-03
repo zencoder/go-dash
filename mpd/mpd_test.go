@@ -1,10 +1,9 @@
 package mpd
 
 import (
+	"encoding/base64"
 	"encoding/xml"
 	"testing"
-
-	"encoding/base64"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
