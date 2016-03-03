@@ -120,7 +120,7 @@ func LiveProfile() *MPD {
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	audioAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	audioAS.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes())
+	audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
@@ -129,7 +129,7 @@ func LiveProfile() *MPD {
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	videoAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	videoAS.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes())
+	videoAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	videoAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	videoAS.SetNewSegmentTemplate(1968, "$RepresentationID$/video/1/init.mp4", "$RepresentationID$/video/1/seg-$Number$.m4f", 0, 1000)
@@ -168,7 +168,7 @@ func OnDemandProfile() *MPD {
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "und")
 
 	audioAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	audioAS.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes())
+	audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	audioRep, _ := audioAS.AddNewRepresentationAudio(44100, 128558, "mp4a.40.5", "800k/audio-und")
@@ -178,7 +178,7 @@ func OnDemandProfile() *MPD {
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	videoAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	videoAS.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes())
+	videoAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	videoAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	videoRep1, _ := videoAS.AddNewRepresentationVideo(1100690, "avc1.4d401e", "800k/video-1", "30000/1001", 640, 360)

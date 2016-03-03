@@ -262,11 +262,11 @@ func (s *MPDSuite) TestAddNewContentProtectionRootErrorEmptyDefaultKID() {
 	assert.Nil(s.T(), cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine() {
+func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevineWithPSSH() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes())
+	cp, err := as.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	assert.Nil(s.T(), err)
 	assert.NotNil(s.T(), cp)
 	expectedCP := &WidevineContentProtection{
@@ -277,7 +277,7 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine() {
 	assert.Equal(s.T(), expectedCP, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine_NoPSSH() {
+func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -287,13 +287,6 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine_NoPSSH() {
 	expectedCP := &WidevineContentProtection{}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
 	assert.Equal(s.T(), expectedCP, cp)
-}
-
-func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine_MultipleWVHeaders() {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	s.Panics(func() { as.AddNewContentProtectionSchemeWidevine(getValidWVHeaderBytes(), getValidWVHeaderBytes()) })
 }
 
 func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO() {

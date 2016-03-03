@@ -254,22 +254,26 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CEN
 	return cp, nil
 }
 
-// AddNewContentProtectionSchemeWidevine adds a new content protection scheme for Widevine DRM to the adaptation set.
-// If wvHeader is empty or nil then the ContentProtection element will contain a <cenc:pssh> element which is a base64
-// representation of the PSSH box that would be found in the media init segment.
-// wvHeader - can be at most 1 byte slice
-// !!! Note: this function will accept any wvHeader value !!!
-func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine(wvHeaders ...[]byte) (*WidevineContentProtection, error) {
-	if len(wvHeaders) > 1 {
-		panic("AddNewContentProtectionSchemeWidevine accepts at most 1 wvHeader slice")
-	}
-
-	var wvHeader []byte
-	if len(wvHeaders) == 1 {
-		wvHeader = wvHeaders[0]
-	}
-
+// AddNewContentProtectionSchemeWidevine adds a new content protection scheme for Widevine DRM to the adaptation set. With
+// a <cenc:pssh> element that contains a Base64 encoded PSSH box
+// wvHeader - binary representation of Widevine Header
+// !!! Note: this function will accept any byte slice as a wvHeader value !!!
+func (as *AdaptationSet) AddNewContentProtectionSchemeWidevineWithPSSH(wvHeader []byte) (*WidevineContentProtection, error) {
 	cp, err := NewWidevineContentProtection(wvHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	err = as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+	return cp, nil
+}
+
+// AddNewContentProtectionSchemeWidevine adds a new content protection scheme for Widevine DRM to the adaptation set.
+func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine() (*WidevineContentProtection, error) {
+	cp, err := NewWidevineContentProtection(nil)
 	if err != nil {
 		return nil, err
 	}
