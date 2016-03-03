@@ -6,7 +6,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
@@ -64,7 +63,7 @@ func (s *MPDReadWriteSuite) TestReadFromStringOnDemandProfile() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *MPDSuite) TestNewMPDLiveWriteToString() {
+func (s *MPDReadWriteSuite) TestNewMPDLiveWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	xmlStr, err := m.WriteToString()
@@ -73,7 +72,7 @@ func (s *MPDSuite) TestNewMPDLiveWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestNewMPDOnDemandWriteToString() {
+func (s *MPDReadWriteSuite) TestNewMPDOnDemandWriteToString() {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	xmlStr, err := m.WriteToString()
@@ -82,7 +81,7 @@ func (s *MPDSuite) TestNewMPDOnDemandWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestAddNewAdaptationSetAudioWriteToString() {
+func (s *MPDReadWriteSuite) TestAddNewAdaptationSetAudioWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
@@ -93,7 +92,7 @@ func (s *MPDSuite) TestAddNewAdaptationSetAudioWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestAddNewAdaptationSetVideoWriteToString() {
+func (s *MPDReadWriteSuite) TestAddNewAdaptationSetVideoWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
@@ -104,7 +103,7 @@ func (s *MPDSuite) TestAddNewAdaptationSetVideoWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
+func (s *MPDReadWriteSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
@@ -121,8 +120,8 @@ func LiveProfile() *MPD {
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	audioAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	audioAS.AddNewContentProtectionSchemeWidevine(helpers.Strptr(VALID_WV_HEADER))
-	audioAS.AddNewContentProtectionSchemePlayready("mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A")
+	audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
 	audioAS.AddNewRepresentationAudio(44100, 67095, "mp4a.40.2", "800")
@@ -130,8 +129,8 @@ func LiveProfile() *MPD {
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	videoAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	videoAS.AddNewContentProtectionSchemeWidevine(helpers.Strptr(VALID_WV_HEADER))
-	videoAS.AddNewContentProtectionSchemePlayready("mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A")
+	videoAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	videoAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	videoAS.SetNewSegmentTemplate(1968, "$RepresentationID$/video/1/init.mp4", "$RepresentationID$/video/1/seg-$Number$.m4f", 0, 1000)
 	videoAS.AddNewRepresentationVideo(1518664, "avc1.4d401f", "800", "30000/1001", 960, 540)
@@ -146,7 +145,7 @@ func LiveProfile() *MPD {
 	return m
 }
 
-func (s *MPDSuite) TestFullLiveProfileWriteToString() {
+func (s *MPDReadWriteSuite) TestFullLiveProfileWriteToString() {
 	m := LiveProfile()
 	assert.NotNil(s.T(), m)
 	xmlStr, err := m.WriteToString()
@@ -155,7 +154,7 @@ func (s *MPDSuite) TestFullLiveProfileWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestFullLiveProfileWriteToFile() {
+func (s *MPDReadWriteSuite) TestFullLiveProfileWriteToFile() {
 	m := LiveProfile()
 	assert.NotNil(s.T(), m)
 	err := m.WriteToFile("test_live.mpd")
@@ -169,8 +168,8 @@ func OnDemandProfile() *MPD {
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "und")
 
 	audioAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	audioAS.AddNewContentProtectionSchemeWidevine(helpers.Strptr(VALID_WV_HEADER))
-	audioAS.AddNewContentProtectionSchemePlayready("mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A")
+	audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	audioRep, _ := audioAS.AddNewRepresentationAudio(44100, 128558, "mp4a.40.5", "800k/audio-und")
 	audioRep.SetNewBaseURL("800k/output-audio-und.mp4")
@@ -179,8 +178,8 @@ func OnDemandProfile() *MPD {
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	videoAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
-	videoAS.AddNewContentProtectionSchemeWidevine(helpers.Strptr(VALID_WV_HEADER))
-	videoAS.AddNewContentProtectionSchemePlayready("mgIAAAEAAQCQAjwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4AQQBtAGYAagBDAFQATwBQAGIARQBPAGwAMwBXAEQALwA1AG0AYwBlAGMAQQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBCAEcAdwAxAGEAWQBaADEAWQBYAE0APQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APABMAEEAXwBVAFIATAA+AGgAdAB0AHAAOgAvAC8AcABsAGEAeQByAGUAYQBkAHkALgBkAGkAcgBlAGMAdAB0AGEAcABzAC4AbgBlAHQALwBwAHIALwBzAHYAYwAvAHIAaQBnAGgAdABzAG0AYQBuAGEAZwBlAHIALgBhAHMAbQB4ADwALwBMAEEAXwBVAFIATAA+ADwALwBEAEEAVABBAD4APAAvAFcAUgBNAEgARQBBAEQARQBSAD4A")
+	videoAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	videoAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
 	videoRep1, _ := videoAS.AddNewRepresentationVideo(1100690, "avc1.4d401e", "800k/video-1", "30000/1001", 640, 360)
 	videoRep1.SetNewBaseURL("800k/output-video-1.mp4")
@@ -197,7 +196,7 @@ func OnDemandProfile() *MPD {
 	return m
 }
 
-func (s *MPDSuite) TestFullOnDemandProfileWriteToString() {
+func (s *MPDReadWriteSuite) TestFullOnDemandProfileWriteToString() {
 	m := OnDemandProfile()
 	assert.NotNil(s.T(), m)
 	xmlStr, err := m.WriteToString()
@@ -206,7 +205,7 @@ func (s *MPDSuite) TestFullOnDemandProfileWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
-func (s *MPDSuite) TestFullOnDemandProfileWriteToFile() {
+func (s *MPDReadWriteSuite) TestFullOnDemandProfileWriteToFile() {
 	m := OnDemandProfile()
 	assert.NotNil(s.T(), m)
 	err := m.WriteToFile("test-ondemand.mpd")
@@ -214,7 +213,7 @@ func (s *MPDSuite) TestFullOnDemandProfileWriteToFile() {
 	assert.Nil(s.T(), err)
 }
 
-func (s *MPDSuite) TestWriteToFileInvalidFilePath() {
+func (s *MPDReadWriteSuite) TestWriteToFileInvalidFilePath() {
 	m := LiveProfile()
 	assert.NotNil(s.T(), m)
 	err := m.WriteToFile("")
