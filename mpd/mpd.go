@@ -69,6 +69,7 @@ type AdaptationSet struct {
 	StartWithSAP      *int64                `xml:"startWithSAP,attr"`
 	Lang              *string               `xml:"lang,attr"`
 	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
+	Roles             []*Role               `xml:"Role,omitempty"`
 	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
 	Representations   []*Representation     `xml:"Representation,omitempty"`
 }
@@ -115,6 +116,12 @@ type WidevineContentProtection struct {
 }
 
 func (s ContentProtection) ContentProtected() {}
+
+type Role struct {
+	AdaptationSet *AdaptationSet `xml:"-"`
+	SchemeIDURI   *string        `xml:"schemeIdUri,attr"`
+	Value         *string        `xml:"value,attr"`
+}
 
 // Segment Template is for Live Profile Only
 type SegmentTemplate struct {
@@ -483,6 +490,16 @@ func (as *AdaptationSet) addRepresentation(r *Representation) error {
 	r.AdaptationSet = as
 	as.Representations = append(as.Representations, r)
 	return nil
+}
+
+func (as *AdaptationSet) AddNewRole(schemeIDURI string, value string) (*Role, error) {
+	r := &Role{
+		SchemeIDURI: Strptr(schemeIDURI),
+		Value:       Strptr(value),
+	}
+	r.AdaptationSet = as
+	as.Roles = append(as.Roles, r)
+	return r, nil
 }
 
 // Sets the BaseURL for a Representation.
