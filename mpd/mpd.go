@@ -492,6 +492,9 @@ func (as *AdaptationSet) addRepresentation(r *Representation) error {
 	return nil
 }
 
+// Adds a new Role to an AdaptationSet
+// schemeIdUri - Scheme ID URI string (i.e. urn:mpeg:dash:role:2011)
+// value - Value for this role, (i.e. caption, subtitle, main, alternate, supplementary, commentary, dub)
 func (as *AdaptationSet) AddNewRole(schemeIDURI string, value string) (*Role, error) {
 	r := &Role{
 		SchemeIDURI: Strptr(schemeIDURI),
