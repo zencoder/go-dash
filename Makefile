@@ -4,7 +4,7 @@ ifdef CIRCLE_ARTIFACTS
   COVERAGEDIR = $(CIRCLE_ARTIFACTS)
 endif
 
-all: build test cover
+all: test cover
 fmt:
 	find . -not -path "./vendor/*" -name '*.go' -type f | sed 's#\(.*\)/.*#\1#' | sort -u | xargs -n1 -I {} bash -c "cd {} && goimports -w *.go && gofmt -w -s -l *.go"
 test:
