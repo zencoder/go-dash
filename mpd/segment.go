@@ -6,7 +6,7 @@ type SegmentBase struct {
 	Timescale                *uint32  `xml:"timescale,attr,omitempty"`
 	PresentationTimeOffset   *uint64  `xml:"presentationTimeOffset,attr,omitempty"`
 	IndexRange               *string  `xml:"indexRange,attr,omitempty"`
-	indexRangeExact          *bool    `xml:"indexRangeExact,attr,omitempty"`
+	IndexRangeExact          *bool    `xml:"indexRangeExact,attr,omitempty"`
 	AvailabilityTimeOffset   *float32 `xml:"availabilityTimeOffset,attr,omitempty"`
 	AvailabilityTimeComplete *bool    `xml:"availabilityTimeComplete,attr,omitempty"`
 }
