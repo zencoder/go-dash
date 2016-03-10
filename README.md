@@ -23,7 +23,7 @@ go install ./...
 * Profiles
   * Live
   * On Demand
-* Adaption Sets / Representations
+* Adaption Sets / Representations / Roles
   * Audio
   * Video
   * Subtitles

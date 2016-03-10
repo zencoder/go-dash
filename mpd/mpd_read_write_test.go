@@ -123,6 +123,8 @@ func LiveProfile() *MPD {
 	audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 
+	audioAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
+
 	audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
 	audioAS.AddNewRepresentationAudio(44100, 67095, "mp4a.40.2", "800")
 
@@ -131,6 +133,8 @@ func LiveProfile() *MPD {
 	videoAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
 	videoAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	videoAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+
+	videoAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
 
 	videoAS.SetNewSegmentTemplate(1968, "$RepresentationID$/video/1/init.mp4", "$RepresentationID$/video/1/seg-$Number$.m4f", 0, 1000)
 	videoAS.AddNewRepresentationVideo(1518664, "avc1.4d401f", "800", "30000/1001", 960, 540)
