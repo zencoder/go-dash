@@ -159,7 +159,7 @@ func (s *MPDSuite) TestAddNewAdaptationSetAudio() {
 		MPD:              m,
 		MimeType:         Strptr(VALID_MIME_TYPE_AUDIO),
 		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		StartWithSAP:     Intptr(VALID_START_WITH_SAP),
+		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
 		Lang:             Strptr(VALID_LANG),
 	}
 	assert.Equal(s.T(), expectedAS, as)
@@ -176,7 +176,7 @@ func (s *MPDSuite) TestAddNewAdaptationSetVideo() {
 		MimeType:         Strptr(VALID_MIME_TYPE_VIDEO),
 		ScanType:         Strptr(VALID_SCAN_TYPE),
 		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		StartWithSAP:     Intptr(VALID_START_WITH_SAP),
+		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
 	}
 	assert.Equal(s.T(), expectedAS, as)
 }

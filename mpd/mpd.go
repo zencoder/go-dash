@@ -57,8 +57,11 @@ type MPD struct {
 }
 
 type Period struct {
-	AdaptationSets []*AdaptationSet `xml:"AdaptationSet,omitempty"`
-	BaseURL        string           `xml:"BaseURL,omitempty"`
+	BaseURL         string           `xml:"BaseURL,omitempty"`
+	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
+	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
+	SegmentTemplate *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
+	AdaptationSets  []*AdaptationSet `xml:"AdaptationSet,omitempty"`
 }
 
 type AdaptationSet struct {
@@ -68,8 +71,10 @@ type AdaptationSet struct {
 	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
 	StartWithSAP      *int64                `xml:"startWithSAP,attr"`
 	Lang              *string               `xml:"lang,attr"`
-	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	Roles             []*Role               `xml:"Role,omitempty"`
+	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
+	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
+	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
 	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
 	Representations   []*Representation     `xml:"Representation,omitempty"`
 }
@@ -125,36 +130,28 @@ type Role struct {
 
 // Segment Template is for Live Profile Only
 type SegmentTemplate struct {
-	AdaptationSet  *AdaptationSet `xml:"-"`
-	Duration       *int64         `xml:"duration,attr"`
-	Initialization *string        `xml:"initialization,attr"`
-	Media          *string        `xml:"media,attr"`
-	StartNumber    *int64         `xml:"startNumber,attr"`
-	Timescale      *int64         `xml:"timescale,attr"`
+	AdaptationSet   *AdaptationSet   `xml:"-"`
+	SegmentTimeline *SegmentTimeline `xml:"SegmentTimeline,omitempty"`
+	Duration        *int64           `xml:"duration,attr"`
+	Initialization  *string          `xml:"initialization,attr"`
+	Media           *string          `xml:"media,attr"`
+	StartNumber     *int64           `xml:"startNumber,attr"`
+	Timescale       *int64           `xml:"timescale,attr"`
 }
 
 type Representation struct {
-	AdaptationSet     *AdaptationSet `xml:"-"`
-	AudioSamplingRate *int64         `xml:"audioSamplingRate,attr"` // Audio
-	Bandwidth         *int64         `xml:"bandwidth,attr"`         // Audio + Video
-	Codecs            *string        `xml:"codecs,attr"`            // Audio + Video
-	FrameRate         *string        `xml:"frameRate,attr"`         // Video
-	Height            *int64         `xml:"height,attr"`            // Video
-	ID                *string        `xml:"id,attr"`                // Audio + Video
-	Width             *int64         `xml:"width,attr"`             // Video
-	BaseURL           *string        `xml:"BaseURL,omitempty"`      // On-Demand Profile
-	SegmentBase       *SegmentBase   `xml:"SegmentBase,omitempty"`  // On-Demand Profile
-}
-
-// SegmentBase is for On-Demand Profile Only
-type SegmentBase struct {
-	IndexRange     *string         `xml:"indexRange,attr"`
-	Initialization *Initialization `xml:"Initialization,omitempty"`
-}
-
-// Initialization is for On-Demand Profile Only
-type Initialization struct {
-	Range *string `xml:"range,attr"`
+	AdaptationSet     *AdaptationSet   `xml:"-"`
+	AudioSamplingRate *int64           `xml:"audioSamplingRate,attr"` // Audio
+	Bandwidth         *int64           `xml:"bandwidth,attr"`         // Audio + Video
+	Codecs            *string          `xml:"codecs,attr"`            // Audio + Video
+	FrameRate         *string          `xml:"frameRate,attr"`         // Video
+	Height            *int64           `xml:"height,attr"`            // Video
+	ID                *string          `xml:"id,attr"`                // Audio + Video
+	Width             *int64           `xml:"width,attr"`             // Video
+	BaseURL           *string          `xml:"BaseURL,omitempty"`      // On-Demand Profile
+	SegmentBase       *SegmentBase     `xml:"SegmentBase,omitempty"`  // On-Demand Profile
+	SegmentList       *SegmentList     `xml:"SegmentList,omitempty"`
+	SegmentTemplate   *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
 }
 
 // Creates a new MPD object.
@@ -181,7 +178,7 @@ func (m *MPD) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, s
 	as := &AdaptationSet{
 		MimeType:         Strptr(mimeType),
 		SegmentAlignment: Boolptr(segmentAlignment),
-		StartWithSAP:     Intptr(startWithSAP),
+		StartWithSAP:     Int64ptr(startWithSAP),
 		Lang:             Strptr(lang),
 	}
 	err := m.addAdaptationSet(as)
@@ -201,7 +198,7 @@ func (m *MPD) AddNewAdaptationSetVideo(mimeType string, scanType string, segment
 		MimeType:         Strptr(mimeType),
 		ScanType:         Strptr(scanType),
 		SegmentAlignment: Boolptr(segmentAlignment),
-		StartWithSAP:     Intptr(startWithSAP),
+		StartWithSAP:     Int64ptr(startWithSAP),
 	}
 	err := m.addAdaptationSet(as)
 	if err != nil {
@@ -392,11 +389,11 @@ func (as *AdaptationSet) AddContentProtection(cp ContentProtectioner) error {
 // timescale - sets the timescale for duration (i.e. 1000, represents milliseconds).
 func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, media string, startNumber int64, timescale int64) (*SegmentTemplate, error) {
 	st := &SegmentTemplate{
-		Duration:       Intptr(duration),
+		Duration:       Int64ptr(duration),
 		Initialization: Strptr(init),
 		Media:          Strptr(media),
-		StartNumber:    Intptr(startNumber),
-		Timescale:      Intptr(timescale),
+		StartNumber:    Int64ptr(startNumber),
+		Timescale:      Int64ptr(timescale),
 	}
 
 	err := as.setSegmentTemplate(st)
@@ -429,8 +426,8 @@ func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
 // id - ID for this representation, will get used as $RepresentationID$ in template strings.
 func (as *AdaptationSet) AddNewRepresentationAudio(samplingRate int64, bandwidth int64, codecs string, id string) (*Representation, error) {
 	r := &Representation{
-		AudioSamplingRate: Intptr(samplingRate),
-		Bandwidth:         Intptr(bandwidth),
+		AudioSamplingRate: Int64ptr(samplingRate),
+		Bandwidth:         Int64ptr(bandwidth),
 		Codecs:            Strptr(codecs),
 		ID:                Strptr(id),
 	}
@@ -451,12 +448,12 @@ func (as *AdaptationSet) AddNewRepresentationAudio(samplingRate int64, bandwidth
 // height - height of the video (i.e 720).
 func (as *AdaptationSet) AddNewRepresentationVideo(bandwidth int64, codecs string, id string, frameRate string, width int64, height int64) (*Representation, error) {
 	r := &Representation{
-		Bandwidth: Intptr(bandwidth),
+		Bandwidth: Int64ptr(bandwidth),
 		Codecs:    Strptr(codecs),
 		ID:        Strptr(id),
 		FrameRate: Strptr(frameRate),
-		Width:     Intptr(width),
-		Height:    Intptr(height),
+		Width:     Int64ptr(width),
+		Height:    Int64ptr(height),
 	}
 
 	err := as.addRepresentation(r)
@@ -471,7 +468,7 @@ func (as *AdaptationSet) AddNewRepresentationVideo(bandwidth int64, codecs strin
 // id - ID for this representation, will get used as $RepresentationID$ in template strings.
 func (as *AdaptationSet) AddNewRepresentationSubtitle(bandwidth int64, id string) (*Representation, error) {
 	r := &Representation{
-		Bandwidth: Intptr(bandwidth),
+		Bandwidth: Int64ptr(bandwidth),
 		ID:        Strptr(id),
 	}
 
@@ -524,10 +521,8 @@ func (r *Representation) SetNewBaseURL(baseURL string) error {
 // init - Byte range to the init atoms (ftyp+moov).
 func (r *Representation) AddNewSegmentBase(indexRange string, initRange string) (*SegmentBase, error) {
 	sb := &SegmentBase{
-		IndexRange: Strptr(indexRange),
-		Initialization: &Initialization{
-			Range: Strptr(initRange),
-		},
+		IndexRange:     Strptr(indexRange),
+		Initialization: &URL{Range: Strptr(initRange)},
 	}
 
 	err := r.setSegmentBase(sb)

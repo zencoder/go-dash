@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT65.063S" minBufferTime="PT2.000S">
+  <Period>
+    <BaseURL>http://localhost:8002/public/</BaseURL>
+    <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="English">
+      <Representation audioSamplingRate="48000" bandwidth="255000" codecs="mp4a.40.2" id="audio_1">
+        <SegmentTemplate initialization="audio/init.m4f" media="audio/segment$Number$.m4f" timescale="48000">
+          <SegmentTimeline>
+            <S t="0" d="231424"></S>
+            <S d="479232" r="2"></S>
+            <S d="10240"></S>
+            <S d="247808"></S>
+            <S d="479232" r="1"></S>
+            <S d="3072"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1">
+      <Representation bandwidth="4172274" codecs="avc1.640028" frameRate="30000/1001" height="720" id="video_1" width="1280">
+        <SegmentTemplate initialization="video/init.m4f" media="video/segment$Number$.m4f" timescale="30000">
+          <SegmentTimeline>
+            <S t="0" d="145145"></S>
+            <S d="270270" r="2"></S>
+            <S d="91091"></S>
+            <S d="125125"></S>
+            <S d="270270" r="1"></S>
+            <S d="88088"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
