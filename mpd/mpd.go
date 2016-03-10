@@ -57,8 +57,11 @@ type MPD struct {
 }
 
 type Period struct {
-	AdaptationSets []*AdaptationSet `xml:"AdaptationSet,omitempty"`
-	BaseURL        string           `xml:"BaseURL,omitempty"`
+	BaseURL         string           `xml:"BaseURL,omitempty"`
+	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
+	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
+	SegmentTemplate *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
+	AdaptationSets  []*AdaptationSet `xml:"AdaptationSet,omitempty"`
 }
 
 type AdaptationSet struct {
@@ -69,6 +72,8 @@ type AdaptationSet struct {
 	StartWithSAP      *int64                `xml:"startWithSAP,attr"`
 	Lang              *string               `xml:"lang,attr"`
 	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
+	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
+	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
 	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
 	Representations   []*Representation     `xml:"Representation,omitempty"`
 }
@@ -118,36 +123,28 @@ func (s ContentProtection) ContentProtected() {}
 
 // Segment Template is for Live Profile Only
 type SegmentTemplate struct {
-	AdaptationSet  *AdaptationSet `xml:"-"`
-	Duration       *int64         `xml:"duration,attr"`
-	Initialization *string        `xml:"initialization,attr"`
-	Media          *string        `xml:"media,attr"`
-	StartNumber    *int64         `xml:"startNumber,attr"`
-	Timescale      *int64         `xml:"timescale,attr"`
+	AdaptationSet   *AdaptationSet   `xml:"-"`
+	SegmentTimeline *SegmentTimeline `xml:"SegmentTimeline,omitempty"`
+	Duration        *int64           `xml:"duration,attr"`
+	Initialization  *string          `xml:"initialization,attr"`
+	Media           *string          `xml:"media,attr"`
+	StartNumber     *int64           `xml:"startNumber,attr"`
+	Timescale       *int64           `xml:"timescale,attr"`
 }
 
 type Representation struct {
-	AdaptationSet     *AdaptationSet `xml:"-"`
-	AudioSamplingRate *int64         `xml:"audioSamplingRate,attr"` // Audio
-	Bandwidth         *int64         `xml:"bandwidth,attr"`         // Audio + Video
-	Codecs            *string        `xml:"codecs,attr"`            // Audio + Video
-	FrameRate         *string        `xml:"frameRate,attr"`         // Video
-	Height            *int64         `xml:"height,attr"`            // Video
-	ID                *string        `xml:"id,attr"`                // Audio + Video
-	Width             *int64         `xml:"width,attr"`             // Video
-	BaseURL           *string        `xml:"BaseURL,omitempty"`      // On-Demand Profile
-	SegmentBase       *SegmentBase   `xml:"SegmentBase,omitempty"`  // On-Demand Profile
-}
-
-// SegmentBase is for On-Demand Profile Only
-type SegmentBase struct {
-	IndexRange     *string         `xml:"indexRange,attr"`
-	Initialization *Initialization `xml:"Initialization,omitempty"`
-}
-
-// Initialization is for On-Demand Profile Only
-type Initialization struct {
-	Range *string `xml:"range,attr"`
+	AdaptationSet     *AdaptationSet   `xml:"-"`
+	AudioSamplingRate *int64           `xml:"audioSamplingRate,attr"` // Audio
+	Bandwidth         *int64           `xml:"bandwidth,attr"`         // Audio + Video
+	Codecs            *string          `xml:"codecs,attr"`            // Audio + Video
+	FrameRate         *string          `xml:"frameRate,attr"`         // Video
+	Height            *int64           `xml:"height,attr"`            // Video
+	ID                *string          `xml:"id,attr"`                // Audio + Video
+	Width             *int64           `xml:"width,attr"`             // Video
+	BaseURL           *string          `xml:"BaseURL,omitempty"`      // On-Demand Profile
+	SegmentBase       *SegmentBase     `xml:"SegmentBase,omitempty"`  // On-Demand Profile
+	SegmentList       *SegmentList     `xml:"SegmentList,omitempty"`
+	SegmentTemplate   *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
 }
 
 // Creates a new MPD object.
@@ -504,10 +501,8 @@ func (r *Representation) SetNewBaseURL(baseURL string) error {
 // init - Byte range to the init atoms (ftyp+moov).
 func (r *Representation) AddNewSegmentBase(indexRange string, initRange string) (*SegmentBase, error) {
 	sb := &SegmentBase{
-		IndexRange: Strptr(indexRange),
-		Initialization: &Initialization{
-			Range: Strptr(initRange),
-		},
+		IndexRange:     Strptr(indexRange),
+		Initialization: &URL{Range: Strptr(initRange)},
 	}
 
 	err := r.setSegmentBase(sb)
