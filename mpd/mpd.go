@@ -171,7 +171,7 @@ func (m *MPD) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, s
 	as := &AdaptationSet{
 		MimeType:         Strptr(mimeType),
 		SegmentAlignment: Boolptr(segmentAlignment),
-		StartWithSAP:     Intptr(startWithSAP),
+		StartWithSAP:     Int64ptr(startWithSAP),
 		Lang:             Strptr(lang),
 	}
 	err := m.addAdaptationSet(as)
@@ -191,7 +191,7 @@ func (m *MPD) AddNewAdaptationSetVideo(mimeType string, scanType string, segment
 		MimeType:         Strptr(mimeType),
 		ScanType:         Strptr(scanType),
 		SegmentAlignment: Boolptr(segmentAlignment),
-		StartWithSAP:     Intptr(startWithSAP),
+		StartWithSAP:     Int64ptr(startWithSAP),
 	}
 	err := m.addAdaptationSet(as)
 	if err != nil {
@@ -382,11 +382,11 @@ func (as *AdaptationSet) AddContentProtection(cp ContentProtectioner) error {
 // timescale - sets the timescale for duration (i.e. 1000, represents milliseconds).
 func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, media string, startNumber int64, timescale int64) (*SegmentTemplate, error) {
 	st := &SegmentTemplate{
-		Duration:       Intptr(duration),
+		Duration:       Int64ptr(duration),
 		Initialization: Strptr(init),
 		Media:          Strptr(media),
-		StartNumber:    Intptr(startNumber),
-		Timescale:      Intptr(timescale),
+		StartNumber:    Int64ptr(startNumber),
+		Timescale:      Int64ptr(timescale),
 	}
 
 	err := as.setSegmentTemplate(st)
@@ -419,8 +419,8 @@ func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
 // id - ID for this representation, will get used as $RepresentationID$ in template strings.
 func (as *AdaptationSet) AddNewRepresentationAudio(samplingRate int64, bandwidth int64, codecs string, id string) (*Representation, error) {
 	r := &Representation{
-		AudioSamplingRate: Intptr(samplingRate),
-		Bandwidth:         Intptr(bandwidth),
+		AudioSamplingRate: Int64ptr(samplingRate),
+		Bandwidth:         Int64ptr(bandwidth),
 		Codecs:            Strptr(codecs),
 		ID:                Strptr(id),
 	}
@@ -441,12 +441,12 @@ func (as *AdaptationSet) AddNewRepresentationAudio(samplingRate int64, bandwidth
 // height - height of the video (i.e 720).
 func (as *AdaptationSet) AddNewRepresentationVideo(bandwidth int64, codecs string, id string, frameRate string, width int64, height int64) (*Representation, error) {
 	r := &Representation{
-		Bandwidth: Intptr(bandwidth),
+		Bandwidth: Int64ptr(bandwidth),
 		Codecs:    Strptr(codecs),
 		ID:        Strptr(id),
 		FrameRate: Strptr(frameRate),
-		Width:     Intptr(width),
-		Height:    Intptr(height),
+		Width:     Int64ptr(width),
+		Height:    Int64ptr(height),
 	}
 
 	err := as.addRepresentation(r)
@@ -461,7 +461,7 @@ func (as *AdaptationSet) AddNewRepresentationVideo(bandwidth int64, codecs strin
 // id - ID for this representation, will get used as $RepresentationID$ in template strings.
 func (as *AdaptationSet) AddNewRepresentationSubtitle(bandwidth int64, id string) (*Representation, error) {
 	r := &Representation{
-		Bandwidth: Intptr(bandwidth),
+		Bandwidth: Int64ptr(bandwidth),
 		ID:        Strptr(id),
 	}
 

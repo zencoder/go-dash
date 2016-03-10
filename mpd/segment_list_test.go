@@ -39,8 +39,8 @@ func getSegmentListMPD() *MPD {
 	ra, _ := aas.AddNewRepresentationAudio(48000, 255000, "mp4a.40.2", "audio_1")
 
 	asl := new(SegmentList)
-	asl.Timescale = uint32ptr(48000)
-	asl.Duration = uint32ptr(479232)
+	asl.Timescale = ptrs.Uint32ptr(48000)
+	asl.Duration = ptrs.Uint32ptr(479232)
 	asl.Initialization = &URL{SourceURL: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/dcb11457-9092-4410-b204-67b3c6d9a9e2/init.m4f")}
 
 	asegs := []*SegmentURL{}
@@ -56,8 +56,8 @@ func getSegmentListMPD() *MPD {
 	va, _ := vas.AddNewRepresentationVideo(int64(4172274), "avc1.640028", "video_1", "30000/1001", int64(1280), int64(720))
 
 	vsl := new(SegmentList)
-	vsl.Timescale = uint32ptr(30000)
-	vsl.Duration = uint32ptr(225120)
+	vsl.Timescale = ptrs.Uint32ptr(30000)
+	vsl.Duration = ptrs.Uint32ptr(225120)
 	vsl.Initialization = &URL{SourceURL: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/f2ad47b2-5362-46e6-ad1d-dff7b10f00b8/init.m4f")}
 
 	vsegs := []*SegmentURL{}

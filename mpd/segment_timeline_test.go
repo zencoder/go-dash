@@ -39,7 +39,7 @@ func getSegmentTimelineMPD() *MPD {
 	ra, _ := aas.AddNewRepresentationAudio(48000, 255000, "mp4a.40.2", "audio_1")
 
 	ast := &SegmentTemplate{
-		Timescale:       ptrs.Intptr(48000),
+		Timescale:       ptrs.Int64ptr(48000),
 		Initialization:  ptrs.Strptr("audio/init.m4f"),
 		Media:           ptrs.Strptr("audio/segment$Number$.m4f"),
 		SegmentTimeline: new(SegmentTimeline),
@@ -47,11 +47,11 @@ func getSegmentTimelineMPD() *MPD {
 	ra.SegmentTemplate = ast
 
 	asegs := []*SegmentTimelineSegment{}
-	asegs = append(asegs, &SegmentTimelineSegment{StartTime: uint64ptr(0), Duration: 231424})
-	asegs = append(asegs, &SegmentTimelineSegment{RepeatCount: intptr(2), Duration: 479232})
+	asegs = append(asegs, &SegmentTimelineSegment{StartTime: ptrs.Uint64ptr(0), Duration: 231424})
+	asegs = append(asegs, &SegmentTimelineSegment{RepeatCount: ptrs.Intptr(2), Duration: 479232})
 	asegs = append(asegs, &SegmentTimelineSegment{Duration: 10240})
 	asegs = append(asegs, &SegmentTimelineSegment{Duration: 247808})
-	asegs = append(asegs, &SegmentTimelineSegment{RepeatCount: intptr(1), Duration: 479232})
+	asegs = append(asegs, &SegmentTimelineSegment{RepeatCount: ptrs.Intptr(1), Duration: 479232})
 	asegs = append(asegs, &SegmentTimelineSegment{Duration: 3072})
 	ast.SegmentTimeline.Segments = asegs
 
@@ -59,7 +59,7 @@ func getSegmentTimelineMPD() *MPD {
 	va, _ := vas.AddNewRepresentationVideo(int64(4172274), "avc1.640028", "video_1", "30000/1001", int64(1280), int64(720))
 
 	vst := &SegmentTemplate{
-		Timescale:       ptrs.Intptr(30000),
+		Timescale:       ptrs.Int64ptr(30000),
 		Initialization:  ptrs.Strptr("video/init.m4f"),
 		Media:           ptrs.Strptr("video/segment$Number$.m4f"),
 		SegmentTimeline: new(SegmentTimeline),
@@ -67,31 +67,13 @@ func getSegmentTimelineMPD() *MPD {
 	va.SegmentTemplate = vst
 
 	vsegs := []*SegmentTimelineSegment{}
-	vsegs = append(vsegs, &SegmentTimelineSegment{StartTime: uint64ptr(0), Duration: 145145})
-	vsegs = append(vsegs, &SegmentTimelineSegment{RepeatCount: intptr(2), Duration: 270270})
+	vsegs = append(vsegs, &SegmentTimelineSegment{StartTime: ptrs.Uint64ptr(0), Duration: 145145})
+	vsegs = append(vsegs, &SegmentTimelineSegment{RepeatCount: ptrs.Intptr(2), Duration: 270270})
 	vsegs = append(vsegs, &SegmentTimelineSegment{Duration: 91091})
 	vsegs = append(vsegs, &SegmentTimelineSegment{Duration: 125125})
-	vsegs = append(vsegs, &SegmentTimelineSegment{RepeatCount: intptr(1), Duration: 270270})
+	vsegs = append(vsegs, &SegmentTimelineSegment{RepeatCount: ptrs.Intptr(1), Duration: 270270})
 	vsegs = append(vsegs, &SegmentTimelineSegment{Duration: 88088})
 	vst.SegmentTimeline.Segments = vsegs
 
 	return m
-}
-
-func intptr(v int) *int {
-	p := new(int)
-	*p = v
-	return p
-}
-
-func uint32ptr(v uint32) *uint32 {
-	p := new(uint32)
-	*p = v
-	return p
-}
-
-func uint64ptr(v uint64) *uint64 {
-	p := new(uint64)
-	*p = v
-	return p
 }
