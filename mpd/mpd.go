@@ -71,6 +71,7 @@ type AdaptationSet struct {
 	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
 	StartWithSAP      *int64                `xml:"startWithSAP,attr"`
 	Lang              *string               `xml:"lang,attr"`
+	Roles             []*Role               `xml:"Role,omitempty"`
 	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
 	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
@@ -120,6 +121,12 @@ type WidevineContentProtection struct {
 }
 
 func (s ContentProtection) ContentProtected() {}
+
+type Role struct {
+	AdaptationSet *AdaptationSet `xml:"-"`
+	SchemeIDURI   *string        `xml:"schemeIdUri,attr"`
+	Value         *string        `xml:"value,attr"`
+}
 
 // Segment Template is for Live Profile Only
 type SegmentTemplate struct {
@@ -480,6 +487,19 @@ func (as *AdaptationSet) addRepresentation(r *Representation) error {
 	r.AdaptationSet = as
 	as.Representations = append(as.Representations, r)
 	return nil
+}
+
+// Adds a new Role to an AdaptationSet
+// schemeIdUri - Scheme ID URI string (i.e. urn:mpeg:dash:role:2011)
+// value - Value for this role, (i.e. caption, subtitle, main, alternate, supplementary, commentary, dub)
+func (as *AdaptationSet) AddNewRole(schemeIDURI string, value string) (*Role, error) {
+	r := &Role{
+		SchemeIDURI: Strptr(schemeIDURI),
+		Value:       Strptr(value),
+	}
+	r.AdaptationSet = as
+	as.Roles = append(as.Roles, r)
+	return r, nil
 }
 
 // Sets the BaseURL for a Representation.

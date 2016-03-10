@@ -62,6 +62,7 @@ const (
 	VALID_SUBTITLE_BANDWIDTH          int64  = 256
 	VALID_SUBTITLE_ID                 string = "subtitle_en"
 	VALID_SUBTITLE_URL                string = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
+	VALID_ROLE                        string = "main"
 )
 
 func (s *MPDSuite) TestNewMPDLive() {
@@ -404,6 +405,16 @@ func (s *MPDSuite) TestAddRepresentationErrorNil() {
 	err := videoAS.addRepresentation(nil)
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrRepresentationNil, err)
+}
+
+func (s *MPDSuite) TestAddRole() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+
+	r, err := audioAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
+
+	assert.NotNil(s.T(), r)
+	assert.Nil(s.T(), err)
 }
 
 func (s *MPDSuite) TestSetSegmentTemplateErrorNil() {
