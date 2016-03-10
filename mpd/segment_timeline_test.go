@@ -31,6 +31,32 @@ func (s *SegmentTimelineSuite) TestSegmentTimelineSerialization() {
 	s.Equal(expectedXML, xml)
 }
 
+func (s *SegmentListSuite) TestSegmentTimelineDeserialization() {
+	xml := testfixtures.LoadFixture("fixtures/segment_timeline.mpd")
+	m, err := ReadFromString(xml)
+
+	s.Nil(err)
+	if err == nil {
+		expected := getSegmentTimelineMPD()
+
+		s.Equal(expected.Period.BaseURL, m.Period.BaseURL)
+
+		expectedAudioSegTimeline := expected.Period.AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
+		audioSegTimeline := m.Period.AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
+
+		for i := range expectedAudioSegTimeline.Segments {
+			s.Equal(expectedAudioSegTimeline.Segments[i], audioSegTimeline.Segments[i])
+		}
+
+		expectedVideoSegTimeline := expected.Period.AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
+		videoSegTimeline := m.Period.AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
+
+		for i := range expectedVideoSegTimeline.Segments {
+			s.Equal(expectedVideoSegTimeline.Segments[i], videoSegTimeline.Segments[i])
+		}
+	}
+}
+
 func getSegmentTimelineMPD() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, "PT65.063S", "PT2.000S")
 	m.Period.BaseURL = "http://localhost:8002/public/"

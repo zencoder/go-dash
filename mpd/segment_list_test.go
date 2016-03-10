@@ -31,6 +31,40 @@ func (s *SegmentListSuite) TestSegmentListSerialization() {
 	s.Equal(expectedXML, xml)
 }
 
+func (s *SegmentListSuite) TestSegmentListDeserialization() {
+	xml := testfixtures.LoadFixture("fixtures/segment_list.mpd")
+	m, err := ReadFromString(xml)
+
+	s.Nil(err)
+	if err == nil {
+		expected := getSegmentListMPD()
+
+		s.Equal(expected.Period.BaseURL, m.Period.BaseURL)
+
+		expectedAudioSegList := expected.Period.AdaptationSets[0].Representations[0].SegmentList
+		audioSegList := m.Period.AdaptationSets[0].Representations[0].SegmentList
+
+		s.Equal(expectedAudioSegList.Timescale, audioSegList.Timescale)
+		s.Equal(expectedAudioSegList.Duration, audioSegList.Duration)
+		s.Equal(expectedAudioSegList.Initialization, audioSegList.Initialization)
+
+		for i := range expectedAudioSegList.SegmentURLs {
+			s.Equal(expectedAudioSegList.SegmentURLs[i], audioSegList.SegmentURLs[i])
+		}
+
+		expectedVideoSegList := expected.Period.AdaptationSets[1].Representations[0].SegmentList
+		videoSegList := m.Period.AdaptationSets[1].Representations[0].SegmentList
+
+		s.Equal(expectedVideoSegList.Timescale, videoSegList.Timescale)
+		s.Equal(expectedVideoSegList.Duration, videoSegList.Duration)
+		s.Equal(expectedVideoSegList.Initialization, videoSegList.Initialization)
+
+		for i := range expectedVideoSegList.SegmentURLs {
+			s.Equal(expectedVideoSegList.SegmentURLs[i], videoSegList.SegmentURLs[i])
+		}
+	}
+}
+
 func getSegmentListMPD() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, "PT30.016S", "PT2.000S")
 	m.Period.BaseURL = "http://localhost:8002/dash/"
@@ -48,7 +82,7 @@ func getSegmentListMPD() *MPD {
 	asegs = append(asegs, &SegmentURL{Media: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/dcb11457-9092-4410-b204-67b3c6d9a9e2/segment1.m4f")})
 	asegs = append(asegs, &SegmentURL{Media: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/dcb11457-9092-4410-b204-67b3c6d9a9e2/segment2.m4f")})
 	asegs = append(asegs, &SegmentURL{Media: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/dcb11457-9092-4410-b204-67b3c6d9a9e2/segment3.m4f")})
-	asl.SegmentURL = asegs
+	asl.SegmentURLs = asegs
 
 	ra.SegmentList = asl
 
@@ -65,7 +99,7 @@ func getSegmentListMPD() *MPD {
 	vsegs = append(vsegs, &SegmentURL{Media: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/f2ad47b2-5362-46e6-ad1d-dff7b10f00b8/segment1.m4f")})
 	vsegs = append(vsegs, &SegmentURL{Media: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/f2ad47b2-5362-46e6-ad1d-dff7b10f00b8/segment2.m4f")})
 	vsegs = append(vsegs, &SegmentURL{Media: ptrs.Strptr("b4324d65-ad06-4735-9535-5cd4af84ebb6/f2ad47b2-5362-46e6-ad1d-dff7b10f00b8/segment3.m4f")})
-	vsl.SegmentURL = vsegs
+	vsl.SegmentURLs = vsegs
 
 	va.SegmentList = vsl
 
