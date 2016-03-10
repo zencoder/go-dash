@@ -21,7 +21,7 @@ type MultipleSegmentBase struct {
 
 type SegmentList struct {
 	MultipleSegmentBase
-	SegmentURL []*SegmentURL `xml:"SegmentURL,omitempty"`
+	SegmentURLs []*SegmentURL `xml:"SegmentURL,omitempty"`
 }
 
 type SegmentURL struct {
