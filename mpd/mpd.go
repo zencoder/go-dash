@@ -71,8 +71,8 @@ type AdaptationSet struct {
 	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
 	StartWithSAP      *int64                `xml:"startWithSAP,attr"`
 	Lang              *string               `xml:"lang,attr"`
-	Roles             []*Role               `xml:"Role,omitempty"`
 	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
+	Roles             []*Role               `xml:"Role,omitempty"`
 	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
 	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
 	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
