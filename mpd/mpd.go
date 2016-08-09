@@ -19,6 +19,17 @@ const (
 	DASH_PROFILE_LIVE DashProfile = "urn:mpeg:dash:profile:isoff-live:2011"
 	// On Demand Profile
 	DASH_PROFILE_ONDEMAND DashProfile = "urn:mpeg:dash:profile:isoff-on-demand:2011"
+	// HbbTV Profile
+	DASH_PROFILE_HBBTV DashProfile = "urn:hbbtv:dash:profile:isoff-live:2012"
+)
+
+type AudioChannelConfigurationScheme string
+
+const (
+	// Scheme for non-Dolby Audio
+	AUDIO_CHANNEL_CONFIGURATION_MPEG_DASH AudioChannelConfigurationScheme = "urn:mpeg:dash:23003:3:audio_channel_configuration:2011"
+	// Scheme for Dolby Audio
+	AUDIO_CHANNEL_CONFIGURATION_MPEG_DOLBY AudioChannelConfigurationScheme = "tag:dolby.com,2014:dash:audio_channel_configuration:2011"
 )
 
 // Constants for some known MIME types, this is a limited list and others can be used.
@@ -41,6 +52,7 @@ var (
 	ErrBaseURLEmpty                         = errors.New("Base URL empty")
 	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
 	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
+	ErrAudioChannelConfigurationNil         = errors.New("Audio Channel Configuration nil")
 	ErrInvalidDefaultKID                    = errors.New("Invalid Default KID string, should be 32 characters")
 	ErrPROEmpty                             = errors.New("PlayReady PRO empty")
 	ErrContentProtectionNil                 = errors.New("Content Protection nil")
@@ -140,18 +152,25 @@ type SegmentTemplate struct {
 }
 
 type Representation struct {
-	AdaptationSet     *AdaptationSet   `xml:"-"`
-	AudioSamplingRate *int64           `xml:"audioSamplingRate,attr"` // Audio
-	Bandwidth         *int64           `xml:"bandwidth,attr"`         // Audio + Video
-	Codecs            *string          `xml:"codecs,attr"`            // Audio + Video
-	FrameRate         *string          `xml:"frameRate,attr"`         // Video
-	Height            *int64           `xml:"height,attr"`            // Video
-	ID                *string          `xml:"id,attr"`                // Audio + Video
-	Width             *int64           `xml:"width,attr"`             // Video
-	BaseURL           *string          `xml:"BaseURL,omitempty"`      // On-Demand Profile
-	SegmentBase       *SegmentBase     `xml:"SegmentBase,omitempty"`  // On-Demand Profile
-	SegmentList       *SegmentList     `xml:"SegmentList,omitempty"`
-	SegmentTemplate   *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
+	AdaptationSet             *AdaptationSet             `xml:"-"`
+	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration"`
+	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"` // Audio
+	Bandwidth                 *int64                     `xml:"bandwidth,attr"`         // Audio + Video
+	Codecs                    *string                    `xml:"codecs,attr"`            // Audio + Video
+	FrameRate                 *string                    `xml:"frameRate,attr"`         // Video
+	Height                    *int64                     `xml:"height,attr"`            // Video
+	ID                        *string                    `xml:"id,attr"`                // Audio + Video
+	Width                     *int64                     `xml:"width,attr"`             // Video
+	BaseURL                   *string                    `xml:"BaseURL,omitempty"`      // On-Demand Profile
+	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`  // On-Demand Profile
+	SegmentList               *SegmentList               `xml:"SegmentList,omitempty"`
+	SegmentTemplate           *SegmentTemplate           `xml:"SegmentTemplate,omitempty"`
+}
+
+type AudioChannelConfiguration struct {
+	SchemeIDURI *string `xml:"schemeIdUri,attr"`
+	// Value will be an int for non-Dolby Schemes, and a hexstring for Dolby Schemes, hence we make it a string
+	Value *string `xml:"value,attr"`
 }
 
 // Creates a new MPD object.
@@ -515,7 +534,7 @@ func (r *Representation) SetNewBaseURL(baseURL string) error {
 	return nil
 }
 
-// Sets a new SegmentBase on a Respresentation.
+// Sets a new SegmentBase on a Representation.
 // This is for On Demand profile.
 // indexRange - Byte range to the index (sidx)atom.
 // init - Byte range to the init atoms (ftyp+moov).
@@ -532,7 +551,7 @@ func (r *Representation) AddNewSegmentBase(indexRange string, initRange string) 
 	return sb, nil
 }
 
-// Internal helper method for setting the SegmentBase on a Respresentation.
+// Internal helper method for setting the SegmentBase on a Representation.
 func (r *Representation) setSegmentBase(sb *SegmentBase) error {
 	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
 		return ErrNoDASHProfileSet
@@ -544,5 +563,35 @@ func (r *Representation) setSegmentBase(sb *SegmentBase) error {
 		return ErrSegmentBaseNil
 	}
 	r.SegmentBase = sb
+	return nil
+}
+
+// Sets a new AudioChannelConfiguration on a Representation.
+// This is required for the HbbTV profile.
+// scheme - One of the two AudioConfigurationSchemes.
+// channelConfiguration - string that represents the channel configuration.
+func (r *Representation) AddNewAudioChannelConfiguration(scheme AudioChannelConfigurationScheme, channelConfiguration string) (*AudioChannelConfiguration, error) {
+	acc := &AudioChannelConfiguration{
+		SchemeIDURI: Strptr((string)(scheme)),
+		Value:       Strptr(channelConfiguration),
+	}
+
+	err := r.setAudioChannelConfiguration(acc)
+	if err != nil {
+		return nil, err
+	}
+
+	return acc, nil
+}
+
+// Internal helper method for setting the SegmentBase on a Representation.
+func (r *Representation) setAudioChannelConfiguration(acc *AudioChannelConfiguration) error {
+	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
+		return ErrNoDASHProfileSet
+	}
+	if acc == nil {
+		return ErrAudioChannelConfigurationNil
+	}
+	r.AudioChannelConfiguration = acc
 	return nil
 }
