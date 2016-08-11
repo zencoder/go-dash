@@ -153,7 +153,7 @@ type SegmentTemplate struct {
 
 type Representation struct {
 	AdaptationSet             *AdaptationSet             `xml:"-"`
-	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration, omitempty"`
+	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration,omitempty"`
 	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"` // Audio
 	Bandwidth                 *int64                     `xml:"bandwidth,attr"`         // Audio + Video
 	Codecs                    *string                    `xml:"codecs,attr"`            // Audio + Video
