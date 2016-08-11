@@ -20,7 +20,7 @@ const (
 	// On Demand Profile
 	DASH_PROFILE_ONDEMAND DashProfile = "urn:mpeg:dash:profile:isoff-on-demand:2011"
 	// HbbTV Profile
-	DASH_PROFILE_HBBTV DashProfile = "urn:hbbtv:dash:profile:isoff-live:2012"
+	DASH_PROFILE_HBBTV_1_5_LIVE DashProfile = "urn:hbbtv:dash:profile:isoff-live:2012,urn:mpeg:dash:profile:isoff-live:2011"
 )
 
 type AudioChannelConfigurationScheme string
