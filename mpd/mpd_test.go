@@ -136,6 +136,20 @@ func (s *MPDSuite) TestNewMPDLiveWithBaseURLInPeriod() {
 	assert.Equal(s.T(), expectedMPD, m)
 }
 
+func (s *MPDSuite) TestNewMPDHbbTV() {
+	m := NewMPD(DASH_PROFILE_HBBTV_1_5_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	assert.NotNil(s.T(), m)
+	expectedMPD := &MPD{
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: Strptr((string)(DASH_PROFILE_HBBTV_1_5_LIVE)),
+		Type:     Strptr("static"),
+		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
+		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
+		Period:                    &Period{},
+	}
+	assert.Equal(s.T(), expectedMPD, m)
+}
+
 func (s *MPDSuite) TestNewMPDOnDemand() {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	assert.NotNil(s.T(), m)
@@ -374,6 +388,18 @@ func (s *MPDSuite) TestAddRepresentationAudio() {
 	r, err := audioAS.AddNewRepresentationAudio(VALID_AUDIO_SAMPLE_RATE, VALID_AUDIO_BITRATE, VALID_AUDIO_CODEC, VALID_AUDIO_ID)
 
 	assert.NotNil(s.T(), r)
+	assert.Nil(s.T(), err)
+}
+
+func (s *MPDSuite) TestAddAudioChannelConfiguration() {
+	m := NewMPD(DASH_PROFILE_HBBTV_1_5_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+
+	r, _ := audioAS.AddNewRepresentationAudio(VALID_AUDIO_SAMPLE_RATE, VALID_AUDIO_BITRATE, VALID_AUDIO_CODEC, VALID_AUDIO_ID)
+
+	acc, err := r.AddNewAudioChannelConfiguration(AUDIO_CHANNEL_CONFIGURATION_MPEG_DASH, "2")
+
+	assert.NotNil(s.T(), acc)
 	assert.Nil(s.T(), err)
 }
 
