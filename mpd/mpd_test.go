@@ -330,6 +330,32 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemePlayready() {
 	assert.Equal(s.T(), expectedCP, cp)
 }
 
+func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionSchemePlayreadyV10("")
+	assert.NotNil(s.T(), err)
+	assert.Equal(s.T(), ErrPROEmpty, err)
+	assert.Nil(s.T(), cp)
+}
+
+func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyV10() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	cp, err := as.AddNewContentProtectionSchemePlayreadyV10(VALID_PLAYREADY_PRO)
+	assert.Nil(s.T(), err)
+	assert.NotNil(s.T(), cp)
+	expectedCP := &PlayreadyContentProtection{
+		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
+		PRO:            Strptr(VALID_PLAYREADY_PRO),
+	}
+	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID)
+
+	assert.Equal(s.T(), expectedCP, cp)
+}
+
 func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyWithPSSH() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)

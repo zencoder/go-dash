@@ -93,14 +93,16 @@ type AdaptationSet struct {
 
 // Constants for DRM / ContentProtection
 const (
-	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI   = "urn:mpeg:dash:mp4protection:2011"
-	CONTENT_PROTECTION_ROOT_VALUE           = "cenc"
-	CENC_XMLNS                              = "urn:mpeg:cenc:2013"
-	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID   = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
-	CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX  = "edef8ba979d64acea3c827dcd51d21ed"
-	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID  = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
-	CONTENT_PROTECTION_PLAYREADY_SCHEME_HEX = "9a04f07998404286ab92e65be0885f95"
-	CONTENT_PROTECTION_PLAYREADY_XMLNS      = "urn:microsoft:playready"
+	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI       = "urn:mpeg:dash:mp4protection:2011"
+	CONTENT_PROTECTION_ROOT_VALUE               = "cenc"
+	CENC_XMLNS                                  = "urn:mpeg:cenc:2013"
+	CONTENT_PROTECTION_WIDEVINE_SCHEME_ID       = "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
+	CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX      = "edef8ba979d64acea3c827dcd51d21ed"
+	CONTENT_PROTECTION_PLAYREADY_SCHEME_ID      = "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95"
+	CONTENT_PROTECTION_PLAYREADY_SCHEME_HEX     = "9a04f07998404286ab92e65be0885f95"
+	CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID  = "urn:uuid:79f0049a-4098-8642-ab92-e65be0885f95"
+	CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_HEX = "79f0049a40988642ab92e65be0885f95"
+	CONTENT_PROTECTION_PLAYREADY_XMLNS          = "urn:microsoft:playready"
 )
 
 type ContentProtectioner interface {
@@ -332,7 +334,7 @@ func NewWidevineContentProtection(wvHeader []byte) (*WidevineContentProtection, 
 // AddNewContentProtectionSchemePlayready adds a new content protection scheme for PlayReady DRM.
 // pro - PlayReady Object Header, as a Base64 encoded string.
 func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*PlayreadyContentProtection, error) {
-	cp, err := newPlayreadyContentProtection(pro)
+	cp, err := newPlayreadyContentProtection(pro, CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
 	if err != nil {
 		return nil, err
 	}
@@ -344,7 +346,22 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Pl
 	return cp, nil
 }
 
-func newPlayreadyContentProtection(pro string) (*PlayreadyContentProtection, error) {
+// AddNewContentProtectionSchemePlayready adds a new content protection scheme for PlayReady DRM.
+// pro - PlayReady Object Header, as a Base64 encoded string.
+func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10(pro string) (*PlayreadyContentProtection, error) {
+	cp, err := newPlayreadyContentProtection(pro, CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+	return cp, nil
+}
+
+func newPlayreadyContentProtection(pro string, schemeIDURI string) (*PlayreadyContentProtection, error) {
 	if pro == "" {
 		return nil, ErrPROEmpty
 	}
@@ -353,7 +370,7 @@ func newPlayreadyContentProtection(pro string) (*PlayreadyContentProtection, err
 		PlayreadyXMLNS: Strptr(CONTENT_PROTECTION_PLAYREADY_XMLNS),
 		PRO:            Strptr(pro),
 	}
-	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
+	cp.SchemeIDURI = Strptr(schemeIDURI)
 
 	return cp, nil
 }
@@ -362,7 +379,7 @@ func newPlayreadyContentProtection(pro string) (*PlayreadyContentProtection, err
 // will include both ms:pro and cenc:pssh subelements
 // pro - PlayReady Object Header, as a Base64 encoded string.
 func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyWithPSSH(pro string) (*PlayreadyContentProtection, error) {
-	cp, err := newPlayreadyContentProtection(pro)
+	cp, err := newPlayreadyContentProtection(pro, CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
 	if err != nil {
 		return nil, err
 	}
