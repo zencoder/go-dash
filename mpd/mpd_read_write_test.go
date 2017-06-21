@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -148,7 +149,7 @@ func ExampleAddNewPeriod() {
 	// you can add content to the Period
 	p := m.GetCurrentPeriod()
 	// XXX set period duration:
-	// p.SetDuration(2*time.Minute)
+	p.SetDuration(2 * time.Minute)
 	as, _ := p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-1.mp4", "$RepresentationID$/video-1/seg-$Number$.m4f", 0, 1000)
 
@@ -158,6 +159,7 @@ func ExampleAddNewPeriod() {
 
 	// add a second period
 	p = m.AddNewPeriod()
+	p.SetDuration(3 * time.Minute)
 	as, _ = p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-2.mp4", "$RepresentationID$/video-2/seg-$Number$.m4f", 0, 1000)
 
@@ -169,7 +171,7 @@ func ExampleAddNewPeriod() {
 	// Output:
 	// <?xml version="1.0" encoding="UTF-8"?>
 	// <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
-	//   <Period>
+	//   <Period duration="PT3M0S">
 	//     <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1">
 	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-2.mp4" media="$RepresentationID$/video-2/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
 	//     </AdaptationSet>

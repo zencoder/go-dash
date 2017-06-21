@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"strings"
+	"time"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
@@ -70,7 +71,7 @@ type MPD struct {
 }
 
 type Period struct {
-	//Duration        string           `xml:"duration,attr"`
+	Duration        Duration         `xml:"duration,attr,omitempty"`
 	BaseURL         string           `xml:"BaseURL,omitempty"`
 	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
@@ -205,6 +206,10 @@ func (m *MPD) AddNewPeriod() *Period {
 // GetCurrentPeriod returns the current Period.
 func (m *MPD) GetCurrentPeriod() *Period {
 	return m.Period
+}
+
+func (period *Period) SetDuration(d time.Duration) {
+	period.Duration = Duration(d)
 }
 
 // Create a new Adaptation Set for Audio Assets.
