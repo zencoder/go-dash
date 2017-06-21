@@ -403,18 +403,6 @@ func (s *MPDSuite) TestSetNewSegmentTemplate() {
 	assert.Nil(s.T(), err)
 }
 
-/*
-func (s *MPDSuite) TestSetNewSegmentTemplateErrorInvalidProfile() {
-	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
-	assert.Nil(s.T(), st)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrSegmentTemplateLiveProfileOnly, err)
-}
-*/
-
-/*
 func (s *MPDSuite) TestSetNewSegmentTemplateErrorNoDASHProfile() {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -422,15 +410,13 @@ func (s *MPDSuite) TestSetNewSegmentTemplateErrorNoDASHProfile() {
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
-		Period:                    &Period{},
+		period:                    &Period{},
 	}
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
-	assert.Nil(s.T(), st)
-	assert.NotNil(s.T(), err)
+	audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
+	err := m.Validate()
 	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
 }
-*/
 
 func (s *MPDSuite) TestAddRepresentationAudio() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
@@ -524,7 +510,6 @@ func (s *MPDSuite) TestSetNewBaseURLSubtitle() {
 	assert.Nil(s.T(), err)
 }
 
-/*
 func (s *MPDSuite) TestSetNewBaseURLErrorNoDASHProfile() {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -532,18 +517,18 @@ func (s *MPDSuite) TestSetNewBaseURLErrorNoDASHProfile() {
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
-		Period:                    &Period{},
+		period:                    &Period{},
 	}
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
-	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
+	r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
+	err := m.Validate()
 
 	assert.NotNil(s.T(), err)
 	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
 }
-*/
 
 func (s *MPDSuite) TestSetNewBaseURLErrorEmpty() {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
@@ -568,21 +553,6 @@ func (s *MPDSuite) TestSetNewSegmentBase() {
 	assert.Nil(s.T(), err)
 }
 
-/*
-func (s *MPDSuite) TestSetNewSegmentBaseErrorInvalidDASHProfile() {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
-
-	sb, err := r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
-	assert.Nil(s.T(), sb)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrSegmentBaseOnDemandProfileOnly, err)
-}
-*/
-
-/*
 func (s *MPDSuite) TestSetNewSegmentBaseErrorNoDASHProfile() {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -590,18 +560,17 @@ func (s *MPDSuite) TestSetNewSegmentBaseErrorNoDASHProfile() {
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
-		Period:                    &Period{},
+		period:                    &Period{},
 	}
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
-	sb, err := r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
-	assert.Nil(s.T(), sb)
-	assert.NotNil(s.T(), err)
+	r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
+
+	err := m.Validate()
 	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
 }
-*/
 
 func (s *MPDSuite) TestSetSegmentBaseErrorNil() {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)

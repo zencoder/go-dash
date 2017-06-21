@@ -27,13 +27,13 @@ go install ./...
   * Audio
   * Video
   * Subtitles
+  * Multiple periods (multi-part playlist)
 * DRM (ContentProtection)
   * PlayReady
   * Widevine
 
 ## Known Limitations (for now) (PRs welcome)
 
-* Single Period
 * No PSSH/PRO generation
 * Limited Profile Support
 

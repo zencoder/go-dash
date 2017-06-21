@@ -158,15 +158,15 @@ type SegmentTemplate struct {
 type Representation struct {
 	AdaptationSet             *AdaptationSet             `xml:"-"`
 	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration,omitempty"`
-	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"` // Audio
-	Bandwidth                 *int64                     `xml:"bandwidth,attr"`         // Audio + Video
-	Codecs                    *string                    `xml:"codecs,attr"`            // Audio + Video
-	FrameRate                 *string                    `xml:"frameRate,attr"`         // Video
-	Height                    *int64                     `xml:"height,attr"`            // Video
-	ID                        *string                    `xml:"id,attr"`                // Audio + Video
-	Width                     *int64                     `xml:"width,attr"`             // Video
-	BaseURL                   *string                    `xml:"BaseURL,omitempty"`      // On-Demand Profile
-	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`  // On-Demand Profile
+	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"`   // Audio
+	Bandwidth                 *int64                     `xml:"bandwidth,attr"`           // Audio + Video
+	Codecs                    *string                    `xml:"codecs,attr"`              // Audio + Video
+	FrameRate                 *string                    `xml:"frameRate,attr,omitempty"` // Video
+	Height                    *int64                     `xml:"height,attr"`              // Video
+	ID                        *string                    `xml:"id,attr"`                  // Audio + Video
+	Width                     *int64                     `xml:"width,attr"`               // Video
+	BaseURL                   *string                    `xml:"BaseURL,omitempty"`        // On-Demand Profile
+	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
 	SegmentList               *SegmentList               `xml:"SegmentList,omitempty"`
 	SegmentTemplate           *SegmentTemplate           `xml:"SegmentTemplate,omitempty"`
 }
@@ -517,15 +517,6 @@ func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, medi
 
 // Internal helper method for setting the Segment Template on an AdaptationSet.
 func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
-	/*
-		XXX move error checks to a helper on the mpd instance
-			if as.MPD == nil || as.MPD.Profiles == nil {
-				return ErrNoDASHProfileSet
-			}
-			if *as.MPD.Profiles != string(DASH_PROFILE_LIVE) {
-				return ErrSegmentTemplateLiveProfileOnly
-			}
-	*/
 	if st == nil {
 		return ErrSegmentTemplateNil
 	}
@@ -620,12 +611,6 @@ func (as *AdaptationSet) AddNewRole(schemeIDURI string, value string) (*Role, er
 // Sets the BaseURL for a Representation.
 // baseURL - Base URL as a string (i.e. 800k/output-audio-und.mp4)
 func (r *Representation) SetNewBaseURL(baseURL string) error {
-	/*
-		XXX move error check someplace else
-		if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
-			return ErrNoDASHProfileSet
-		}
-	*/
 	if baseURL == "" {
 		return ErrBaseURLEmpty
 	}
@@ -652,15 +637,9 @@ func (r *Representation) AddNewSegmentBase(indexRange string, initRange string) 
 
 // Internal helper method for setting the SegmentBase on a Representation.
 func (r *Representation) setSegmentBase(sb *SegmentBase) error {
-	if r.AdaptationSet == nil /*|| r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil*/ {
+	if r.AdaptationSet == nil {
 		return ErrNoDASHProfileSet
 	}
-	/*
-		XXX move checks someplace else
-			if *r.AdaptationSet.MPD.Profiles != (string)(DASH_PROFILE_ONDEMAND) {
-				return ErrSegmentBaseOnDemandProfileOnly
-			}
-	*/
 	if sb == nil {
 		return ErrSegmentBaseNil
 	}
@@ -688,11 +667,6 @@ func (r *Representation) AddNewAudioChannelConfiguration(scheme AudioChannelConf
 
 // Internal helper method for setting the SegmentBase on a Representation.
 func (r *Representation) setAudioChannelConfiguration(acc *AudioChannelConfiguration) error {
-	/* XXX move checks elsewhere
-	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
-		return ErrNoDASHProfileSet
-	}
-	*/
 	if acc == nil {
 		return ErrAudioChannelConfigurationNil
 	}
