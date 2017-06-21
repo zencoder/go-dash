@@ -65,7 +65,8 @@ type MPD struct {
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
-	Period                    *Period `xml:"Period,omitempty"`
+	Period                    *Period
+	periods                   []*Period `xml:"Period,omitempty"`
 }
 
 type Period struct {
@@ -180,13 +181,15 @@ type AudioChannelConfiguration struct {
 // mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
 // minBufferTime - Min Buffer Time (i.e. PT1.97S).
 func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
+	period := &Period{}
 	return &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(profile)),
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(mediaPresentationDuration),
 		MinBufferTime:             Strptr(minBufferTime),
-		Period:                    &Period{},
+		Period:                    period,
+		periods:                   []*Period{period},
 	}
 }
 
@@ -244,7 +247,7 @@ func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*Adapta
 	return as, nil
 }
 
-// Internal helper method for adding a AdapatationSet to an MPD.
+// Internal helper method for adding a AdapatationSet to current Period.
 func (m *MPD) addAdaptationSet(as *AdaptationSet) error {
 	if as == nil {
 		return ErrAdaptationSetNil
