@@ -197,8 +197,8 @@ func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime
 // AddNewPeriod creates a new Period and make it the currently active one.
 func (m *MPD) AddNewPeriod() *Period {
 	period := &Period{}
-	m.Period = period
 	m.periods = append(m.periods, period)
+	m.Period = period
 	return period
 }
 
