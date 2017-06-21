@@ -68,7 +68,11 @@ func (s *MPDReadWriteSuite) TestNewMPDLiveWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period></Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period></Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -77,7 +81,11 @@ func (s *MPDReadWriteSuite) TestNewMPDOnDemandWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period></Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period></Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -88,7 +96,13 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetAudioWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"audio/mp4\" segmentAlignment=\"true\" startWithSAP=\"1\" lang=\"en\"></AdaptationSet>\n  </Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period>
+    <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="en"></AdaptationSet>
+  </Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -99,7 +113,13 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetVideoWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"video/mp4\" scanType=\"progressive\" segmentAlignment=\"true\" startWithSAP=\"1\"></AdaptationSet>\n  </Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period>
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1"></AdaptationSet>
+  </Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -110,7 +130,13 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"text/vtt\" lang=\"en\"></AdaptationSet>\n  </Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period>
+    <AdaptationSet mimeType="text/vtt" lang="en"></AdaptationSet>
+  </Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
