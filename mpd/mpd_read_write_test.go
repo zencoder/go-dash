@@ -1,9 +1,12 @@
 package mpd
 
 import (
+	"fmt"
 	"os"
+	"strings"
 	"testing"
 
+	"github.com/martinlindhe/go-difflib/difflib"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
@@ -140,6 +143,41 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
+/*
+func ExampleAddNewPeriod() {
+	// a new MPD is created with a single Period
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+
+	// you can add content to the Period
+	p := m.GetCurrentPeriod()
+	// XXX set period duration:
+	// p.SetDuration(2*time.Minute)
+	as, _ := p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-1.mp4", "$RepresentationID$/video-1/seg-$Number$.m4f", 0, 1000)
+
+	// or directly to the MPD, which will use the current Period.
+	as, _ = m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/audio-1.mp4", "$RepresentationID$/audio-1/seg-$Number$.m4f", 0, 1000)
+
+	// add a second period
+	p = m.AddNewPeriod()
+	as, _ = p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-2.mp4", "$RepresentationID$/video-2/seg-$Number$.m4f", 0, 1000)
+
+	as, _ = m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/audio-2.mp4", "$RepresentationID$/audio-2/seg-$Number$.m4f", 0, 1000)
+
+	xmlStr, _ := m.WriteToString()
+	fmt.Print(xmlStr)
+	// Output:
+	// <?xml version="1.0" encoding="UTF-8"?>
+	// <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+	//  <Period>
+	//    <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="en"></AdaptationSet>
+	//  </Period>
+	//</MPD>
+}
+*/
 func LiveProfile() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
@@ -234,7 +272,36 @@ func (s *MPDReadWriteSuite) TestFullHbbTVProfileWriteToString() {
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
 	expectedXML := testfixtures.LoadFixture("fixtures/hbbtv_profile.mpd")
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	assertCompareRender(s.T(), strings.Split(expectedXML, "\n"), strings.Split(xmlStr, "\n"))
+	// XXX diff
+}
+
+// asserts that expected == got, or fails test
+func assertCompareRender(t *testing.T, expected, got []string) {
+	fail := false
+	if len(expected) != len(got) {
+		t.Error("expected", len(expected), "lines, got", len(got))
+		fail = true
+	}
+	for i, ex := range expected {
+		if i >= len(got) || ex != got[i] {
+			fail = true
+			break
+		}
+	}
+	if fail {
+		diff, _ := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
+			A:        expected,
+			B:        got,
+			FromFile: "expected",
+			ToFile:   "got",
+			Context:  3,
+			Eol:      "\n",
+		})
+		fmt.Print(diff)
+
+		t.FailNow()
+	}
 }
 
 func (s *MPDReadWriteSuite) TestFullHbbTVProfileWriteToFile() {
