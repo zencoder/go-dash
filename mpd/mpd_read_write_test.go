@@ -146,23 +146,20 @@ func ExampleAddNewPeriod() {
 	// a new MPD is created with a single Period
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	// you can add content to the Period
-	p := m.GetCurrentPeriod()
-	// XXX set period duration:
-	p.SetDuration(2 * time.Minute)
-	as, _ := p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-1.mp4", "$RepresentationID$/video-1/seg-$Number$.m4f", 0, 1000)
 
-	// or directly to the MPD, which will use the current Period.
 	as, _ = m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	as.SetNewSegmentTemplate(1968, "$RepresentationID$/audio-1.mp4", "$RepresentationID$/audio-1/seg-$Number$.m4f", 0, 1000)
 
 	// add a second period
-	p = m.AddNewPeriod()
+	p := m.AddNewPeriod()
 	p.SetDuration(3 * time.Minute)
+	// you can add content to the Period
 	as, _ = p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-2.mp4", "$RepresentationID$/video-2/seg-$Number$.m4f", 0, 1000)
 
+	// or directly to the MPD, which will use the current Period.
 	as, _ = m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	as.SetNewSegmentTemplate(1968, "$RepresentationID$/audio-2.mp4", "$RepresentationID$/audio-2/seg-$Number$.m4f", 0, 1000)
 
@@ -171,6 +168,14 @@ func ExampleAddNewPeriod() {
 	// Output:
 	// <?xml version="1.0" encoding="UTF-8"?>
 	// <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+	//   <Period>
+	//     <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1">
+	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-1.mp4" media="$RepresentationID$/video-1/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
+	//     </AdaptationSet>
+	//     <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="en">
+	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/audio-1.mp4" media="$RepresentationID$/audio-1/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
+	//     </AdaptationSet>
+	//   </Period>
 	//   <Period duration="PT3M0S">
 	//     <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1">
 	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-2.mp4" media="$RepresentationID$/video-2/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>

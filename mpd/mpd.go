@@ -66,8 +66,8 @@ type MPD struct {
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
-	Period                    *Period
-	periods                   []*Period `xml:"Period,omitempty"`
+	period                    *Period
+	Periods                   []*Period `xml:"Period,omitempty"`
 }
 
 type Period struct {
@@ -80,7 +80,6 @@ type Period struct {
 }
 
 type AdaptationSet struct {
-	//MPD               *MPD                  `xml:"-"`
 	MimeType          *string               `xml:"mimeType,attr"`
 	ScanType          *string               `xml:"scanType,attr"`
 	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
@@ -190,22 +189,22 @@ func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(mediaPresentationDuration),
 		MinBufferTime:             Strptr(minBufferTime),
-		Period:                    period,
-		periods:                   []*Period{period},
+		period:                    period,
+		Periods:                   []*Period{period},
 	}
 }
 
 // AddNewPeriod creates a new Period and make it the currently active one.
 func (m *MPD) AddNewPeriod() *Period {
 	period := &Period{}
-	m.periods = append(m.periods, period)
-	m.Period = period
+	m.Periods = append(m.Periods, period)
+	m.period = period
 	return period
 }
 
 // GetCurrentPeriod returns the current Period.
 func (m *MPD) GetCurrentPeriod() *Period {
-	return m.Period
+	return m.period
 }
 
 func (period *Period) SetDuration(d time.Duration) {
@@ -218,7 +217,7 @@ func (period *Period) SetDuration(d time.Duration) {
 // startWithSAP - Starts With SAP (i.e. 1).
 // lang - Language (i.e. en).
 func (m *MPD) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
-	return m.Period.AddNewAdaptationSetAudio(mimeType, segmentAlignment, startWithSAP, lang)
+	return m.period.AddNewAdaptationSetAudio(mimeType, segmentAlignment, startWithSAP, lang)
 }
 
 // Create a new Adaptation Set for Audio Assets.
@@ -246,7 +245,7 @@ func (period *Period) AddNewAdaptationSetAudio(mimeType string, segmentAlignment
 // segmentAlignment - Segment Alignment(i.e. true).
 // startWithSAP - Starts With SAP (i.e. 1).
 func (m *MPD) AddNewAdaptationSetVideo(mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
-	return m.Period.AddNewAdaptationSetVideo(mimeType, scanType, segmentAlignment, startWithSAP)
+	return m.period.AddNewAdaptationSetVideo(mimeType, scanType, segmentAlignment, startWithSAP)
 }
 
 // Create a new Adaptation Set for Video Assets.
@@ -272,7 +271,7 @@ func (period *Period) AddNewAdaptationSetVideo(mimeType string, scanType string,
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
 func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
-	return m.Period.AddNewAdaptationSetSubtitle(mimeType, lang)
+	return m.period.AddNewAdaptationSetSubtitle(mimeType, lang)
 }
 
 // Create a new Adaptation Set for Subtitle Assets.
@@ -289,18 +288,6 @@ func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string) 
 	}
 	return as, nil
 }
-
-/*
-// Internal helper method for adding a AdapatationSet to current Period.
-func (m *MPD) addAdaptationSet(as *AdaptationSet) error {
-	if as == nil {
-		return ErrAdaptationSetNil
-	}
-	as.MPD = m   // XXX
-	m.Period.AdaptationSets = append(m.Period.AdaptationSets, as)
-	return nil
-}
-*/
 
 // Internal helper method for adding a AdapatationSet.
 func (period *Period) addAdaptationSet(as *AdaptationSet) error {
