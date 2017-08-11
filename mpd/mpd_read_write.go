@@ -75,15 +75,13 @@ func (m *MPD) WriteToString() (string, error) {
 // Writes an MPD object to an io.Writer interface
 // w - Must implement the io.Writer interface.
 func (m *MPD) Write(w io.Writer) error {
-	// Write out the XML Header
-	w.Write([]byte(xml.Header))
-	// Write out the DASH XML manifest
-	e := xml.NewEncoder(w)
-	e.Indent("", "  ")
-	err := e.Encode(m)
+	b, err := xml.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return err
 	}
+
+	w.Write([]byte(xml.Header))
+	w.Write(b)
 	w.Write([]byte("\n"))
 	return nil
 }

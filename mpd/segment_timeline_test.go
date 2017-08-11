@@ -39,17 +39,17 @@ func (s *SegmentListSuite) TestSegmentTimelineDeserialization() {
 	if err == nil {
 		expected := getSegmentTimelineMPD()
 
-		s.Equal(expected.Period.BaseURL, m.Period.BaseURL)
+		s.Equal(expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
 
-		expectedAudioSegTimeline := expected.Period.AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
-		audioSegTimeline := m.Period.AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
+		expectedAudioSegTimeline := expected.Periods[0].AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
+		audioSegTimeline := m.Periods[0].AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
 
 		for i := range expectedAudioSegTimeline.Segments {
 			s.Equal(expectedAudioSegTimeline.Segments[i], audioSegTimeline.Segments[i])
 		}
 
-		expectedVideoSegTimeline := expected.Period.AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
-		videoSegTimeline := m.Period.AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
+		expectedVideoSegTimeline := expected.Periods[0].AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
+		videoSegTimeline := m.Periods[0].AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
 
 		for i := range expectedVideoSegTimeline.Segments {
 			s.Equal(expectedVideoSegTimeline.Segments[i], videoSegTimeline.Segments[i])
@@ -59,7 +59,7 @@ func (s *SegmentListSuite) TestSegmentTimelineDeserialization() {
 
 func getSegmentTimelineMPD() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, "PT65.063S", "PT2.000S")
-	m.Period.BaseURL = "http://localhost:8002/public/"
+	m.period.BaseURL = "http://localhost:8002/public/"
 
 	aas, _ := m.AddNewAdaptationSetAudio("audio/mp4", true, 1, "English")
 	ra, _ := aas.AddNewRepresentationAudio(48000, 255000, "mp4a.40.2", "audio_1")

@@ -6,6 +6,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"strings"
+	"time"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
@@ -65,10 +66,12 @@ type MPD struct {
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
-	Period                    *Period `xml:"Period,omitempty"`
+	period                    *Period
+	Periods                   []*Period `xml:"Period,omitempty"`
 }
 
 type Period struct {
+	Duration        Duration         `xml:"duration,attr,omitempty"`
 	BaseURL         string           `xml:"BaseURL,omitempty"`
 	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
@@ -77,7 +80,6 @@ type Period struct {
 }
 
 type AdaptationSet struct {
-	MPD               *MPD                  `xml:"-"`
 	MimeType          *string               `xml:"mimeType,attr"`
 	ScanType          *string               `xml:"scanType,attr"`
 	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
@@ -156,15 +158,15 @@ type SegmentTemplate struct {
 type Representation struct {
 	AdaptationSet             *AdaptationSet             `xml:"-"`
 	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration,omitempty"`
-	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"` // Audio
-	Bandwidth                 *int64                     `xml:"bandwidth,attr"`         // Audio + Video
-	Codecs                    *string                    `xml:"codecs,attr"`            // Audio + Video
-	FrameRate                 *string                    `xml:"frameRate,attr"`         // Video
-	Height                    *int64                     `xml:"height,attr"`            // Video
-	ID                        *string                    `xml:"id,attr"`                // Audio + Video
-	Width                     *int64                     `xml:"width,attr"`             // Video
-	BaseURL                   *string                    `xml:"BaseURL,omitempty"`      // On-Demand Profile
-	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`  // On-Demand Profile
+	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"`   // Audio
+	Bandwidth                 *int64                     `xml:"bandwidth,attr"`           // Audio + Video
+	Codecs                    *string                    `xml:"codecs,attr"`              // Audio + Video
+	FrameRate                 *string                    `xml:"frameRate,attr,omitempty"` // Video
+	Height                    *int64                     `xml:"height,attr"`              // Video
+	ID                        *string                    `xml:"id,attr"`                  // Audio + Video
+	Width                     *int64                     `xml:"width,attr"`               // Video
+	BaseURL                   *string                    `xml:"BaseURL,omitempty"`        // On-Demand Profile
+	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
 	SegmentList               *SegmentList               `xml:"SegmentList,omitempty"`
 	SegmentTemplate           *SegmentTemplate           `xml:"SegmentTemplate,omitempty"`
 }
@@ -180,14 +182,33 @@ type AudioChannelConfiguration struct {
 // mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
 // minBufferTime - Min Buffer Time (i.e. PT1.97S).
 func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
+	period := &Period{}
 	return &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(profile)),
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(mediaPresentationDuration),
 		MinBufferTime:             Strptr(minBufferTime),
-		Period:                    &Period{},
+		period:                    period,
+		Periods:                   []*Period{period},
 	}
+}
+
+// AddNewPeriod creates a new Period and make it the currently active one.
+func (m *MPD) AddNewPeriod() *Period {
+	period := &Period{}
+	m.Periods = append(m.Periods, period)
+	m.period = period
+	return period
+}
+
+// GetCurrentPeriod returns the current Period.
+func (m *MPD) GetCurrentPeriod() *Period {
+	return m.period
+}
+
+func (period *Period) SetDuration(d time.Duration) {
+	period.Duration = Duration(d)
 }
 
 // Create a new Adaptation Set for Audio Assets.
@@ -196,13 +217,22 @@ func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime
 // startWithSAP - Starts With SAP (i.e. 1).
 // lang - Language (i.e. en).
 func (m *MPD) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetAudio(mimeType, segmentAlignment, startWithSAP, lang)
+}
+
+// Create a new Adaptation Set for Audio Assets.
+// mimeType - MIME Type (i.e. audio/mp4).
+// segmentAlignment - Segment Alignment(i.e. true).
+// startWithSAP - Starts With SAP (i.e. 1).
+// lang - Language (i.e. en).
+func (period *Period) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		MimeType:         Strptr(mimeType),
 		SegmentAlignment: Boolptr(segmentAlignment),
 		StartWithSAP:     Int64ptr(startWithSAP),
 		Lang:             Strptr(lang),
 	}
-	err := m.addAdaptationSet(as)
+	err := period.addAdaptationSet(as)
 	if err != nil {
 		return nil, err
 	}
@@ -215,13 +245,22 @@ func (m *MPD) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, s
 // segmentAlignment - Segment Alignment(i.e. true).
 // startWithSAP - Starts With SAP (i.e. 1).
 func (m *MPD) AddNewAdaptationSetVideo(mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetVideo(mimeType, scanType, segmentAlignment, startWithSAP)
+}
+
+// Create a new Adaptation Set for Video Assets.
+// mimeType - MIME Type (i.e. video/mp4).
+// scanType - Scan Type (i.e.progressive).
+// segmentAlignment - Segment Alignment(i.e. true).
+// startWithSAP - Starts With SAP (i.e. 1).
+func (period *Period) AddNewAdaptationSetVideo(mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		MimeType:         Strptr(mimeType),
 		ScanType:         Strptr(scanType),
 		SegmentAlignment: Boolptr(segmentAlignment),
 		StartWithSAP:     Int64ptr(startWithSAP),
 	}
-	err := m.addAdaptationSet(as)
+	err := period.addAdaptationSet(as)
 	if err != nil {
 		return nil, err
 	}
@@ -232,25 +271,30 @@ func (m *MPD) AddNewAdaptationSetVideo(mimeType string, scanType string, segment
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
 func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetSubtitle(mimeType, lang)
+}
+
+// Create a new Adaptation Set for Subtitle Assets.
+// mimeType - MIME Type (i.e. text/vtt).
+// lang - Language (i.e. en).
+func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		MimeType: Strptr(mimeType),
 		Lang:     Strptr(lang),
 	}
-
-	err := m.addAdaptationSet(as)
+	err := period.addAdaptationSet(as)
 	if err != nil {
 		return nil, err
 	}
 	return as, nil
 }
 
-// Internal helper method for adding a AdapatationSet to an MPD.
-func (m *MPD) addAdaptationSet(as *AdaptationSet) error {
+// Internal helper method for adding a AdapatationSet.
+func (period *Period) addAdaptationSet(as *AdaptationSet) error {
 	if as == nil {
 		return ErrAdaptationSetNil
 	}
-	as.MPD = m
-	m.Period.AdaptationSets = append(m.Period.AdaptationSets, as)
+	period.AdaptationSets = append(period.AdaptationSets, as)
 	return nil
 }
 
@@ -473,12 +517,6 @@ func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, medi
 
 // Internal helper method for setting the Segment Template on an AdaptationSet.
 func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
-	if as.MPD == nil || as.MPD.Profiles == nil {
-		return ErrNoDASHProfileSet
-	}
-	if *as.MPD.Profiles != (string)(DASH_PROFILE_LIVE) {
-		return ErrSegmentTemplateLiveProfileOnly
-	}
 	if st == nil {
 		return ErrSegmentTemplateNil
 	}
@@ -573,9 +611,6 @@ func (as *AdaptationSet) AddNewRole(schemeIDURI string, value string) (*Role, er
 // Sets the BaseURL for a Representation.
 // baseURL - Base URL as a string (i.e. 800k/output-audio-und.mp4)
 func (r *Representation) SetNewBaseURL(baseURL string) error {
-	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
-		return ErrNoDASHProfileSet
-	}
 	if baseURL == "" {
 		return ErrBaseURLEmpty
 	}
@@ -602,11 +637,8 @@ func (r *Representation) AddNewSegmentBase(indexRange string, initRange string) 
 
 // Internal helper method for setting the SegmentBase on a Representation.
 func (r *Representation) setSegmentBase(sb *SegmentBase) error {
-	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
+	if r.AdaptationSet == nil {
 		return ErrNoDASHProfileSet
-	}
-	if *r.AdaptationSet.MPD.Profiles != (string)(DASH_PROFILE_ONDEMAND) {
-		return ErrSegmentBaseOnDemandProfileOnly
 	}
 	if sb == nil {
 		return ErrSegmentBaseNil
@@ -635,9 +667,6 @@ func (r *Representation) AddNewAudioChannelConfiguration(scheme AudioChannelConf
 
 // Internal helper method for setting the SegmentBase on a Representation.
 func (r *Representation) setAudioChannelConfiguration(acc *AudioChannelConfiguration) error {
-	if r.AdaptationSet == nil || r.AdaptationSet.MPD == nil || r.AdaptationSet.MPD.Profiles == nil {
-		return ErrNoDASHProfileSet
-	}
 	if acc == nil {
 		return ErrAudioChannelConfigurationNil
 	}

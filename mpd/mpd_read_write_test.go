@@ -1,8 +1,10 @@
 package mpd
 
 import (
+	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -68,7 +70,11 @@ func (s *MPDReadWriteSuite) TestNewMPDLiveWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period></Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period></Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -77,7 +83,11 @@ func (s *MPDReadWriteSuite) TestNewMPDOnDemandWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-on-demand:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period></Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period></Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -88,7 +98,13 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetAudioWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"audio/mp4\" segmentAlignment=\"true\" startWithSAP=\"1\" lang=\"en\"></AdaptationSet>\n  </Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period>
+    <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="en"></AdaptationSet>
+  </Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -99,7 +115,13 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetVideoWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"video/mp4\" scanType=\"progressive\" segmentAlignment=\"true\" startWithSAP=\"1\"></AdaptationSet>\n  </Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period>
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1"></AdaptationSet>
+  </Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
 }
 
@@ -110,8 +132,60 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
 
 	xmlStr, err := m.WriteToString()
 	assert.Nil(s.T(), err)
-	expectedXML := "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" profiles=\"urn:mpeg:dash:profile:isoff-live:2011\" type=\"static\" mediaPresentationDuration=\"PT6M16S\" minBufferTime=\"PT1.97S\">\n  <Period>\n    <AdaptationSet mimeType=\"text/vtt\" lang=\"en\"></AdaptationSet>\n  </Period>\n</MPD>\n"
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period>
+    <AdaptationSet mimeType="text/vtt" lang="en"></AdaptationSet>
+  </Period>
+</MPD>
+`
 	assert.Equal(s.T(), expectedXML, xmlStr)
+}
+
+func ExampleAddNewPeriod() {
+	// a new MPD is created with a single Period
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+
+	// you can add content to the Period
+	p := m.GetCurrentPeriod()
+	as, _ := p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-1.mp4", "$RepresentationID$/video-1/seg-$Number$.m4f", 0, 1000)
+
+	// or directly to the MPD, which will use the current Period.
+	as, _ = m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/audio-1.mp4", "$RepresentationID$/audio-1/seg-$Number$.m4f", 0, 1000)
+
+	// add a second period
+	p = m.AddNewPeriod()
+	p.SetDuration(3 * time.Minute)
+	as, _ = p.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/video-2.mp4", "$RepresentationID$/video-2/seg-$Number$.m4f", 0, 1000)
+
+	as, _ = m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	as.SetNewSegmentTemplate(1968, "$RepresentationID$/audio-2.mp4", "$RepresentationID$/audio-2/seg-$Number$.m4f", 0, 1000)
+
+	xmlStr, _ := m.WriteToString()
+	fmt.Print(xmlStr)
+	// Output:
+	// <?xml version="1.0" encoding="UTF-8"?>
+	// <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+	//   <Period>
+	//     <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1">
+	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-1.mp4" media="$RepresentationID$/video-1/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
+	//     </AdaptationSet>
+	//     <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="en">
+	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/audio-1.mp4" media="$RepresentationID$/audio-1/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
+	//     </AdaptationSet>
+	//   </Period>
+	//   <Period duration="PT3M0S">
+	//     <AdaptationSet mimeType="video/mp4" scanType="progressive" segmentAlignment="true" startWithSAP="1">
+	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-2.mp4" media="$RepresentationID$/video-2/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
+	//     </AdaptationSet>
+	//     <AdaptationSet mimeType="audio/mp4" segmentAlignment="true" startWithSAP="1" lang="en">
+	//       <SegmentTemplate duration="1968" initialization="$RepresentationID$/audio-2.mp4" media="$RepresentationID$/audio-2/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
+	//     </AdaptationSet>
+	//   </Period>
+	// </MPD>
 }
 
 func LiveProfile() *MPD {
