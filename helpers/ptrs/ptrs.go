@@ -1,4 +1,4 @@
-package helpers
+package ptrs
 
 func Strptr(v string) *string {
 	p := new(string)

@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/suite"
-	ptrs "github.com/zencoder/go-dash/helpers/ptrs"
+	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
