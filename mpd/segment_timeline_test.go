@@ -1,8 +1,6 @@
 package mpd
 
 import (
-	"io/ioutil"
-	"os"
 	"strconv"
 	"testing"
 	"time"
@@ -25,9 +23,6 @@ func TestSegmentTimelineSerialization(t *testing.T) {
 		t.Run(tc.Out, func(t *testing.T) {
 			found, err := tc.In.WriteToString()
 			require.NoError(t, err)
-			if os.Getenv("SHEDAISY") != "" {
-				ioutil.WriteFile("fixtures/"+tc.Out, []byte(found), 0644)
-			}
 			expected := testfixtures.LoadFixture("fixtures/" + tc.Out)
 			assert.Equal(t, expected, found)
 		})
