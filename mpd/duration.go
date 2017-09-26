@@ -4,6 +4,9 @@ package mpd
 
 import (
 	"encoding/xml"
+	"errors"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -11,6 +14,15 @@ type Duration time.Duration
 
 func (d Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{name, d.String()}, nil
+}
+
+func (d *Duration) UnmarshalXMLAttr(attr xml.Attr) error {
+	dur, err := parseDuration(attr.Value)
+	if err != nil {
+		return err
+	}
+	*d = Duration(dur)
+	return nil
 }
 
 // String renders a Duration in XML Duration Data Type format
@@ -125,4 +137,96 @@ func fmtInt(buf []byte, v uint64) int {
 		}
 	}
 	return w
+}
+
+func parseDuration(str string) (time.Duration, error) {
+	if len(str) < 3 {
+		return 0, errors.New("input duration too short")
+	}
+
+	var minus bool
+	offset := 0
+	if str[offset] == '-' {
+		minus = true
+		offset++
+	}
+
+	if str[offset] != 'P' {
+		return 0, errors.New("input duration does not have a valid prefix")
+	}
+	offset++
+
+	base := time.Unix(0, 0)
+	t := base
+
+	var dateStr, timeStr string
+	if i := strings.IndexByte(str[offset:], 'T'); i != -1 {
+		dateStr = str[offset : offset+i]
+		timeStr = str[offset+i+1:]
+	} else {
+		dateStr = str[offset:]
+	}
+
+	if len(dateStr) > 0 {
+		var pos int
+		var err error
+		var years, months, days int
+		if i := strings.IndexByte(dateStr[pos:], 'Y'); i != -1 {
+			years, err = strconv.Atoi(dateStr[pos : pos+i])
+			if err != nil {
+				return 0, err
+			}
+			pos += i + 1
+		}
+
+		if i := strings.IndexByte(dateStr[pos:], 'M'); i != -1 {
+			months, err = strconv.Atoi(dateStr[pos : pos+i])
+			if err != nil {
+				return 0, err
+			}
+			pos += i + 1
+		}
+
+		if i := strings.IndexByte(dateStr[pos:], 'D'); i != -1 {
+			days, err = strconv.Atoi(dateStr[pos : pos+i])
+			if err != nil {
+				return 0, err
+			}
+		}
+		t = t.AddDate(years, months, days)
+	}
+
+	if len(timeStr) > 0 {
+		var pos int
+		var sum float64
+		if i := strings.IndexByte(timeStr[pos:], 'H'); i != -1 {
+			hours, err := strconv.ParseInt(timeStr[pos:pos+i], 10, 64)
+			if err != nil {
+				return 0, err
+			}
+			sum += float64(hours) * 3600
+			pos += i + 1
+		}
+		if i := strings.IndexByte(timeStr[pos:], 'M'); i != -1 {
+			minutes, err := strconv.ParseInt(timeStr[pos:pos+i], 10, 64)
+			if err != nil {
+				return 0, err
+			}
+			sum += float64(minutes) * 60
+			pos += i + 1
+		}
+		if i := strings.IndexByte(timeStr[pos:], 'S'); i != -1 {
+			seconds, err := strconv.ParseFloat(timeStr[pos:pos+i], 64)
+			if err != nil {
+				return 0, err
+			}
+			sum += seconds
+		}
+		t = t.Add(time.Duration(sum * float64(time.Second)))
+	}
+
+	if minus {
+		return -t.Sub(base), nil
+	}
+	return t.Sub(base), nil
 }
