@@ -1,7 +1,12 @@
-GO15VENDOREXPERIMENT := 1
 COVERAGEDIR = coverage
 ifdef CIRCLE_ARTIFACTS
   COVERAGEDIR = $(CIRCLE_ARTIFACTS)
+endif
+
+ifdef VERBOSE
+V = -v
+else
+.SILENT:
 endif
 
 all: test cover
@@ -10,8 +15,8 @@ fmt:
 	find . -not -path "./vendor/*" -name '*.go' -type f | sed 's#\(.*\)/.*#\1#' | sort -u | xargs -n1 -I {} bash -c "cd {} && goimports -w *.go && gofmt -w -s -l *.go"
 
 test:
-	if [ ! -d coverage ]; then mkdir coverage; fi
-	go test -v ./mpd -race -cover -coverprofile=$(COVERAGEDIR)/mpd.coverprofile
+	mkdir -p coverage
+	go test $(V) ./mpd -race -cover -coverprofile=$(COVERAGEDIR)/mpd.coverprofile
 
 cover:
 	go tool cover -html=$(COVERAGEDIR)/mpd.coverprofile -o $(COVERAGEDIR)/mpd.html
