@@ -1,0 +1,50 @@
+---
+version: 2
+executorType: docker
+containerInfo:
+  - image: library/golang
+    environment:
+      AWS_ACCESS_KEY_ID: 1
+      AWS_SECRET_ACCESS_KEY: 1
+      GLIDE_VERSION: 0.12.3
+jobs:
+  build:
+    workdir: "/go/src/github.com/zencoder/go-dash"
+    steps:
+      - checkout
+      - run:
+          name: Install Glide
+          command: |
+            set -eux
+            curl -sSLfO https://github.com/Masterminds/glide/releases/download/v${GLIDE_VERSION}/glide-v${GLIDE_VERSION}-linux-amd64.tar.gz
+            mkdir glide
+            tar -xzf glide-v${GLIDE_VERSION}-linux-amd64.tar.gz -C ./glide
+            cp ./glide/linux-amd64/glide /usr/local/bin/glide
+            rm -r glide glide-v${GLIDE_VERSION}-linux-amd64.tar.gz
+      - restore_cache:
+          key: glide-{{ checksum "glide.lock" }}
+      - run:
+          name: Download vendored Go dependencies
+          command: glide install
+      - save_cache:
+          key: glide-{{ checksum "glide.lock" }}
+          paths:
+            - vendor
+      - run:
+          name: Install required tooling
+          command: |
+            go get golang.org/x/tools/cmd/cover
+            go get github.com/mattn/goveralls
+            go get github.com/modocache/gover
+      - run:
+          name: Run unit tests
+          command: |
+            make test
+      - run:
+          name: Collect coverage reports
+          command: |
+            make cover
+      - run:
+          name: Submit coverage to coveralls.io
+          command: |
+            make coveralls

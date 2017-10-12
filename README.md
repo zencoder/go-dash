@@ -13,7 +13,6 @@ mkdir -p $GOPATH/src/github.com/zencoder
 cd $GOPATH/src/github.com/zencoder
 git clone https://github.com/zencoder/go-dash
 cd go-dash
-export GO15VENDOREXPERIMENT=1
 glide install
 go install ./...
 ```
@@ -55,7 +54,7 @@ make examples-ondemand
 
 ### Dependencies
 
-Tested on go 1.8.3.
+Tested on go 1.9.1.
 
 ### Build and run unit tests
 
