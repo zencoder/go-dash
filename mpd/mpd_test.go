@@ -184,6 +184,44 @@ func (s *MPDSuite) TestAddNewAdaptationSetAudio() {
 	assert.Equal(s.T(), expectedAS, as)
 }
 
+func (s *MPDSuite) TestAddNewAdaptationSetAudioSetAdditionalAttributes() {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	as, err := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	assert.NotNil(s.T(), as)
+	assert.Nil(s.T(), err)
+	as.ID = Strptr("1")
+	as.CommonAttributesAndElements.Codecs = Strptr(VALID_AUDIO_CODEC)
+	expectedAS := &AdaptationSet{
+		MimeType:         Strptr(VALID_MIME_TYPE_AUDIO),
+		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
+		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
+		Lang:             Strptr(VALID_LANG),
+		ID:               Strptr("1"),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			Profiles:                  nil,
+			Width:                     nil,
+			Height:                    nil,
+			Sar:                       nil,
+			FrameRate:                 nil,
+			AudioSamplingRate:         nil,
+			MimeType:                  nil,
+			SegmentProfiles:           nil,
+			Codecs:                    Strptr(VALID_AUDIO_CODEC),
+			MaximumSAPPeriod:          nil,
+			StartWithSAP:              nil,
+			MaxPlayoutRate:            nil,
+			ScanType:                  nil,
+			FramePacking:              nil,
+			AudioChannelConfiguration: nil,
+			ContentProtection:         nil,
+			EssentialProperty:         nil,
+			SupplementalProperty:      nil,
+			InbandEventStream:         nil,
+		},
+	}
+	assert.Equal(s.T(), expectedAS, as)
+}
+
 func (s *MPDSuite) TestAddNewAdaptationSetVideo() {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 

@@ -81,13 +81,50 @@ type Period struct {
 	AdaptationSets  []*AdaptationSet `xml:"AdaptationSet,omitempty"`
 }
 
+type DescriptorType struct {
+	SchemeIDURI *string `xml:"schemeIDURI,attr"`
+	Value       *string `xml:"value,attr"`
+	ID          *string `xml:"id,attr"`
+}
+
+// ISO 23009-1-2014 5.3.7
+type CommonAttributesAndElements struct {
+	Profiles                  *string         `xml:"profiles,attr"`
+	Width                     *string         `xml:"width,attr"`
+	Height                    *string         `xml:"height,attr"`
+	Sar                       *string         `xml:"sar,attr"`
+	FrameRate                 *string         `xml:"frameRate,attr"`
+	AudioSamplingRate         *string         `xml:"audioSamplingRate,attr"`
+	MimeType                  *string         `xml:"mimeType,attr"`
+	SegmentProfiles           *string         `xml:"segmentProfiles,attr"`
+	Codecs                    *string         `xml:"codecs,attr"`
+	MaximumSAPPeriod          *string         `xml:"MaximumSAPPeriod,attr"`
+	StartWithSAP              *string         `xml:"startWithSAP,attr"`
+	MaxPlayoutRate            *string         `xml:"maxPlayoutRate,attr"`
+	ScanType                  *string         `xml:"scanType,attr"`
+	FramePacking              *DescriptorType `xml:"framePacking,attr"`
+	AudioChannelConfiguration *DescriptorType `xml:"audioChannelConfiguration,attr"`
+	ContentProtection         *DescriptorType `xml:"contentProtection,attr"`
+	EssentialProperty         *DescriptorType `xml:"essentialProperty,attr"`
+	SupplementalProperty      *DescriptorType `xml:"supplmentalProperty,attr"`
+	InbandEventStream         *DescriptorType `xml:"inbandEventStream,attr"`
+}
+
 type AdaptationSet struct {
-	MimeType          *string               `xml:"mimeType,attr"`
-	ScanType          *string               `xml:"scanType,attr"`
+	CommonAttributesAndElements
+	MimeType          *string               `xml:"mimeType,attr"` // Common attribute, can be deprecated here
+	ScanType          *string               `xml:"scanType,attr"` // Common attribute, can be deprecated here
 	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
-	StartWithSAP      *int64                `xml:"startWithSAP,attr"`
+	StartWithSAP      *int64                `xml:"startWithSAP,attr"` // Common attribute, can be deprecated here
 	Lang              *string               `xml:"lang,attr"`
-	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"`
+	ID                *string               `xml:"id,attr"`
+	Group             *string               `xml:"group,attr"`
+	PAR               *string               `xml:"par,attr"`
+	MinBandwidth      *string               `xml:"minBandwidth,attr"`
+	MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
+	MinWidth          *string               `xml:"minWidth,attr"`
+	MaxWidth          *string               `xml:"maxWidth,attr"`
+	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 	Roles             []*Role               `xml:"Role,omitempty"`
 	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
 	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
@@ -159,6 +196,7 @@ type SegmentTemplate struct {
 }
 
 type Representation struct {
+	CommonAttributesAndElements
 	AdaptationSet             *AdaptationSet             `xml:"-"`
 	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration,omitempty"`
 	AudioSamplingRate         *int64                     `xml:"audioSamplingRate,attr"`   // Audio
