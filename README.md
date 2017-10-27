@@ -54,7 +54,7 @@ make examples-ondemand
 
 ### Dependencies
 
-Tested on go 1.9.1.
+Tested on go 1.9.2.
 
 ### Build and run unit tests
 
