@@ -156,9 +156,6 @@ func parseDuration(str string) (time.Duration, error) {
 	}
 	offset++
 
-	base := time.Unix(0, 0)
-	t := base
-
 	var dateStr, timeStr string
 	if i := strings.IndexByte(str[offset:], 'T'); i != -1 {
 		dateStr = str[offset : offset+i]
@@ -167,38 +164,27 @@ func parseDuration(str string) (time.Duration, error) {
 		dateStr = str[offset:]
 	}
 
+	var sum float64
 	if len(dateStr) > 0 {
-		var pos int
-		var err error
-		var years, months, days int
-		if i := strings.IndexByte(dateStr[pos:], 'Y'); i != -1 {
-			years, err = strconv.Atoi(dateStr[pos : pos+i])
-			if err != nil {
-				return 0, err
-			}
-			pos += i + 1
+		if i := strings.IndexByte(dateStr, 'Y'); i != -1 {
+			return 0, errors.New("input duration contains Years notation")
 		}
 
-		if i := strings.IndexByte(dateStr[pos:], 'M'); i != -1 {
-			months, err = strconv.Atoi(dateStr[pos : pos+i])
-			if err != nil {
-				return 0, err
-			}
-			pos += i + 1
+		if i := strings.IndexByte(dateStr, 'M'); i != -1 {
+			return 0, errors.New("input duration contains Months notation")
 		}
 
-		if i := strings.IndexByte(dateStr[pos:], 'D'); i != -1 {
-			days, err = strconv.Atoi(dateStr[pos : pos+i])
+		if i := strings.IndexByte(dateStr, 'D'); i != -1 {
+			days, err := strconv.Atoi(dateStr[0:i])
 			if err != nil {
 				return 0, err
 			}
+			sum += float64(days) * 86400
 		}
-		t = t.AddDate(years, months, days)
 	}
 
 	if len(timeStr) > 0 {
 		var pos int
-		var sum float64
 		if i := strings.IndexByte(timeStr[pos:], 'H'); i != -1 {
 			hours, err := strconv.ParseInt(timeStr[pos:pos+i], 10, 64)
 			if err != nil {
@@ -222,11 +208,10 @@ func parseDuration(str string) (time.Duration, error) {
 			}
 			sum += seconds
 		}
-		t = t.Add(time.Duration(sum * float64(time.Second)))
 	}
 
 	if minus {
-		return -t.Sub(base), nil
+		sum = -sum
 	}
-	return t.Sub(base), nil
+	return time.Duration(sum * float64(time.Second)), nil
 }
