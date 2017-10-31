@@ -14,6 +14,16 @@ import (
 
 type Duration time.Duration
 
+var xmlDurationRegex = regexp.MustCompile(
+	"^P" + // Must start with a 'P'
+	"(\\d+D)?" + // We only allow Days for durations, not Months or Years
+	"(T" + // If there's any 'time' units then they must be preceded by a 'T'
+		"(\\d+H)?" + // Hours
+		"(\\d+M)?" + // Minutes
+		"([\\d.]+S)?" + // Seconds (Potentially decimal)
+	")?$",
+)
+
 func (d Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{name, d.String()}, nil
 }
@@ -151,22 +161,13 @@ func parseDuration(str string) (time.Duration, error) {
 	}
 
 	// Check that only the parts we expect exist and that everything's in the correct order
-	r := regexp.MustCompile(
-		"^P" + // Must start with a 'P'
-		"(\\d+D)?" + // We only allow Days for durations, not Months or Years
-		"(T" + // If there's any 'time' units then they must be preceded by a 'T'
-			"(\\d+H)?" + // Hours
-			"(\\d+M)?" + // Minutes
-			"([\\d.]+S)?" + // Seconds (Potentially decimal)
-		")?$",
-	)
-	if !r.Match([]byte(str)) {
+	if !xmlDurationRegex.Match([]byte(str)) {
 		return 0, errors.New("Duration must be in the format: P[nD][T[nH][nM][nS]]")
 	}
 
-	parts := r.FindStringSubmatch(str)
-
+	var parts = xmlDurationRegex.FindStringSubmatch(str)
 	var total time.Duration
+
 	if parts[1] != "" {
 		days, err := strconv.Atoi(strings.TrimRight(parts[1], "D"))
 		if err != nil {
