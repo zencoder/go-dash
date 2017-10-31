@@ -75,7 +75,7 @@ func (s *MPDSuite) TestNewMPDLive() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 	}
 	assert.Equal(s.T(), expectedMPD, m)
 }
@@ -115,7 +115,7 @@ func (s *MPDSuite) TestNewMPDLiveWithBaseURLInMPD() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 		BaseURL:                   VALID_BASE_URL_VIDEO,
 	}
 	assert.Equal(s.T(), expectedMPD, m)
@@ -150,7 +150,7 @@ func (s *MPDSuite) TestNewMPDHbbTV() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 	}
 	assert.Equal(s.T(), expectedMPD, m)
 }
@@ -165,7 +165,7 @@ func (s *MPDSuite) TestNewMPDOnDemand() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 	}
 	assert.Equal(s.T(), expectedMPD, m)
 }

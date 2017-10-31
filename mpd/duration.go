@@ -5,12 +5,26 @@ package mpd
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 )
 
 type Duration time.Duration
+
+var (
+	rStart   = "^P"          // Must start with a 'P'
+	rDays    = "(\\d+D)?"    // We only allow Days for durations, not Months or Years
+	rTime    = "(?:T"        // If there's any 'time' units then they must be preceded by a 'T'
+	rHours   = "(\\d+H)?"    // Hours
+	rMinutes = "(\\d+M)?"    // Minutes
+	rSeconds = "([\\d.]+S)?" // Seconds (Potentially decimal)
+	rEnd     = ")?$"         // end of regex must close "T" capture group
+)
+
+var xmlDurationRegex = regexp.MustCompile(rStart + rDays + rTime + rHours + rMinutes + rSeconds + rEnd)
 
 func (d Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{name, d.String()}, nil
@@ -141,77 +155,52 @@ func fmtInt(buf []byte, v uint64) int {
 
 func parseDuration(str string) (time.Duration, error) {
 	if len(str) < 3 {
-		return 0, errors.New("input duration too short")
+		return 0, errors.New("At least one number and designator are required")
 	}
 
-	var minus bool
-	offset := 0
-	if str[offset] == '-' {
-		minus = true
-		offset++
+	if strings.Contains(str, "-") {
+		return 0, errors.New("Duration cannot be negative")
 	}
 
-	if str[offset] != 'P' {
-		return 0, errors.New("input duration does not have a valid prefix")
-	}
-	offset++
-
-	var dateStr, timeStr string
-	if i := strings.IndexByte(str[offset:], 'T'); i != -1 {
-		dateStr = str[offset : offset+i]
-		timeStr = str[offset+i+1:]
-	} else {
-		dateStr = str[offset:]
+	// Check that only the parts we expect exist and that everything's in the correct order
+	if !xmlDurationRegex.Match([]byte(str)) {
+		return 0, errors.New("Duration must be in the format: P[nD][T[nH][nM][nS]]")
 	}
 
-	var sum float64
-	if len(dateStr) > 0 {
-		if i := strings.IndexByte(dateStr, 'Y'); i != -1 {
-			return 0, errors.New("input duration contains Years notation")
+	var parts = xmlDurationRegex.FindStringSubmatch(str)
+	var total time.Duration
+
+	if parts[1] != "" {
+		days, err := strconv.Atoi(strings.TrimRight(parts[1], "D"))
+		if err != nil {
+			return 0, fmt.Errorf("Error parsing Days: %s", err)
 		}
-
-		if i := strings.IndexByte(dateStr, 'M'); i != -1 {
-			return 0, errors.New("input duration contains Months notation")
-		}
-
-		if i := strings.IndexByte(dateStr, 'D'); i != -1 {
-			days, err := strconv.Atoi(dateStr[0:i])
-			if err != nil {
-				return 0, err
-			}
-			sum += float64(days) * 86400
-		}
+		total += time.Duration(days) * time.Hour * 24
 	}
 
-	if len(timeStr) > 0 {
-		var pos int
-		if i := strings.IndexByte(timeStr[pos:], 'H'); i != -1 {
-			hours, err := strconv.ParseInt(timeStr[pos:pos+i], 10, 64)
-			if err != nil {
-				return 0, err
-			}
-			sum += float64(hours) * 3600
-			pos += i + 1
+	if parts[2] != "" {
+		hours, err := strconv.Atoi(strings.TrimRight(parts[2], "H"))
+		if err != nil {
+			return 0, fmt.Errorf("Error parsing Hours: %s", err)
 		}
-		if i := strings.IndexByte(timeStr[pos:], 'M'); i != -1 {
-			minutes, err := strconv.ParseInt(timeStr[pos:pos+i], 10, 64)
-			if err != nil {
-				return 0, err
-			}
-			sum += float64(minutes) * 60
-			pos += i + 1
-		}
-		if i := strings.IndexByte(timeStr[pos:], 'S'); i != -1 {
-			seconds, err := strconv.ParseFloat(timeStr[pos:pos+i], 64)
-			if err != nil {
-				return 0, err
-			}
-			sum += seconds
-		}
+		total += time.Duration(hours) * time.Hour
 	}
 
-	if minus {
-		sum = -sum
+	if parts[3] != "" {
+		mins, err := strconv.Atoi(strings.TrimRight(parts[3], "M"))
+		if err != nil {
+			return 0, fmt.Errorf("Error parsing Minutes: %s", err)
+		}
+		total += time.Duration(mins) * time.Minute
 	}
-	return time.Duration(sum * float64(time.Second)), nil
+
+	if parts[4] != "" {
+		secs, err := strconv.ParseFloat(strings.TrimRight(parts[4], "S"), 64)
+		if err != nil {
+			return 0, fmt.Errorf("Error parsing Seconds: %s", err)
+		}
+		total += time.Duration(secs * float64(time.Second))
+	}
+
+	return total, nil
 }
