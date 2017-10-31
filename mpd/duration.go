@@ -14,15 +14,17 @@ import (
 
 type Duration time.Duration
 
-var xmlDurationRegex = regexp.MustCompile(
-	"^P" + // Must start with a 'P'
-	"(\\d+D)?" + // We only allow Days for durations, not Months or Years
-	"(T" + // If there's any 'time' units then they must be preceded by a 'T'
-		"(\\d+H)?" + // Hours
-		"(\\d+M)?" + // Minutes
-		"([\\d.]+S)?" + // Seconds (Potentially decimal)
-	")?$",
+var (
+	rStart   = "^P"          // Must start with a 'P'
+	rDays    = "(\\d+D)?"    // We only allow Days for durations, not Months or Years
+	rTime    = "(?:T"        // If there's any 'time' units then they must be preceded by a 'T'
+	rHours   = "(\\d+H)?"    // Hours
+	rMinutes = "(\\d+M)?"    // Minutes
+	rSeconds = "([\\d.]+S)?" // Seconds (Potentially decimal)
+	rEnd     = ")?$"         // end of regex must close "T" capture group
 )
+
+var xmlDurationRegex = regexp.MustCompile(rStart + rDays + rTime + rHours + rMinutes + rSeconds + rEnd)
 
 func (d Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{name, d.String()}, nil
@@ -176,24 +178,24 @@ func parseDuration(str string) (time.Duration, error) {
 		total += time.Duration(days) * time.Hour * 24
 	}
 
-	if parts[3] != "" {
-		hours, err := strconv.Atoi(strings.TrimRight(parts[3], "H"))
+	if parts[2] != "" {
+		hours, err := strconv.Atoi(strings.TrimRight(parts[2], "H"))
 		if err != nil {
 			return 0, fmt.Errorf("Error parsing Hours: %s", err)
 		}
 		total += time.Duration(hours) * time.Hour
 	}
 
-	if parts[4] != "" {
-		mins, err := strconv.Atoi(strings.TrimRight(parts[4], "M"))
+	if parts[3] != "" {
+		mins, err := strconv.Atoi(strings.TrimRight(parts[3], "M"))
 		if err != nil {
 			return 0, fmt.Errorf("Error parsing Minutes: %s", err)
 		}
 		total += time.Duration(mins) * time.Minute
 	}
 
-	if parts[5] != "" {
-		secs, err := strconv.ParseFloat(strings.TrimRight(parts[5], "S"), 64)
+	if parts[4] != "" {
+		secs, err := strconv.ParseFloat(strings.TrimRight(parts[4], "S"), 64)
 		if err != nil {
 			return 0, fmt.Errorf("Error parsing Seconds: %s", err)
 		}
