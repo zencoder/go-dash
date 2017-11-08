@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
@@ -24,7 +23,7 @@ func TestSegmentTimelineSerialization(t *testing.T) {
 			found, err := tc.In.WriteToString()
 			require.NoError(t, err)
 			expected := testfixtures.LoadFixture("fixtures/" + tc.Out)
-			assert.Equal(t, expected, found)
+			require.Equal(t, expected, found)
 		})
 	}
 }
@@ -34,20 +33,20 @@ func TestSegmentTimelineDeserialization(t *testing.T) {
 	m, err := ReadFromString(xml)
 	require.NoError(t, err)
 	expected := getSegmentTimelineMPD()
-	assert.Equal(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
+	require.Equal(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
 
 	expectedAudioSegTimeline := expected.Periods[0].AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
 	audioSegTimeline := m.Periods[0].AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
 
 	for i := range expectedAudioSegTimeline.Segments {
-		assert.Equal(t, expectedAudioSegTimeline.Segments[i], audioSegTimeline.Segments[i])
+		require.Equal(t, expectedAudioSegTimeline.Segments[i], audioSegTimeline.Segments[i])
 	}
 
 	expectedVideoSegTimeline := expected.Periods[0].AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
 	videoSegTimeline := m.Periods[0].AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
 
 	for i := range expectedVideoSegTimeline.Segments {
-		assert.Equal(t, expectedVideoSegTimeline.Segments[i], videoSegTimeline.Segments[i])
+		require.Equal(t, expectedVideoSegTimeline.Segments[i], videoSegTimeline.Segments[i])
 	}
 }
 
