@@ -6,98 +6,72 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/require"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
-type MPDReadWriteSuite struct {
-	suite.Suite
+func TestReadingManifests(t *testing.T) {
+	var testCases = []struct {
+		err, filepath string
+	}{
+		{filepath: "fixtures/live_profile.mpd", err: ""},
+		{filepath: "fixtures/ondemand_profile.mpd", err: ""},
+		{filepath: "fixtures/invalid.mpd", err: "XML syntax error on line 3: unexpected EOF"},
+		{filepath: "doesntexist.mpd", err: "open doesntexist.mpd: no such file or directory"},
+	}
+
+	for _, tc := range testCases {
+		// Test reading from manifest files
+		if m, err := ReadFromFile(tc.filepath); tc.err == "" {
+			require.NoError(t, err, "Error while reading "+tc.filepath)
+			require.NotNil(t, m, "Empty result from reading "+tc.filepath)
+		} else {
+			require.EqualError(t, err, tc.err)
+		}
+
+		// Test reading valid files from strings
+		if tc.err == "" {
+			xmlStr := testfixtures.LoadFixture(tc.filepath)
+			_, err := ReadFromString(xmlStr)
+			require.NotNil(t, xmlStr)
+			require.NoError(t, err)
+		}
+	}
 }
 
-func TestMPDReadWriteSuite(t *testing.T) {
-	suite.Run(t, new(MPDReadWriteSuite))
-}
-
-func (s *MPDReadWriteSuite) SetupTest() {
-
-}
-
-func (s *MPDReadWriteSuite) SetupSuite() {
-
-}
-
-func (s *MPDReadWriteSuite) TestReadFromFileLiveProfile() {
-	m, err := ReadFromFile("fixtures/live_profile.mpd")
-	assert.NotNil(s.T(), m)
-	assert.Nil(s.T(), err)
-}
-
-func (s *MPDReadWriteSuite) TestReadFromFileOnDemandProfile() {
-	m, err := ReadFromFile("fixtures/ondemand_profile.mpd")
-	assert.NotNil(s.T(), m)
-	assert.Nil(s.T(), err)
-}
-
-func (s *MPDReadWriteSuite) TestReadFromFileErrorInvalidMPD() {
-	m, err := ReadFromFile("fixtures/invalid.mpd")
-	assert.Nil(s.T(), m)
-	assert.NotNil(s.T(), err)
-}
-
-func (s *MPDReadWriteSuite) TestReadFromFileErrorInvalidFilePath() {
-	m, err := ReadFromFile("this is an invalid file path")
-	assert.Nil(s.T(), m)
-	assert.NotNil(s.T(), err)
-}
-
-func (s *MPDReadWriteSuite) TestReadFromStringLiveProfile() {
-	xmlStr := testfixtures.LoadFixture("fixtures/live_profile.mpd")
-	m, err := ReadFromString(xmlStr)
-	assert.NotNil(s.T(), m)
-	assert.Nil(s.T(), err)
-}
-
-func (s *MPDReadWriteSuite) TestReadFromStringOnDemandProfile() {
-	xmlStr := testfixtures.LoadFixture("fixtures/ondemand_profile.mpd")
-	m, err := ReadFromString(xmlStr)
-	assert.NotNil(s.T(), m)
-	assert.Nil(s.T(), err)
-}
-
-func (s *MPDReadWriteSuite) TestNewMPDLiveWriteToString() {
+func TestNewMPDLiveWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period></Period>
 </MPD>
 `
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
-func (s *MPDReadWriteSuite) TestNewMPDOnDemandWriteToString() {
+func TestNewMPDOnDemandWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period></Period>
 </MPD>
 `
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
-func (s *MPDReadWriteSuite) TestAddNewAdaptationSetAudioWriteToString() {
+func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
@@ -105,16 +79,16 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetAudioWriteToString() {
   </Period>
 </MPD>
 `
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
-func (s *MPDReadWriteSuite) TestAddNewAdaptationSetVideoWriteToString() {
+func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
@@ -122,16 +96,16 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetVideoWriteToString() {
   </Period>
 </MPD>
 `
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
-func (s *MPDReadWriteSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
+func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
@@ -139,7 +113,7 @@ func (s *MPDReadWriteSuite) TestAddNewAdaptationSetSubtitleWriteToString() {
   </Period>
 </MPD>
 `
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
 func ExampleAddNewPeriod() {
@@ -223,21 +197,21 @@ func LiveProfile() *MPD {
 	return m
 }
 
-func (s *MPDReadWriteSuite) TestFullLiveProfileWriteToString() {
+func TestFullLiveProfileWriteToString(t *testing.T) {
 	m := LiveProfile()
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := testfixtures.LoadFixture("fixtures/live_profile.mpd")
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
-func (s *MPDReadWriteSuite) TestFullLiveProfileWriteToFile() {
+func TestFullLiveProfileWriteToFile(t *testing.T) {
 	m := LiveProfile()
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	err := m.WriteToFile("test_live.mpd")
 	defer os.Remove("test_live.mpd")
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 }
 
 func HbbTVProfile() *MPD {
@@ -276,21 +250,21 @@ func HbbTVProfile() *MPD {
 	return m
 }
 
-func (s *MPDReadWriteSuite) TestFullHbbTVProfileWriteToString() {
+func TestFullHbbTVProfileWriteToString(t *testing.T) {
 	m := HbbTVProfile()
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := testfixtures.LoadFixture("fixtures/hbbtv_profile.mpd")
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
-func (s *MPDReadWriteSuite) TestFullHbbTVProfileWriteToFile() {
+func TestFullHbbTVProfileWriteToFile(t *testing.T) {
 	m := HbbTVProfile()
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	err := m.WriteToFile("test_hbbtv.mpd")
 	defer os.Remove("test_hbbtv.mpd")
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 }
 
 func OnDemandProfile() *MPD {
@@ -327,26 +301,26 @@ func OnDemandProfile() *MPD {
 	return m
 }
 
-func (s *MPDReadWriteSuite) TestFullOnDemandProfileWriteToString() {
+func TestFullOnDemandProfileWriteToString(t *testing.T) {
 	m := OnDemandProfile()
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 	expectedXML := testfixtures.LoadFixture("fixtures/ondemand_profile.mpd")
-	assert.Equal(s.T(), expectedXML, xmlStr)
+	require.Equal(t, expectedXML, xmlStr)
 }
 
-func (s *MPDReadWriteSuite) TestFullOnDemandProfileWriteToFile() {
+func TestFullOnDemandProfileWriteToFile(t *testing.T) {
 	m := OnDemandProfile()
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	err := m.WriteToFile("test-ondemand.mpd")
 	defer os.Remove("test-ondemand.mpd")
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 }
 
-func (s *MPDReadWriteSuite) TestWriteToFileInvalidFilePath() {
+func TestWriteToFileInvalidFilePath(t *testing.T) {
 	m := LiveProfile()
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	err := m.WriteToFile("")
-	assert.NotNil(s.T(), err)
+	require.NotNil(t, err)
 }

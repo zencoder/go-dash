@@ -3,64 +3,48 @@ package mpd
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/require"
 	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
-type SegmentListSuite struct {
-	suite.Suite
-}
-
-func TestSegmentListSuite(t *testing.T) {
-	suite.Run(t, new(SegmentListSuite))
-}
-
-func (s *SegmentListSuite) SetupTest() {
-
-}
-
-func (s *SegmentListSuite) SetupSuite() {
-
-}
-
-func (s *SegmentListSuite) TestSegmentListSerialization() {
+func TestSegmentListSerialization(t *testing.T) {
 	expectedXML := testfixtures.LoadFixture("fixtures/segment_list.mpd")
 	m := getSegmentListMPD()
 	xml, _ := m.WriteToString()
-	s.Equal(expectedXML, xml)
+	require.Equal(t, expectedXML, xml)
 }
 
-func (s *SegmentListSuite) TestSegmentListDeserialization() {
+func TestSegmentListDeserialization(t *testing.T) {
 	xml := testfixtures.LoadFixture("fixtures/segment_list.mpd")
 	m, err := ReadFromString(xml)
 
-	s.Nil(err)
+	require.Nil(t, err)
 	if err == nil {
 		expected := getSegmentListMPD()
 
-		s.Equal(expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
+		require.Equal(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
 
 		expectedAudioSegList := expected.Periods[0].AdaptationSets[0].Representations[0].SegmentList
 		audioSegList := m.Periods[0].AdaptationSets[0].Representations[0].SegmentList
 
-		s.Equal(expectedAudioSegList.Timescale, audioSegList.Timescale)
-		s.Equal(expectedAudioSegList.Duration, audioSegList.Duration)
-		s.Equal(expectedAudioSegList.Initialization, audioSegList.Initialization)
+		require.Equal(t, expectedAudioSegList.Timescale, audioSegList.Timescale)
+		require.Equal(t, expectedAudioSegList.Duration, audioSegList.Duration)
+		require.Equal(t, expectedAudioSegList.Initialization, audioSegList.Initialization)
 
 		for i := range expectedAudioSegList.SegmentURLs {
-			s.Equal(expectedAudioSegList.SegmentURLs[i], audioSegList.SegmentURLs[i])
+			require.Equal(t, expectedAudioSegList.SegmentURLs[i], audioSegList.SegmentURLs[i])
 		}
 
 		expectedVideoSegList := expected.Periods[0].AdaptationSets[1].Representations[0].SegmentList
 		videoSegList := m.Periods[0].AdaptationSets[1].Representations[0].SegmentList
 
-		s.Equal(expectedVideoSegList.Timescale, videoSegList.Timescale)
-		s.Equal(expectedVideoSegList.Duration, videoSegList.Duration)
-		s.Equal(expectedVideoSegList.Initialization, videoSegList.Initialization)
+		require.Equal(t, expectedVideoSegList.Timescale, videoSegList.Timescale)
+		require.Equal(t, expectedVideoSegList.Duration, videoSegList.Duration)
+		require.Equal(t, expectedVideoSegList.Initialization, videoSegList.Initialization)
 
 		for i := range expectedVideoSegList.SegmentURLs {
-			s.Equal(expectedVideoSegList.SegmentURLs[i], videoSegList.SegmentURLs[i])
+			require.Equal(t, expectedVideoSegList.SegmentURLs[i], videoSegList.SegmentURLs[i])
 		}
 	}
 }
