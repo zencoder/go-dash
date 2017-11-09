@@ -39,6 +39,18 @@ func TestReadingManifests(t *testing.T) {
 	}
 }
 
+// TODO: Uncomment this test once https://github.com/golang/go/issues/9519 is fixed
+//func TestItProducesTheSameFileThatItRead(t *testing.T) {
+//	expectedManifest := testfixtures.LoadFixture("fixtures/live_profile.mpd")
+//	m, err := ReadFromFile("fixtures/live_profile.mpd")
+//	require.NoError(t, err)
+//
+//	writtenManifest, err := m.WriteToString()
+//	require.NoError(t, err)
+//
+//	require.Equal(t, expectedManifest, writtenManifest)
+//}
+
 func TestNewMPDLiveWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 

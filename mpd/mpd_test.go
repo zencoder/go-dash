@@ -63,30 +63,6 @@ func TestNewMPDLive(t *testing.T) {
 	require.Equal(t, expectedMPD, m)
 }
 
-func TestContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &ContentProtection{})
-	require.Implements(t, cp, ContentProtection{})
-}
-
-func TestCENCContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &CENCContentProtection{})
-	require.Implements(t, cp, CENCContentProtection{})
-}
-
-func TestPlayreadyContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &PlayreadyContentProtection{})
-	require.Implements(t, cp, PlayreadyContentProtection{})
-}
-
-func TestWidevineContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &WidevineContentProtection{})
-	require.Implements(t, cp, WidevineContentProtection{})
-}
-
 func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	m.BaseURL = VALID_BASE_URL_VIDEO
@@ -210,7 +186,7 @@ func TestAddNewContentProtectionRoot(t *testing.T) {
 	cp, err := s.AddNewContentProtectionRoot(VALID_DEFAULT_KID_HEX)
 	require.Nil(t, err)
 	require.NotNil(t, cp)
-	expectedCP := &CENCContentProtection{
+	expectedCP := ContentProtection{
 		DefaultKID: Strptr(VALID_DEFAULT_KID),
 		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
 	}
@@ -220,47 +196,42 @@ func TestAddNewContentProtectionRoot(t *testing.T) {
 	require.Equal(t, expectedCP, cp)
 }
 
-type TestProprietaryContentProtection struct {
-	ContentProtection
-	TestAttrA string `xml:"a,attr,omitempty"`
-	TestAttrB string `xml:"b,attr,omitempty"`
-}
-
-func (s *TestProprietaryContentProtection) ContentProtected() {}
-
 func TestAddNewContentProtection_Proprietary(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp := &ContentProtection{
+	cp := ContentProtection{
 		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
+		CustomAttrs: []xml.Attr{
+			{Name: xml.Name{Local: "a"}, Value: "foo"},
+			{Name: xml.Name{Local: "b"}, Value: "bar"},
+		},
 	}
 
-	pcp := &TestProprietaryContentProtection{*cp, "foo", "bar"}
-	x, _ := xml.Marshal(pcp)
+	x, err := xml.Marshal(cp)
+	require.NoError(t, err)
+
 	require.Equal(t, `<ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" a="foo" b="bar"></ContentProtection>`, string(x))
-	as.AddContentProtection(pcp)
-	require.Equal(t, as.ContentProtection, []ContentProtectioner{pcp})
+	as.AddContentProtection(cp)
+	require.Equal(t, as.ContentProtection, []ContentProtection{cp})
 }
 
 func TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := s.AddNewContentProtectionRoot("invalidkid")
+	_, err := s.AddNewContentProtectionRoot("invalidkid")
 	require.NotNil(t, err)
 	require.Equal(t, ErrInvalidDefaultKID, err)
-	require.Nil(t, cp)
 }
 
 func TestAddNewContentProtectionRootErrorEmptyDefaultKID(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := s.AddNewContentProtectionRoot("")
+	_, err := s.AddNewContentProtectionRoot("")
 	require.NotNil(t, err)
 	require.Equal(t, ErrInvalidDefaultKID, err)
-	require.Nil(t, cp)
 }
 
 func TestAddNewContentProtectionSchemeWidevineWithPSSH(t *testing.T) {
@@ -270,7 +241,7 @@ func TestAddNewContentProtectionSchemeWidevineWithPSSH(t *testing.T) {
 	cp, err := s.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	require.Nil(t, err)
 	require.NotNil(t, cp)
-	expectedCP := &WidevineContentProtection{
+	expectedCP := ContentProtection{
 		PSSH: Strptr("AAAAYXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAEEIARIQWr3VL1VKTyq40GH3YUJRVRoIY2FzdGxhYnMiGFdyM1ZMMVZLVHlxNDBHSDNZVUpSVlE9PTIHZGVmYXVsdA=="),
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
@@ -285,7 +256,7 @@ func TestAddNewContentProtectionSchemeWidevine(t *testing.T) {
 	cp, err := s.AddNewContentProtectionSchemeWidevine()
 	require.Nil(t, err)
 	require.NotNil(t, cp)
-	expectedCP := &WidevineContentProtection{}
+	expectedCP := ContentProtection{}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
 	require.Equal(t, expectedCP, cp)
 }
@@ -294,10 +265,9 @@ func TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := s.AddNewContentProtectionSchemePlayready("")
+	_, err := s.AddNewContentProtectionSchemePlayready("")
 	require.NotNil(t, err)
 	require.Equal(t, ErrPROEmpty, err)
-	require.Nil(t, cp)
 }
 
 func TestAddNewContentProtectionSchemePlayready(t *testing.T) {
@@ -307,7 +277,7 @@ func TestAddNewContentProtectionSchemePlayready(t *testing.T) {
 	cp, err := s.AddNewContentProtectionSchemePlayready(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
 	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
+	expectedCP := ContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
 	}
@@ -320,10 +290,9 @@ func TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := s.AddNewContentProtectionSchemePlayreadyV10("")
+	_, err := s.AddNewContentProtectionSchemePlayreadyV10("")
 	require.NotNil(t, err)
 	require.Equal(t, ErrPROEmpty, err)
-	require.Nil(t, cp)
 }
 
 func TestAddNewContentProtectionSchemePlayreadyV10(t *testing.T) {
@@ -333,7 +302,7 @@ func TestAddNewContentProtectionSchemePlayreadyV10(t *testing.T) {
 	cp, err := s.AddNewContentProtectionSchemePlayreadyV10(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
 	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
+	expectedCP := ContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
 	}
@@ -349,7 +318,7 @@ func TestAddNewContentProtectionSchemePlayreadyWithPSSH(t *testing.T) {
 	cp, err := s.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
 	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
+	expectedCP := ContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
 	}
@@ -367,7 +336,7 @@ func TestAddNewContentProtectionSchemePlayreadyV10WithPSSH(t *testing.T) {
 	cp, err := s.AddNewContentProtectionSchemePlayreadyV10WithPSSH(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
 	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
+	expectedCP := ContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
 	}
