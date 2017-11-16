@@ -5,26 +5,9 @@ import (
 	"encoding/xml"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/require"
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 )
-
-type MPDSuite struct {
-	suite.Suite
-}
-
-func TestMPDSuite(t *testing.T) {
-	suite.Run(t, new(MPDSuite))
-}
-
-func (s *MPDSuite) SetupTest() {
-
-}
-
-func (s *MPDSuite) SetupSuite() {
-
-}
 
 const (
 	VALID_MEDIA_PRESENTATION_DURATION string = "PT6M16S"
@@ -65,9 +48,9 @@ const (
 	VALID_ROLE                        string = "main"
 )
 
-func (s *MPDSuite) TestNewMPDLive() {
+func TestNewMPDLive(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
@@ -75,39 +58,39 @@ func (s *MPDSuite) TestNewMPDLive() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 	}
-	assert.Equal(s.T(), expectedMPD, m)
+	require.Equal(t, expectedMPD, m)
 }
 
-func (s *MPDSuite) TestContentProtection_ImplementsInterface() {
+func TestContentProtection_ImplementsInterface(t *testing.T) {
 	cp := (*ContentProtectioner)(nil)
-	s.Implements(cp, &ContentProtection{})
-	s.Implements(cp, ContentProtection{})
+	require.Implements(t, cp, &ContentProtection{})
+	require.Implements(t, cp, ContentProtection{})
 }
 
-func (s *MPDSuite) TestCENCContentProtection_ImplementsInterface() {
+func TestCENCContentProtection_ImplementsInterface(t *testing.T) {
 	cp := (*ContentProtectioner)(nil)
-	s.Implements(cp, &CENCContentProtection{})
-	s.Implements(cp, CENCContentProtection{})
+	require.Implements(t, cp, &CENCContentProtection{})
+	require.Implements(t, cp, CENCContentProtection{})
 }
 
-func (s *MPDSuite) TestPlayreadyContentProtection_ImplementsInterface() {
+func TestPlayreadyContentProtection_ImplementsInterface(t *testing.T) {
 	cp := (*ContentProtectioner)(nil)
-	s.Implements(cp, &PlayreadyContentProtection{})
-	s.Implements(cp, PlayreadyContentProtection{})
+	require.Implements(t, cp, &PlayreadyContentProtection{})
+	require.Implements(t, cp, PlayreadyContentProtection{})
 }
 
-func (s *MPDSuite) TestWidevineContentProtection_ImplementsInterface() {
+func TestWidevineContentProtection_ImplementsInterface(t *testing.T) {
 	cp := (*ContentProtectioner)(nil)
-	s.Implements(cp, &WidevineContentProtection{})
-	s.Implements(cp, WidevineContentProtection{})
+	require.Implements(t, cp, &WidevineContentProtection{})
+	require.Implements(t, cp, WidevineContentProtection{})
 }
 
-func (s *MPDSuite) TestNewMPDLiveWithBaseURLInMPD() {
+func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	m.BaseURL = VALID_BASE_URL_VIDEO
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
@@ -115,16 +98,16 @@ func (s *MPDSuite) TestNewMPDLiveWithBaseURLInMPD() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 		BaseURL:                   VALID_BASE_URL_VIDEO,
 	}
-	assert.Equal(s.T(), expectedMPD, m)
+	require.Equal(t, expectedMPD, m)
 }
 
-func (s *MPDSuite) TestNewMPDLiveWithBaseURLInPeriod() {
+func TestNewMPDLiveWithBaseURLInPeriod(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	m.period.BaseURL = VALID_BASE_URL_VIDEO
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	period := &Period{
 		BaseURL: VALID_BASE_URL_VIDEO,
 	}
@@ -137,12 +120,12 @@ func (s *MPDSuite) TestNewMPDLiveWithBaseURLInPeriod() {
 		period:                    period,
 		Periods:                   []*Period{period},
 	}
-	assert.Equal(s.T(), expectedMPD, m)
+	require.Equal(t, expectedMPD, m)
 }
 
-func (s *MPDSuite) TestNewMPDHbbTV() {
+func TestNewMPDHbbTV(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_HBBTV_1_5_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_HBBTV_1_5_LIVE)),
@@ -150,14 +133,14 @@ func (s *MPDSuite) TestNewMPDHbbTV() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 	}
-	assert.Equal(s.T(), expectedMPD, m)
+	require.Equal(t, expectedMPD, m)
 }
 
-func (s *MPDSuite) TestNewMPDOnDemand() {
+func TestNewMPDOnDemand(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	assert.NotNil(s.T(), m)
+	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_ONDEMAND)),
@@ -165,30 +148,30 @@ func (s *MPDSuite) TestNewMPDOnDemand() {
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
-		Periods:                   []*Period{&Period{}},
+		Periods:                   []*Period{{}},
 	}
-	assert.Equal(s.T(), expectedMPD, m)
+	require.Equal(t, expectedMPD, m)
 }
 
-func (s *MPDSuite) TestAddNewAdaptationSetAudio() {
+func TestAddNewAdaptationSetAudio(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, err := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	assert.NotNil(s.T(), as)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, as)
+	require.Nil(t, err)
 	expectedAS := &AdaptationSet{
 		MimeType:         Strptr(VALID_MIME_TYPE_AUDIO),
 		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
 		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
 		Lang:             Strptr(VALID_LANG),
 	}
-	assert.Equal(s.T(), expectedAS, as)
+	require.Equal(t, expectedAS, as)
 }
 
-func (s *MPDSuite) TestAddNewAdaptationSetAudioSetAdditionalAttributes() {
+func TestAddNewAdaptationSetAudioSetAdditionalAttributes(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, err := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	assert.NotNil(s.T(), as)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, as)
+	require.Nil(t, err)
 	as.ID = Strptr("1")
 	as.CommonAttributesAndElements.Codecs = Strptr(VALID_AUDIO_CODEC)
 	expectedAS := &AdaptationSet{
@@ -219,52 +202,52 @@ func (s *MPDSuite) TestAddNewAdaptationSetAudioSetAdditionalAttributes() {
 			InbandEventStream:         nil,
 		},
 	}
-	assert.Equal(s.T(), expectedAS, as)
+	require.Equal(t, expectedAS, as)
 }
 
-func (s *MPDSuite) TestAddNewAdaptationSetVideo() {
+func TestAddNewAdaptationSetVideo(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	as, err := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-	assert.NotNil(s.T(), as)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, as)
+	require.Nil(t, err)
 	expectedAS := &AdaptationSet{
 		MimeType:         Strptr(VALID_MIME_TYPE_VIDEO),
 		ScanType:         Strptr(VALID_SCAN_TYPE),
 		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
 		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
 	}
-	assert.Equal(s.T(), expectedAS, as)
+	require.Equal(t, expectedAS, as)
 }
 
-func (s *MPDSuite) TestAddNewAdaptationSetSubtitle() {
+func TestAddNewAdaptationSetSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	as, err := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
-	assert.NotNil(s.T(), as)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, as)
+	require.Nil(t, err)
 	expectedAS := &AdaptationSet{
 		MimeType: Strptr(VALID_MIME_TYPE_SUBTITLE_VTT),
 		Lang:     Strptr(VALID_LANG),
 	}
-	assert.Equal(s.T(), expectedAS, as)
+	require.Equal(t, expectedAS, as)
 }
 
-func (s *MPDSuite) TestAddAdaptationSetErrorNil() {
+func TestAddAdaptationSetErrorNil(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	err := m.period.addAdaptationSet(nil)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrAdaptationSetNil, err)
+	require.NotNil(t, err)
+	require.Equal(t, ErrAdaptationSetNil, err)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionRoot() {
+func TestAddNewContentProtectionRoot(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionRoot(VALID_DEFAULT_KID_HEX)
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionRoot(VALID_DEFAULT_KID_HEX)
+	require.Nil(t, err)
+	require.NotNil(t, cp)
 	expectedCP := &CENCContentProtection{
 		DefaultKID: Strptr(VALID_DEFAULT_KID),
 		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
@@ -272,7 +255,7 @@ func (s *MPDSuite) TestAddNewContentProtectionRoot() {
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
 	expectedCP.XMLNS = Strptr(CENC_XMLNS)
 
-	assert.Equal(s.T(), expectedCP, cp)
+	require.Equal(t, expectedCP, cp)
 }
 
 type TestProprietaryContentProtection struct {
@@ -283,7 +266,7 @@ type TestProprietaryContentProtection struct {
 
 func (s *TestProprietaryContentProtection) ContentProtected() {}
 
-func (s *MPDSuite) TestAddNewContentProtection_Proprietary() {
+func TestAddNewContentProtection_Proprietary(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -293,117 +276,117 @@ func (s *MPDSuite) TestAddNewContentProtection_Proprietary() {
 
 	pcp := &TestProprietaryContentProtection{*cp, "foo", "bar"}
 	x, _ := xml.Marshal(pcp)
-	s.Equal(`<ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" a="foo" b="bar"></ContentProtection>`, string(x))
+	require.Equal(t, `<ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" a="foo" b="bar"></ContentProtection>`, string(x))
 	as.AddContentProtection(pcp)
-	s.Equal(as.ContentProtection, []ContentProtectioner{pcp})
+	require.Equal(t, as.ContentProtection, []ContentProtectioner{pcp})
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID() {
+func TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionRoot("invalidkid")
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrInvalidDefaultKID, err)
-	assert.Nil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionRoot("invalidkid")
+	require.NotNil(t, err)
+	require.Equal(t, ErrInvalidDefaultKID, err)
+	require.Nil(t, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionRootErrorEmptyDefaultKID() {
+func TestAddNewContentProtectionRootErrorEmptyDefaultKID(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionRoot("")
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrInvalidDefaultKID, err)
-	assert.Nil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionRoot("")
+	require.NotNil(t, err)
+	require.Equal(t, ErrInvalidDefaultKID, err)
+	require.Nil(t, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevineWithPSSH() {
+func TestAddNewContentProtectionSchemeWidevineWithPSSH(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	require.Nil(t, err)
+	require.NotNil(t, cp)
 	expectedCP := &WidevineContentProtection{
 		PSSH: Strptr("AAAAYXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAEEIARIQWr3VL1VKTyq40GH3YUJRVRoIY2FzdGxhYnMiGFdyM1ZMMVZLVHlxNDBHSDNZVUpSVlE9PTIHZGVmYXVsdA=="),
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
 	expectedCP.XMLNS = Strptr(CENC_XMLNS)
-	assert.Equal(s.T(), expectedCP, cp)
+	require.Equal(t, expectedCP, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemeWidevine() {
+func TestAddNewContentProtectionSchemeWidevine(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemeWidevine()
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemeWidevine()
+	require.Nil(t, err)
+	require.NotNil(t, cp)
 	expectedCP := &WidevineContentProtection{}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
-	assert.Equal(s.T(), expectedCP, cp)
+	require.Equal(t, expectedCP, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO() {
+func TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemePlayready("")
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrPROEmpty, err)
-	assert.Nil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemePlayready("")
+	require.NotNil(t, err)
+	require.Equal(t, ErrPROEmpty, err)
+	require.Nil(t, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemePlayready() {
+func TestAddNewContentProtectionSchemePlayready(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemePlayready(VALID_PLAYREADY_PRO)
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemePlayready(VALID_PLAYREADY_PRO)
+	require.Nil(t, err)
+	require.NotNil(t, cp)
 	expectedCP := &PlayreadyContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
 
-	assert.Equal(s.T(), expectedCP, cp)
+	require.Equal(t, expectedCP, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO() {
+func TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemePlayreadyV10("")
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrPROEmpty, err)
-	assert.Nil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemePlayreadyV10("")
+	require.NotNil(t, err)
+	require.Equal(t, ErrPROEmpty, err)
+	require.Nil(t, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyV10() {
+func TestAddNewContentProtectionSchemePlayreadyV10(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemePlayreadyV10(VALID_PLAYREADY_PRO)
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemePlayreadyV10(VALID_PLAYREADY_PRO)
+	require.Nil(t, err)
+	require.NotNil(t, cp)
 	expectedCP := &PlayreadyContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
 	}
 	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID)
 
-	assert.Equal(s.T(), expectedCP, cp)
+	require.Equal(t, expectedCP, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyWithPSSH() {
+func TestAddNewContentProtectionSchemePlayreadyWithPSSH(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+	require.Nil(t, err)
+	require.NotNil(t, cp)
 	expectedCP := &PlayreadyContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
@@ -412,16 +395,16 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyWithPSSH() {
 	expectedCP.XMLNS = Strptr(CENC_XMLNS)
 	expectedCP.PSSH = Strptr("AAACJnBzc2gAAAAAmgTweZhAQoarkuZb4IhflQAAAgYGAgAAAQABAPwBPABXAFIATQBIAEUAQQBEAEUAUgAgAHgAbQBsAG4AcwA9ACIAaAB0AHQAcAA6AC8ALwBzAGMAaABlAG0AYQBzAC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAEQAUgBNAC8AMgAwADAANwAvADAAMwAvAFAAbABhAHkAUgBlAGEAZAB5AEgAZQBhAGQAZQByACIAIAB2AGUAcgBzAGkAbwBuAD0AIgA0AC4AMAAuADAALgAwACIAPgA8AEQAQQBUAEEAPgA8AFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBFAFkATABFAE4APgAxADYAPAAvAEsARQBZAEwARQBOAD4APABBAEwARwBJAEQAPgBBAEUAUwBDAFQAUgA8AC8AQQBMAEcASQBEAD4APAAvAFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBJAEQAPgBMADkAVwA5AFcAawBwAFYASwBrACsANAAwAEcASAAzAFkAVQBKAFIAVgBRAD0APQA8AC8ASwBJAEQAPgA8AEMASABFAEMASwBTAFUATQA+AEkASwB6AFkAMgBIAFoATABBAGwASQA9ADwALwBDAEgARQBDAEsAUwBVAE0APgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA==")
 
-	assert.Equal(s.T(), expectedCP, cp)
+	require.Equal(t, expectedCP, cp)
 }
 
-func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyV10WithPSSH() {
+func TestAddNewContentProtectionSchemePlayreadyV10WithPSSH(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp, err := as.AddNewContentProtectionSchemePlayreadyV10WithPSSH(VALID_PLAYREADY_PRO)
-	assert.Nil(s.T(), err)
-	assert.NotNil(s.T(), cp)
+	cp, err := s.AddNewContentProtectionSchemePlayreadyV10WithPSSH(VALID_PLAYREADY_PRO)
+	require.Nil(t, err)
+	require.NotNil(t, cp)
 	expectedCP := &PlayreadyContentProtection{
 		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
 		PRO:            Strptr(VALID_PLAYREADY_PRO),
@@ -430,18 +413,18 @@ func (s *MPDSuite) TestAddNewContentProtectionSchemePlayreadyV10WithPSSH() {
 	expectedCP.XMLNS = Strptr(CENC_XMLNS)
 	expectedCP.PSSH = Strptr("AAACJnBzc2gAAAAAefAEmkCYhkKrkuZb4IhflQAAAgYGAgAAAQABAPwBPABXAFIATQBIAEUAQQBEAEUAUgAgAHgAbQBsAG4AcwA9ACIAaAB0AHQAcAA6AC8ALwBzAGMAaABlAG0AYQBzAC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAEQAUgBNAC8AMgAwADAANwAvADAAMwAvAFAAbABhAHkAUgBlAGEAZAB5AEgAZQBhAGQAZQByACIAIAB2AGUAcgBzAGkAbwBuAD0AIgA0AC4AMAAuADAALgAwACIAPgA8AEQAQQBUAEEAPgA8AFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBFAFkATABFAE4APgAxADYAPAAvAEsARQBZAEwARQBOAD4APABBAEwARwBJAEQAPgBBAEUAUwBDAFQAUgA8AC8AQQBMAEcASQBEAD4APAAvAFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBJAEQAPgBMADkAVwA5AFcAawBwAFYASwBrACsANAAwAEcASAAzAFkAVQBKAFIAVgBRAD0APQA8AC8ASwBJAEQAPgA8AEMASABFAEMASwBTAFUATQA+AEkASwB6AFkAMgBIAFoATABBAGwASQA9ADwALwBDAEgARQBDAEsAUwBVAE0APgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA==")
 
-	assert.Equal(s.T(), expectedCP, cp)
+	require.Equal(t, expectedCP, cp)
 }
 
-func (s *MPDSuite) TestSetNewSegmentTemplate() {
+func TestSetNewSegmentTemplate(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
-	assert.NotNil(s.T(), st)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, st)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestSetNewSegmentTemplateErrorNoDASHProfile() {
+func TestSetNewSegmentTemplateErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: nil,
@@ -453,20 +436,20 @@ func (s *MPDSuite) TestSetNewSegmentTemplateErrorNoDASHProfile() {
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
 	err := m.Validate()
-	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
+	require.Equal(t, ErrNoDASHProfileSet, err)
 }
 
-func (s *MPDSuite) TestAddRepresentationAudio() {
+func TestAddRepresentationAudio(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	r, err := audioAS.AddNewRepresentationAudio(VALID_AUDIO_SAMPLE_RATE, VALID_AUDIO_BITRATE, VALID_AUDIO_CODEC, VALID_AUDIO_ID)
 
-	assert.NotNil(s.T(), r)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, r)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestAddAudioChannelConfiguration() {
+func TestAddAudioChannelConfiguration(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_HBBTV_1_5_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
@@ -474,59 +457,59 @@ func (s *MPDSuite) TestAddAudioChannelConfiguration() {
 
 	acc, err := r.AddNewAudioChannelConfiguration(AUDIO_CHANNEL_CONFIGURATION_MPEG_DASH, "2")
 
-	assert.NotNil(s.T(), acc)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, acc)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestAddRepresentationVideo() {
+func TestAddRepresentationVideo(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, err := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
-	assert.NotNil(s.T(), r)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, r)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestAddRepresentationSubtitle() {
+func TestAddRepresentationSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 
 	r, err := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
 
-	assert.NotNil(s.T(), r)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, r)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestAddRepresentationErrorNil() {
+func TestAddRepresentationErrorNil(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	err := videoAS.addRepresentation(nil)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrRepresentationNil, err)
+	require.NotNil(t, err)
+	require.Equal(t, ErrRepresentationNil, err)
 }
 
-func (s *MPDSuite) TestAddRole() {
+func TestAddRole(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	r, err := audioAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
 
-	assert.NotNil(s.T(), r)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, r)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestSetSegmentTemplateErrorNil() {
+func TestSetSegmentTemplateErrorNil(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	err := audioAS.setSegmentTemplate(nil)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrSegmentTemplateNil, err)
+	require.NotNil(t, err)
+	require.Equal(t, ErrSegmentTemplateNil, err)
 }
 
-func (s *MPDSuite) TestSetNewBaseURLVideo() {
+func TestSetNewBaseURLVideo(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -534,10 +517,10 @@ func (s *MPDSuite) TestSetNewBaseURLVideo() {
 
 	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
 
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestSetNewBaseURLSubtitle() {
+func TestSetNewBaseURLSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 
@@ -545,10 +528,10 @@ func (s *MPDSuite) TestSetNewBaseURLSubtitle() {
 
 	err := r.SetNewBaseURL(VALID_SUBTITLE_URL)
 
-	assert.Nil(s.T(), err)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestSetNewBaseURLErrorNoDASHProfile() {
+func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: nil,
@@ -564,11 +547,11 @@ func (s *MPDSuite) TestSetNewBaseURLErrorNoDASHProfile() {
 	r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
 	err := m.Validate()
 
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
+	require.NotNil(t, err)
+	require.Equal(t, ErrNoDASHProfileSet, err)
 }
 
-func (s *MPDSuite) TestSetNewBaseURLErrorEmpty() {
+func TestSetNewBaseURLErrorEmpty(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -576,22 +559,22 @@ func (s *MPDSuite) TestSetNewBaseURLErrorEmpty() {
 
 	err := r.SetNewBaseURL("")
 
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrBaseURLEmpty, err)
+	require.NotNil(t, err)
+	require.Equal(t, ErrBaseURLEmpty, err)
 }
 
-func (s *MPDSuite) TestSetNewSegmentBase() {
+func TestSetNewSegmentBase(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
 	sb, err := r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
-	assert.NotNil(s.T(), sb)
-	assert.Nil(s.T(), err)
+	require.NotNil(t, sb)
+	require.Nil(t, err)
 }
 
-func (s *MPDSuite) TestSetNewSegmentBaseErrorNoDASHProfile() {
+func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: nil,
@@ -607,18 +590,18 @@ func (s *MPDSuite) TestSetNewSegmentBaseErrorNoDASHProfile() {
 	r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
 
 	err := m.Validate()
-	assert.Equal(s.T(), ErrNoDASHProfileSet, err)
+	require.Equal(t, ErrNoDASHProfileSet, err)
 }
 
-func (s *MPDSuite) TestSetSegmentBaseErrorNil() {
+func TestSetSegmentBaseErrorNil(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
 	err := r.setSegmentBase(nil)
-	assert.NotNil(s.T(), err)
-	assert.Equal(s.T(), ErrSegmentBaseNil, err)
+	require.NotNil(t, err)
+	require.Equal(t, ErrSegmentBaseNil, err)
 }
 
 func getValidWVHeaderBytes() []byte {
