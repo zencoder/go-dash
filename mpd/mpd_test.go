@@ -155,31 +155,13 @@ func TestNewMPDOnDemand(t *testing.T) {
 
 func TestAddNewAdaptationSetAudio(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, err := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	as, err := m.AddNewAdaptationSetAudio("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	require.NotNil(t, as)
 	require.Nil(t, err)
 	expectedAS := &AdaptationSet{
-		MimeType:         Strptr(VALID_MIME_TYPE_AUDIO),
 		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
 		Lang:             Strptr(VALID_LANG),
-	}
-	require.Equal(t, expectedAS, as)
-}
-
-func TestAddNewAdaptationSetAudioSetAdditionalAttributes(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, err := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	require.NotNil(t, as)
-	require.Nil(t, err)
-	as.ID = Strptr("1")
-	as.CommonAttributesAndElements.Codecs = Strptr(VALID_AUDIO_CODEC)
-	expectedAS := &AdaptationSet{
-		MimeType:         Strptr(VALID_MIME_TYPE_AUDIO),
-		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
-		Lang:             Strptr(VALID_LANG),
-		ID:               Strptr("1"),
+		ID:               Strptr("7357"),
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			Profiles:                  nil,
 			Width:                     nil,
@@ -187,11 +169,11 @@ func TestAddNewAdaptationSetAudioSetAdditionalAttributes(t *testing.T) {
 			Sar:                       nil,
 			FrameRate:                 nil,
 			AudioSamplingRate:         nil,
-			MimeType:                  nil,
+			MimeType:                  Strptr(VALID_MIME_TYPE_AUDIO),
 			SegmentProfiles:           nil,
-			Codecs:                    Strptr(VALID_AUDIO_CODEC),
+			Codecs:                    nil,
 			MaximumSAPPeriod:          nil,
-			StartWithSAP:              nil,
+			StartWithSAP:              Int64ptr(VALID_START_WITH_SAP),
 			MaxPlayoutRate:            nil,
 			ScanType:                  nil,
 			FramePacking:              nil,
@@ -208,14 +190,33 @@ func TestAddNewAdaptationSetAudioSetAdditionalAttributes(t *testing.T) {
 func TestAddNewAdaptationSetVideo(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	as, err := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as, err := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 	require.NotNil(t, as)
 	require.Nil(t, err)
 	expectedAS := &AdaptationSet{
-		MimeType:         Strptr(VALID_MIME_TYPE_VIDEO),
-		ScanType:         Strptr(VALID_SCAN_TYPE),
 		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		StartWithSAP:     Int64ptr(VALID_START_WITH_SAP),
+		ID:               Strptr("7357"),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			Profiles:                  nil,
+			Width:                     nil,
+			Height:                    nil,
+			Sar:                       nil,
+			FrameRate:                 nil,
+			AudioSamplingRate:         nil,
+			MimeType:                  Strptr(VALID_MIME_TYPE_VIDEO),
+			SegmentProfiles:           nil,
+			Codecs:                    nil,
+			MaximumSAPPeriod:          nil,
+			StartWithSAP:              Int64ptr(VALID_START_WITH_SAP),
+			MaxPlayoutRate:            nil,
+			ScanType:                  Strptr(VALID_SCAN_TYPE),
+			FramePacking:              nil,
+			AudioChannelConfiguration: nil,
+			ContentProtection:         nil,
+			EssentialProperty:         nil,
+			SupplementalProperty:      nil,
+			InbandEventStream:         nil,
+		},
 	}
 	require.Equal(t, expectedAS, as)
 }
@@ -223,12 +224,15 @@ func TestAddNewAdaptationSetVideo(t *testing.T) {
 func TestAddNewAdaptationSetSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	as, err := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	as, err := m.AddNewAdaptationSetSubtitle("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 	require.NotNil(t, as)
 	require.Nil(t, err)
 	expectedAS := &AdaptationSet{
-		MimeType: Strptr(VALID_MIME_TYPE_SUBTITLE_VTT),
-		Lang:     Strptr(VALID_LANG),
+		ID:   Strptr("7357"),
+		Lang: Strptr(VALID_LANG),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			MimeType: Strptr(VALID_MIME_TYPE_SUBTITLE_VTT),
+		},
 	}
 	require.Equal(t, expectedAS, as)
 }
@@ -243,7 +247,7 @@ func TestAddAdaptationSetErrorNil(t *testing.T) {
 
 func TestAddNewContentProtectionRoot(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionRoot(VALID_DEFAULT_KID_HEX)
 	require.Nil(t, err)
@@ -268,7 +272,7 @@ func (s *TestProprietaryContentProtection) ContentProtected() {}
 
 func TestAddNewContentProtection_Proprietary(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp := &ContentProtection{
 		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
@@ -283,7 +287,7 @@ func TestAddNewContentProtection_Proprietary(t *testing.T) {
 
 func TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionRoot("invalidkid")
 	require.NotNil(t, err)
@@ -293,7 +297,7 @@ func TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID(t *testing.T) {
 
 func TestAddNewContentProtectionRootErrorEmptyDefaultKID(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionRoot("")
 	require.NotNil(t, err)
@@ -303,7 +307,7 @@ func TestAddNewContentProtectionRootErrorEmptyDefaultKID(t *testing.T) {
 
 func TestAddNewContentProtectionSchemeWidevineWithPSSH(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	require.Nil(t, err)
@@ -318,7 +322,7 @@ func TestAddNewContentProtectionSchemeWidevineWithPSSH(t *testing.T) {
 
 func TestAddNewContentProtectionSchemeWidevine(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemeWidevine()
 	require.Nil(t, err)
@@ -330,7 +334,7 @@ func TestAddNewContentProtectionSchemeWidevine(t *testing.T) {
 
 func TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemePlayready("")
 	require.NotNil(t, err)
@@ -340,7 +344,7 @@ func TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO(t *testing.T) {
 
 func TestAddNewContentProtectionSchemePlayready(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemePlayready(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
@@ -356,7 +360,7 @@ func TestAddNewContentProtectionSchemePlayready(t *testing.T) {
 
 func TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemePlayreadyV10("")
 	require.NotNil(t, err)
@@ -366,7 +370,7 @@ func TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO(t *testing.T) {
 
 func TestAddNewContentProtectionSchemePlayreadyV10(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemePlayreadyV10(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
@@ -382,7 +386,7 @@ func TestAddNewContentProtectionSchemePlayreadyV10(t *testing.T) {
 
 func TestAddNewContentProtectionSchemePlayreadyWithPSSH(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
@@ -400,7 +404,7 @@ func TestAddNewContentProtectionSchemePlayreadyWithPSSH(t *testing.T) {
 
 func TestAddNewContentProtectionSchemePlayreadyV10WithPSSH(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	s, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionSchemePlayreadyV10WithPSSH(VALID_PLAYREADY_PRO)
 	require.Nil(t, err)
@@ -418,7 +422,7 @@ func TestAddNewContentProtectionSchemePlayreadyV10WithPSSH(t *testing.T) {
 
 func TestSetNewSegmentTemplate(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	audioAS, _ := m.AddNewAdaptationSetAudio("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
 	require.NotNil(t, st)
 	require.Nil(t, err)
@@ -433,7 +437,7 @@ func TestSetNewSegmentTemplateErrorNoDASHProfile(t *testing.T) {
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
 	}
-	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	audioAS, _ := m.AddNewAdaptationSetAudio("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
 	err := m.Validate()
 	require.Equal(t, ErrNoDASHProfileSet, err)
@@ -441,7 +445,7 @@ func TestSetNewSegmentTemplateErrorNoDASHProfile(t *testing.T) {
 
 func TestAddRepresentationAudio(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	audioAS, _ := m.AddNewAdaptationSetAudio("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	r, err := audioAS.AddNewRepresentationAudio(VALID_AUDIO_SAMPLE_RATE, VALID_AUDIO_BITRATE, VALID_AUDIO_CODEC, VALID_AUDIO_ID)
 
@@ -451,7 +455,7 @@ func TestAddRepresentationAudio(t *testing.T) {
 
 func TestAddAudioChannelConfiguration(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_HBBTV_1_5_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	audioAS, _ := m.AddNewAdaptationSetAudio("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	r, _ := audioAS.AddNewRepresentationAudio(VALID_AUDIO_SAMPLE_RATE, VALID_AUDIO_BITRATE, VALID_AUDIO_CODEC, VALID_AUDIO_ID)
 
@@ -463,7 +467,7 @@ func TestAddAudioChannelConfiguration(t *testing.T) {
 
 func TestAddRepresentationVideo(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, err := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
@@ -474,7 +478,7 @@ func TestAddRepresentationVideo(t *testing.T) {
 func TestAddRepresentationSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitle("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 
 	r, err := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
 
@@ -484,7 +488,7 @@ func TestAddRepresentationSubtitle(t *testing.T) {
 
 func TestAddRepresentationErrorNil(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	err := videoAS.addRepresentation(nil)
 	require.NotNil(t, err)
@@ -493,7 +497,7 @@ func TestAddRepresentationErrorNil(t *testing.T) {
 
 func TestAddRole(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	audioAS, _ := m.AddNewAdaptationSetAudio("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	r, err := audioAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
 
@@ -503,7 +507,7 @@ func TestAddRole(t *testing.T) {
 
 func TestSetSegmentTemplateErrorNil(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	audioAS, _ := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+	audioAS, _ := m.AddNewAdaptationSetAudio("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	err := audioAS.setSegmentTemplate(nil)
 	require.NotNil(t, err)
 	require.Equal(t, ErrSegmentTemplateNil, err)
@@ -511,7 +515,7 @@ func TestSetSegmentTemplateErrorNil(t *testing.T) {
 
 func TestSetNewBaseURLVideo(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
@@ -522,7 +526,7 @@ func TestSetNewBaseURLVideo(t *testing.T) {
 
 func TestSetNewBaseURLSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitle("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 
 	r, _ := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
 
@@ -540,7 +544,7 @@ func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
 	}
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
@@ -553,7 +557,7 @@ func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
 
 func TestSetNewBaseURLErrorEmpty(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
@@ -565,7 +569,7 @@ func TestSetNewBaseURLErrorEmpty(t *testing.T) {
 
 func TestSetNewSegmentBase(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
@@ -583,7 +587,7 @@ func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
 	}
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
@@ -595,7 +599,7 @@ func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
 
 func TestSetSegmentBaseErrorNil(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	videoAS, _ := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	videoAS, _ := m.AddNewAdaptationSetVideo("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 

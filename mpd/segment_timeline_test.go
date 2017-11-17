@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"fmt"
+
 	"github.com/stretchr/testify/require"
 	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
@@ -23,6 +25,8 @@ func TestSegmentTimelineSerialization(t *testing.T) {
 			found, err := tc.In.WriteToString()
 			require.NoError(t, err)
 			expected := testfixtures.LoadFixture("fixtures/" + tc.Out)
+			fmt.Println(expected)
+			fmt.Println(found)
 			require.Equal(t, expected, found)
 		})
 	}
@@ -59,7 +63,7 @@ func getMultiPeriodSegmentTimelineMPD() *MPD {
 		p := m.GetCurrentPeriod()
 		p.ID = strconv.Itoa(i)
 		p.Duration = Duration(30 * time.Second)
-		aas, _ := p.AddNewAdaptationSetAudio("audio/mp4", true, 1, "en")
+		aas, _ := p.AddNewAdaptationSetAudio("1", "audio/mp4", true, 1, "en")
 		aas.AddNewRepresentationAudio(48000, 92000, "mp4a.40.2", "audio_1")
 		aas.SegmentTemplate = &SegmentTemplate{
 			Timescale:      ptrs.Int64ptr(48000),
@@ -72,7 +76,7 @@ func getMultiPeriodSegmentTimelineMPD() *MPD {
 				},
 			},
 		}
-		vas, _ := p.AddNewAdaptationSetVideo("video/mp4", "progressive", true, 1)
+		vas, _ := p.AddNewAdaptationSetVideo("2", "video/mp4", "progressive", true, 1)
 		vas.AddNewRepresentationVideo(3532000, "avc1.640028", "video_1", "2997/100", 2048, 854)
 		vas.AddNewRepresentationVideo(453000, "avc1.420016", "video_2", "2997/100", 648, 270)
 		vas.SegmentTemplate = &SegmentTemplate{
@@ -101,7 +105,7 @@ func getSegmentTimelineMPD() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, "PT65.063S", "PT2.000S")
 	m.period.BaseURL = "http://localhost:8002/public/"
 
-	aas, _ := m.AddNewAdaptationSetAudio("audio/mp4", true, 1, "English")
+	aas, _ := m.AddNewAdaptationSetAudio("1", "audio/mp4", true, 1, "English")
 	ra, _ := aas.AddNewRepresentationAudio(48000, 255000, "mp4a.40.2", "audio_1")
 
 	ra.SegmentTemplate = &SegmentTemplate{
@@ -120,7 +124,7 @@ func getSegmentTimelineMPD() *MPD {
 		},
 	}
 
-	vas, _ := m.AddNewAdaptationSetVideo("video/mp4", "progressive", true, 1)
+	vas, _ := m.AddNewAdaptationSetVideo("2", "video/mp4", "progressive", true, 1)
 	va, _ := vas.AddNewRepresentationVideo(int64(4172274), "avc1.640028", "video_1", "30000/1001", int64(1280), int64(720))
 
 	va.SegmentTemplate = &SegmentTemplate{
