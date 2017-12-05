@@ -98,7 +98,7 @@ type CommonAttributesAndElements struct {
 	MimeType                  *string               `xml:"mimeType,attr"`
 	SegmentProfiles           *string               `xml:"segmentProfiles,attr"`
 	Codecs                    *string               `xml:"codecs,attr"`
-	MaximumSAPPeriod          *string               `xml:"MaximumSAPPeriod,attr"`
+	MaximumSAPPeriod          *string               `xml:"maximumSAPPeriod,attr"`
 	StartWithSAP              *int64                `xml:"startWithSAP,attr"`
 	MaxPlayoutRate            *string               `xml:"maxPlayoutRate,attr"`
 	ScanType                  *string               `xml:"scanType,attr"`

@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"fmt"
-
 	"github.com/stretchr/testify/require"
 	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
@@ -25,8 +23,6 @@ func TestSegmentTimelineSerialization(t *testing.T) {
 			found, err := tc.In.WriteToString()
 			require.NoError(t, err)
 			expected := testfixtures.LoadFixture("fixtures/" + tc.Out)
-			fmt.Println(expected)
-			fmt.Println(found)
 			require.Equal(t, expected, found)
 		})
 	}
