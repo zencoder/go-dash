@@ -1,6 +1,7 @@
 package mpd
 
 import (
+	"io/ioutil"
 	"os"
 	"testing"
 	"time"
@@ -34,6 +35,35 @@ func TestReadingManifests(t *testing.T) {
 			_, err := ReadFromString(xmlStr)
 			require.NotNil(t, xmlStr)
 			require.NoError(t, err)
+		}
+	}
+}
+func TestReadAndWrite(t *testing.T) {
+
+	var testCases = []struct {
+		err, filepath string
+	}{
+		{filepath: "fixtures/ondemand_profile.nodrm.mpd", err: ""},
+	}
+
+	for _, tc := range testCases {
+		// Test reading from manifest files
+		m, err := ReadFromFile(tc.filepath)
+		require.NoError(t, err, "Error while reading "+tc.filepath)
+
+		// Test reading valid files from strings
+		if tc.err == "" {
+			w, err := m.WriteToString()
+			require.NoError(t, err)
+
+			xmlStr := testfixtures.LoadFixture(tc.filepath)
+
+			if xmlStr != w {
+				// output failure
+				ioutil.WriteFile("failed.mpd", []byte(w), 0777)
+			}
+
+			require.Equal(t, xmlStr, w, "Not equal comparing "+tc.filepath)
 		}
 	}
 }
