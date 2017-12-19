@@ -43,7 +43,11 @@ func TestReadAndWrite(t *testing.T) {
 	var testCases = []struct {
 		err, filepath string
 	}{
-		{filepath: "fixtures/ondemand_profile.nodrm.mpd", err: ""},
+		{filepath: "fixtures/ondemand_profile.mpd", err: ""},
+		{filepath: "fixtures/ondemand_profile_nodrm.mpd", err: ""},
+		{filepath: "fixtures/live_profile.mpd", err: ""},
+		{filepath: "fixtures/segment_timeline_multi_period.mpd", err: ""},
+		{filepath: "fixtures/segment_timeline.mpd", err: ""},
 	}
 
 	for _, tc := range testCases {
@@ -62,7 +66,6 @@ func TestReadAndWrite(t *testing.T) {
 				// output failure
 				ioutil.WriteFile("failed.mpd", []byte(w), 0777)
 			}
-
 			require.Equal(t, xmlStr, w, "Not equal comparing "+tc.filepath)
 		}
 	}

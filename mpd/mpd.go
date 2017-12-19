@@ -5,6 +5,9 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
+	"log"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -57,6 +60,10 @@ var (
 	ErrInvalidDefaultKID                    = errors.New("Invalid Default KID string, should be 32 characters")
 	ErrPROEmpty                             = errors.New("PlayReady PRO empty")
 	ErrContentProtectionNil                 = errors.New("Content Protection nil")
+)
+
+var (
+	contentKIDRegex = regexp.MustCompile("(?m)<(.*)>([\\w\\d+=]+)</.*>")
 )
 
 type MPD struct {
@@ -114,20 +121,19 @@ type AdaptationSet struct {
 	XMLName xml.Name `xml:"AdaptationSet"`
 	ID      *string  `xml:"id,attr"`
 	CommonAttributesAndElements
-	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
-	Lang              *string               `xml:"lang,attr"`
-	Group             *string               `xml:"group,attr"`
-	PAR               *string               `xml:"par,attr"`
-	MinBandwidth      *string               `xml:"minBandwidth,attr"`
-	MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
-	MinWidth          *string               `xml:"minWidth,attr"`
-	MaxWidth          *string               `xml:"maxWidth,attr"`
-	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-	Roles             []*Role               `xml:"Role,omitempty"`
-	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
-	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
-	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations   []*Representation     `xml:"Representation,omitempty"`
+	SegmentAlignment *bool             `xml:"segmentAlignment,attr"`
+	Lang             *string           `xml:"lang,attr"`
+	Group            *string           `xml:"group,attr"`
+	PAR              *string           `xml:"par,attr"`
+	MinBandwidth     *string           `xml:"minBandwidth,attr"`
+	MaxBandwidth     *string           `xml:"maxBandwidth,attr"`
+	MinWidth         *string           `xml:"minWidth,attr"`
+	MaxWidth         *string           `xml:"maxWidth,attr"`
+	Roles            []*Role           `xml:"Role,omitempty"`
+	SegmentBase      *SegmentBase      `xml:"SegmentBase,omitempty"`
+	SegmentList      *SegmentList      `xml:"SegmentList,omitempty"`
+	SegmentTemplate  *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations  []*Representation `xml:"Representation,omitempty"`
 }
 
 // Constants for DRM / ContentProtection
@@ -146,6 +152,165 @@ const (
 
 type ContentProtectioner interface {
 	ContentProtected()
+}
+
+func (t *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+
+	if start.Name.Local == "AdaptationSet" {
+		for _, attr := range start.Attr {
+			switch attr.Name.Local {
+			case "id":
+				t.ID = Strptr(attr.Value)
+			case "mimeType":
+				t.MimeType = Strptr(attr.Value)
+			case "lang":
+				t.Lang = Strptr(attr.Value)
+			case "scanType":
+				t.ScanType = Strptr(attr.Value)
+			case "segmentAlignment":
+				b, err := strconv.ParseBool(attr.Value)
+				if err != nil {
+					return err
+				}
+				t.SegmentAlignment = Boolptr(b)
+			case "startWithSAP":
+				i, err := strconv.ParseInt(attr.Value, 10, 0)
+				if err != nil {
+					return err
+				}
+				t.StartWithSAP = Int64ptr(i)
+			default:
+				log.Printf("WARN: unmarshalled attributes %s : %s\n", attr.Name, attr.Value)
+			}
+		}
+
+		for {
+			token, err := d.Token()
+			if err != nil {
+				return err
+			}
+
+			switch el := token.(type) {
+			case xml.StartElement:
+
+				switch el.Name.Local {
+				case "ContentProtection":
+					inspectCP := new(InspectContentProtection)
+					if err = d.DecodeElement(inspectCP, &el); err != nil {
+						return err
+					}
+
+					switch *inspectCP.SchemeIDURI {
+					case "urn:mpeg:dash:mp4protection:2011":
+						cp := CENCContentProtection{
+							ContentProtection: ContentProtection{
+								SchemeIDURI:   inspectCP.SchemeIDURI,
+								XMLNS:         getAttrString(el.Attr, "cenc"),
+								AdaptationSet: t,
+							},
+							DefaultKID: getAttrString(el.Attr, "default_KID"),
+							Value:      getAttrString(el.Attr, "value"),
+						}
+						t.ContentProtection = append(t.ContentProtection, cp)
+
+					case "urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed":
+						cp := WidevineContentProtection{
+							ContentProtection: ContentProtection{
+								SchemeIDURI:   inspectCP.SchemeIDURI,
+								XMLNS:         getAttrString(el.Attr, "cenc"),
+								AdaptationSet: t,
+							},
+						}
+
+						kids := contentKIDRegex.FindAllStringSubmatch(inspectCP.InnerXML, -1)
+						if len(kids) > 0 {
+							cp.PSSH = Strptr(kids[0][2])
+						}
+
+						t.ContentProtection = append(t.ContentProtection, cp)
+
+					case "urn:uuid:9a04f079-9840-4286-ab92-e65be0885f95":
+						cp := PlayreadyContentProtection{
+							ContentProtection: ContentProtection{
+								SchemeIDURI:   inspectCP.SchemeIDURI,
+								XMLNS:         getAttrString(el.Attr, "cenc"),
+								AdaptationSet: t,
+							},
+							PlayreadyXMLNS: getAttrString(el.Attr, "mspr"),
+						}
+
+						kids := contentKIDRegex.FindAllStringSubmatch(inspectCP.InnerXML, -1)
+						if len(kids) > 0 {
+							for i := range kids {
+								switch kids[i][1] {
+								case "mspr:pro":
+									cp.PRO = Strptr(kids[i][2])
+								case "cenc:pssh":
+									cp.PSSH = Strptr(kids[i][2])
+								default:
+									log.Printf("WARN: unsupported encryption scheme. %s\n", kids[i][1])
+								}
+							}
+						}
+
+						t.ContentProtection = append(t.ContentProtection, cp)
+					default:
+						log.Printf("WARN: unsupported scheme. %s", *inspectCP.SchemeIDURI)
+					}
+
+				case "Role":
+					item := new(Role)
+					if err = d.DecodeElement(&item, &el); err != nil {
+						return err
+					}
+					item.AdaptationSet = t
+					t.Roles = append(t.Roles, item)
+				case "SegmentBase":
+					item := new(SegmentBase)
+					if err = d.DecodeElement(item, &el); err != nil {
+						return err
+					}
+					t.SegmentBase = item
+				case "SegmentList":
+					item := new(SegmentList)
+					if err = d.DecodeElement(item, &el); err != nil {
+						return err
+					}
+					t.SegmentList = item
+				case "SegmentTemplate":
+					item := new(SegmentTemplate)
+					if err = d.DecodeElement(item, &el); err != nil {
+						return err
+					}
+					item.AdaptationSet = t
+					t.SegmentTemplate = item
+				case "Representation":
+					item := new(Representation)
+					if err = d.DecodeElement(&item, &el); err != nil {
+						return err
+					}
+					item.AdaptationSet = t
+					t.Representations = append(t.Representations, item)
+				default:
+					log.Printf("WARN: unmarshalled element %s\n", el.Name.Local)
+				}
+			case xml.EndElement:
+				if el == start.End() {
+					return nil
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func getAttrString(attr []xml.Attr, searchName string) *string {
+	for i := range attr {
+		if attr[i].Name.Local == searchName {
+			return Strptr(attr[i].Value)
+		}
+	}
+	return nil
 }
 
 type ContentProtection struct {
@@ -171,6 +336,11 @@ type PlayreadyContentProtection struct {
 type WidevineContentProtection struct {
 	ContentProtection
 	PSSH *string `xml:"cenc:pssh,omitempty"`
+}
+
+type InspectContentProtection struct {
+	ContentProtection
+	InnerXML string `xml:",innerxml"`
 }
 
 func (s ContentProtection) ContentProtected() {}
