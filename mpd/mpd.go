@@ -179,6 +179,13 @@ func (t *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 					return err
 				}
 				t.StartWithSAP = Int64ptr(i)
+			case "maxWidth":
+				t.MaxWidth = Strptr(attr.Value)
+			case "maxBandwidth":
+				t.MaxBandwidth = Strptr(attr.Value)
+			case "par":
+				t.PAR = Strptr(attr.Value)
+
 			default:
 				log.Printf("WARN: unmarshalled attributes %s : %s\n", attr.Name, attr.Value)
 			}
@@ -205,7 +212,7 @@ func (t *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 						cp := CENCContentProtection{
 							ContentProtection: ContentProtection{
 								SchemeIDURI:   inspectCP.SchemeIDURI,
-								XMLNS:         getAttrString(el.Attr, "cenc"),
+								XMLNS:         Strptr("urn:mpeg:cenc:2013"),
 								AdaptationSet: t,
 							},
 							DefaultKID: getAttrString(el.Attr, "default_KID"),
@@ -217,7 +224,7 @@ func (t *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 						cp := WidevineContentProtection{
 							ContentProtection: ContentProtection{
 								SchemeIDURI:   inspectCP.SchemeIDURI,
-								XMLNS:         getAttrString(el.Attr, "cenc"),
+								XMLNS:         Strptr("urn:mpeg:cenc:2013"),
 								AdaptationSet: t,
 							},
 						}
@@ -233,7 +240,7 @@ func (t *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 						cp := PlayreadyContentProtection{
 							ContentProtection: ContentProtection{
 								SchemeIDURI:   inspectCP.SchemeIDURI,
-								XMLNS:         getAttrString(el.Attr, "cenc"),
+								XMLNS:         Strptr("urn:mpeg:cenc:2013"),
 								AdaptationSet: t,
 							},
 							PlayreadyXMLNS: getAttrString(el.Attr, "mspr"),
