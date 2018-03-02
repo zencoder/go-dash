@@ -27,7 +27,7 @@ var (
 var xmlDurationRegex = regexp.MustCompile(rStart + rDays + rTime + rHours + rMinutes + rSeconds + rEnd)
 
 func (d Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
-	return xml.Attr{name, d.String()}, nil
+	return xml.Attr{Name: name, Value: d.String()}, nil
 }
 
 func (d *Duration) UnmarshalXMLAttr(attr xml.Attr) error {

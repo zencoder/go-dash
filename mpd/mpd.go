@@ -349,13 +349,40 @@ func (period *Period) addAdaptationSet(as *AdaptationSet) error {
 // Adds a ContentProtection tag at the root level of an AdaptationSet.
 // This ContentProtection tag does not include signaling for any particular DRM scheme.
 // defaultKIDHex - Default Key ID as a Hex String.
-func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CENCContentProtection, error) {
+//
+// NOTE: this is only here for Legacy purposes. This will create an invalid UUID.
+func (as *AdaptationSet) AddNewContentProtectionRootLegacyUUID(defaultKIDHex string) (*CENCContentProtection, error) {
 	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
 		return nil, ErrInvalidDefaultKID
 	}
 
 	// Convert the KID into the correct format
 	defaultKID := strings.ToLower(defaultKIDHex[0:8] + "-" + defaultKIDHex[8:12] + "-" + defaultKIDHex[12:16] + "-" + defaultKIDHex[16:32])
+
+	cp := &CENCContentProtection{
+		DefaultKID: Strptr(defaultKID),
+		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
+	}
+	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
+	cp.XMLNS = Strptr(CENC_XMLNS)
+
+	err := as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+	return cp, nil
+}
+
+// Adds a ContentProtection tag at the root level of an AdaptationSet.
+// This ContentProtection tag does not include signaling for any particular DRM scheme.
+// defaultKIDHex - Default Key ID as a Hex String.
+func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CENCContentProtection, error) {
+	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
+		return nil, ErrInvalidDefaultKID
+	}
+
+	// Convert the KID into the correct format
+	defaultKID := strings.ToLower(defaultKIDHex[0:8] + "-" + defaultKIDHex[8:12] + "-" + defaultKIDHex[12:16] + "-" + defaultKIDHex[16:20] + "-" + defaultKIDHex[20:32])
 
 	cp := &CENCContentProtection{
 		DefaultKID: Strptr(defaultKID),
