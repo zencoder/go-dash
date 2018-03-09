@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"testing"
-	"github.com/zencoder/go-dash/helpers/testfixtures"
 	"github.com/stretchr/testify/require"
 	"os"
 )
@@ -19,7 +18,7 @@ func LoadFixture(path string) (js string) {
 }
 
 func CompareFixture(t *testing.T, fixturePath string, actualContent string) {
-	expectedContent := testfixtures.LoadFixture(fixturePath)
+	expectedContent := LoadFixture(fixturePath)
 	if os.Getenv("GENERATE_FIXTURES") != "" {
 		ioutil.WriteFile(fixturePath, []byte(actualContent), os.ModePerm)
 		fmt.Println("Wrote fixture: " + fixturePath)
