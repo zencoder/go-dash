@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"testing"
-	"github.com/miyukki/go-dash/helpers/testfixtures"
+	"github.com/zencoder/go-dash/helpers/testfixtures"
 	"github.com/stretchr/testify/require"
 	"os"
 )
