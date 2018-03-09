@@ -53,7 +53,7 @@ func getSegmentListMPD() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, "PT30.016S", "PT2.000S")
 	m.period.BaseURL = "http://localhost:8002/dash/"
 
-	aas, _ := m.AddNewAdaptationSetAudio("1","audio/mp4", true, 1, "English")
+	aas, _ := m.AddNewAdaptationSetAudioWithID("1", "audio/mp4", true, 1, "English")
 	ra, _ := aas.AddNewRepresentationAudio(48000, 255000, "mp4a.40.2", "audio_1")
 
 	asl := new(SegmentList)
@@ -70,7 +70,7 @@ func getSegmentListMPD() *MPD {
 
 	ra.SegmentList = asl
 
-	vas, _ := m.AddNewAdaptationSetVideo("2","video/mp4", "progressive", true, 1)
+	vas, _ := m.AddNewAdaptationSetVideoWithID("2", "video/mp4", "progressive", true, 1)
 	va, _ := vas.AddNewRepresentationVideo(int64(4172274), "avc1.640028", "video_1", "30000/1001", int64(1280), int64(720))
 
 	vsl := new(SegmentList)
