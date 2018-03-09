@@ -9,10 +9,10 @@ import (
 )
 
 func TestSegmentListSerialization(t *testing.T) {
-	expectedXML := testfixtures.LoadFixture("fixtures/segment_list.mpd")
 	m := getSegmentListMPD()
-	xml, _ := m.WriteToString()
-	require.Equal(t, expectedXML, xml)
+	xml, err := m.WriteToString()
+	require.NoError(t, err)
+	testfixtures.CompareFixture(t, "fixtures/segment_list.mpd", xml)
 }
 
 func TestSegmentListDeserialization(t *testing.T) {

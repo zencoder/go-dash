@@ -74,7 +74,7 @@ func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet id="7357" mimeType="audio/mp4" startWithSAP="1" segmentAlignment="true" lang="en"></AdaptationSet>
+    <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="7357" segmentAlignment="true" lang="en"></AdaptationSet>
   </Period>
 </MPD>
 `
@@ -91,7 +91,7 @@ func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet id="7357" mimeType="video/mp4" startWithSAP="1" scanType="progressive" segmentAlignment="true"></AdaptationSet>
+    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true"></AdaptationSet>
   </Period>
 </MPD>
 `
@@ -108,7 +108,7 @@ func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet id="7357" mimeType="text/vtt" lang="en"></AdaptationSet>
+    <AdaptationSet mimeType="text/vtt" id="7357" lang="en"></AdaptationSet>
   </Period>
 </MPD>
 `
@@ -139,8 +139,7 @@ func TestExampleAddNewPeriod(t *testing.T) {
 
 	xmlStr, err := m.WriteToString()
 	require.Nil(t, err)
-	expectedXML := testfixtures.LoadFixture("fixtures/newperiod.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	testfixtures.CompareFixture(t, "fixtures/newperiod.mpd", xmlStr)
 }
 
 func LiveProfile() *MPD {
@@ -183,8 +182,7 @@ func TestFullLiveProfileWriteToString(t *testing.T) {
 	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
 	require.Nil(t, err)
-	expectedXML := testfixtures.LoadFixture("fixtures/live_profile.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	testfixtures.CompareFixture(t, "fixtures/live_profile.mpd", xmlStr)
 }
 
 func TestFullLiveProfileWriteToFile(t *testing.T) {
@@ -239,8 +237,7 @@ func TestFullHbbTVProfileWriteToString(t *testing.T) {
 	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
 	require.Nil(t, err)
-	expectedXML := testfixtures.LoadFixture("fixtures/hbbtv_profile.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	testfixtures.CompareFixture(t, "fixtures/hbbtv_profile.mpd", xmlStr)
 }
 
 func TestFullHbbTVProfileWriteToFile(t *testing.T) {
@@ -248,8 +245,7 @@ func TestFullHbbTVProfileWriteToFile(t *testing.T) {
 	require.NotNil(t, m)
 	err := m.WriteToFile("test_hbbtv.mpd")
 	xmlStr := testfixtures.LoadFixture("test_hbbtv.mpd")
-	expectedXML := testfixtures.LoadFixture("fixtures/hbbtv_profile.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	testfixtures.CompareFixture(t, "fixtures/hbbtv_profile.mpd", xmlStr)
 	defer os.Remove("test_hbbtv.mpd")
 	require.Nil(t, err)
 }
@@ -293,8 +289,7 @@ func TestFullOnDemandProfileWriteToString(t *testing.T) {
 	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
 	require.Nil(t, err)
-	expectedXML := testfixtures.LoadFixture("fixtures/ondemand_profile.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	testfixtures.CompareFixture(t, "fixtures/ondemand_profile.mpd", xmlStr)
 }
 
 func TestFullOnDemandProfileWriteToFile(t *testing.T) {
@@ -302,8 +297,7 @@ func TestFullOnDemandProfileWriteToFile(t *testing.T) {
 	require.NotNil(t, m)
 	err := m.WriteToFile("test-ondemand.mpd")
 	xmlStr := testfixtures.LoadFixture("test-ondemand.mpd")
-	expectedXML := testfixtures.LoadFixture("fixtures/ondemand_profile.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	testfixtures.CompareFixture(t, "fixtures/ondemand_profile.mpd", xmlStr)
 	defer os.Remove("test-ondemand.mpd")
 	require.Nil(t, err)
 }
