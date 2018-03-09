@@ -22,7 +22,7 @@ func TestSegmentTimelineSerialization(t *testing.T) {
 		t.Run(tc.Out, func(t *testing.T) {
 			found, err := tc.In.WriteToString()
 			require.NoError(t, err)
-			testfixtures.CompareFixture(t, "fixtures/" + tc.Out, found)
+			testfixtures.CompareFixture(t, "fixtures/"+tc.Out, found)
 		})
 	}
 }

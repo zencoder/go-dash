@@ -3,9 +3,10 @@ package testfixtures
 import (
 	"fmt"
 	"io/ioutil"
-	"testing"
-	"github.com/stretchr/testify/require"
 	"os"
+	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 // Load test fixture from path relative to fixtures directory

@@ -112,8 +112,8 @@ type CommonAttributesAndElements struct {
 
 type AdaptationSet struct {
 	CommonAttributesAndElements
-	XMLName xml.Name `xml:"AdaptationSet"`
-	ID      *string  `xml:"id,attr"`
+	XMLName           xml.Name              `xml:"AdaptationSet"`
+	ID                *string               `xml:"id,attr"`
 	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
 	Lang              *string               `xml:"lang,attr"`
 	Group             *string               `xml:"group,attr"`
@@ -202,7 +202,7 @@ type Representation struct {
 	Codecs                    *string                    `xml:"codecs,attr"`              // Audio + Video
 	FrameRate                 *string                    `xml:"frameRate,attr,omitempty"` // Video
 	Height                    *int64                     `xml:"height,attr"`              // Video
-	ID *string `xml:"id,attr"` // Audio + Video
+	ID                        *string                    `xml:"id,attr"`                  // Audio + Video
 	Width                     *int64                     `xml:"width,attr"`               // Video
 	BaseURL                   *string                    `xml:"BaseURL,omitempty"`        // On-Demand Profile
 	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
