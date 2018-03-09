@@ -39,7 +39,7 @@ func TestReadingManifests(t *testing.T) {
 }
 
 func TestNewMPDLiveWriteToString(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_LIVE)
 
 	xmlStr, err := m.WriteToString()
 	require.Nil(t, err)
@@ -52,7 +52,7 @@ func TestNewMPDLiveWriteToString(t *testing.T) {
 }
 
 func TestNewMPDOnDemandWriteToString(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_ONDEMAND)
 
 	xmlStr, err := m.WriteToString()
 	require.Nil(t, err)
@@ -65,7 +65,7 @@ func TestNewMPDOnDemandWriteToString(t *testing.T) {
 }
 
 func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_LIVE)
 
 	m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
@@ -82,7 +82,7 @@ func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
 }
 
 func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_LIVE)
 
 	m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -99,7 +99,7 @@ func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 }
 
 func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_LIVE)
 
 	m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 
@@ -117,7 +117,7 @@ func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
 
 func TestExampleAddNewPeriod(t *testing.T) {
 	// a new MPD is created with a single Period
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_LIVE)
 
 	// you can add content to the Period
 	p := m.GetCurrentPeriod()
@@ -143,7 +143,7 @@ func TestExampleAddNewPeriod(t *testing.T) {
 }
 
 func LiveProfile() *MPD {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_LIVE)
 
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
@@ -197,7 +197,7 @@ func TestFullLiveProfileWriteToFile(t *testing.T) {
 }
 
 func HbbTVProfile() *MPD {
-	m := NewMPD(DASH_PROFILE_HBBTV_1_5_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := CreateMPD(DASH_PROFILE_HBBTV_1_5_LIVE)
 
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
@@ -251,7 +251,12 @@ func TestFullHbbTVProfileWriteToFile(t *testing.T) {
 }
 
 func OnDemandProfile() *MPD {
-	m := NewMPD(DASH_PROFILE_ONDEMAND, "PT30S", VALID_MIN_BUFFER_TIME)
+	var attributes map[string]string
+	attributes = make(map[string]string)
+
+	attributes["mediaPresentationDuration"] = "PT30S"
+	attributes["minBufferTime"] = VALID_MIN_BUFFER_TIME
+	m := CreateMPDWithArgs(DASH_PROFILE_ONDEMAND, attributes)
 
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "und")
 

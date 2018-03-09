@@ -6,6 +6,13 @@ func Strptr(v string) *string {
 	return p
 }
 
+func EmptyStrPtr(v string) *string {
+	if v == "" {
+		return nil
+	}
+	return Strptr(v)
+}
+
 func Intptr(v int) *int {
 	p := new(int)
 	*p = v

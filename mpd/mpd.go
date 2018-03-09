@@ -64,6 +64,7 @@ type MPD struct {
 	Profiles                  *string `xml:"profiles,attr"`
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
+	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
 	period                    *Period
@@ -218,19 +219,29 @@ type AudioChannelConfiguration struct {
 
 // Creates a new MPD object.
 // profile - DASH Profile (Live or OnDemand).
-// mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
-// minBufferTime - Min Buffer Time (i.e. PT1.97S).
-func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
+// attributes - set of MPD root attributes
+//  - mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
+//  - minBufferTime - Min Buffer Time (i.e. PT1.97S).
+//  - availabilityStartTime - the start time (i.e. 2017-10-18T16:23:54Z), the anchor for the MPD in wall-clock time. The value is also known as AST. For MPD@type='dynamic' this attribute shall be present.
+func NewMPD(profile DashProfile, attributes map[string]string) *MPD {
 	period := &Period{}
 	return &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(profile)),
-		Type:     Strptr("static"),
-		MediaPresentationDuration: Strptr(mediaPresentationDuration),
-		MinBufferTime:             Strptr(minBufferTime),
+		Type:     Strptr(defaultValue(attributes["type"], "static")),
+		MediaPresentationDuration: EmptyStrPtr(attributes["mediaPresentationDuration"]),
+		MinBufferTime:             EmptyStrPtr(attributes["minBufferTime"]),
+		AvailabilityStartTime:     EmptyStrPtr(attributes["availabilityStartTime"]),
 		period:                    period,
 		Periods:                   []*Period{period},
 	}
+}
+
+func defaultValue(value string, defaultVal string) string {
+	if value == "" {
+		return defaultVal
+	}
+	return value
 }
 
 // AddNewPeriod creates a new Period and make it the currently active one.
