@@ -36,3 +36,6 @@ examples-live:
 
 examples-ondemand:
 	go run examples/ondemand.go
+
+generate:
+	GENERATE_FIXTURES=true $(MAKE) test
