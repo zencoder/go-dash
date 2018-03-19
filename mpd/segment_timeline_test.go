@@ -50,7 +50,12 @@ func TestSegmentTimelineDeserialization(t *testing.T) {
 }
 
 func getMultiPeriodSegmentTimelineMPD() *MPD {
-	m := NewMPD(DASH_PROFILE_LIVE, "PT65.063S", "PT2.000S")
+	var attributes map[string]string
+	attributes = make(map[string]string)
+	attributes[ATTR_MEDIA_PRESENTATION_DURATION] = "PT65.063S"
+	attributes[ATTR_MIN_BUFFER_TIME] = "PT2.000S"
+
+	m := CreateMPDWithArgs(DASH_PROFILE_LIVE, attributes)
 	for i := 0; i < 4; i++ {
 		if i > 0 {
 			m.AddNewPeriod()
@@ -97,7 +102,12 @@ func getMultiPeriodSegmentTimelineMPD() *MPD {
 }
 
 func getSegmentTimelineMPD() *MPD {
-	m := NewMPD(DASH_PROFILE_LIVE, "PT65.063S", "PT2.000S")
+	var attributes map[string]string
+	attributes = make(map[string]string)
+	attributes[ATTR_MEDIA_PRESENTATION_DURATION] = "PT65.063S"
+	attributes[ATTR_MIN_BUFFER_TIME] = "PT2.000S"
+
+	m := CreateMPDWithArgs(DASH_PROFILE_LIVE, attributes)
 	m.period.BaseURL = "http://localhost:8002/public/"
 
 	aas, _ := m.AddNewAdaptationSetAudioWithID("1", "audio/mp4", true, 1, "English")

@@ -24,6 +24,16 @@ const (
 	DASH_PROFILE_HBBTV_1_5_LIVE DashProfile = "urn:hbbtv:dash:profile:isoff-live:2012,urn:mpeg:dash:profile:isoff-live:2011"
 )
 
+// Constants for DASH mpd tag
+const (
+	ATTR_TYPE                        = "type"
+	ATTR_TYPE_STATIC                 = "static"
+	ATTR_TYPE_DYNAMIC                = "dynamic"
+	ATTR_MEDIA_PRESENTATION_DURATION = "mediaPresentationDuration"
+	ATTR_MIN_BUFFER_TIME             = "minBufferTime"
+	ATTR_AVAILABILITY_START_TIME     = "availabilityStartTime"
+)
+
 type AudioChannelConfigurationScheme string
 
 const (
@@ -64,6 +74,7 @@ type MPD struct {
 	Profiles                  *string `xml:"profiles,attr"`
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
+	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
 	period                    *Period
@@ -218,19 +229,29 @@ type AudioChannelConfiguration struct {
 
 // Creates a new MPD object.
 // profile - DASH Profile (Live or OnDemand).
-// mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
-// minBufferTime - Min Buffer Time (i.e. PT1.97S).
-func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
+// attributes - set of MPD root attributes
+//  - mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
+//  - minBufferTime - Min Buffer Time (i.e. PT1.97S).
+//  - availabilityStartTime - the start time (i.e. 2017-10-18T16:23:54Z), the anchor for the MPD in wall-clock time. The value is also known as AST. For MPD@type='dynamic' this attribute shall be present.
+func NewMPD(profile DashProfile, attributes map[string]string) *MPD {
 	period := &Period{}
 	return &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(profile)),
-		Type:     Strptr("static"),
-		MediaPresentationDuration: Strptr(mediaPresentationDuration),
-		MinBufferTime:             Strptr(minBufferTime),
+		Type:     Strptr(defaultValue(attributes[ATTR_TYPE], ATTR_TYPE_STATIC)),
+		MediaPresentationDuration: EmptyStrPtr(attributes[ATTR_MEDIA_PRESENTATION_DURATION]),
+		MinBufferTime:             EmptyStrPtr(attributes[ATTR_MIN_BUFFER_TIME]),
+		AvailabilityStartTime:     EmptyStrPtr(attributes[ATTR_AVAILABILITY_START_TIME]),
 		period:                    period,
 		Periods:                   []*Period{period},
 	}
+}
+
+func defaultValue(value string, defaultVal string) string {
+	if value == "" {
+		return defaultVal
+	}
+	return value
 }
 
 // AddNewPeriod creates a new Period and make it the currently active one.

@@ -50,7 +50,13 @@ func TestSegmentListDeserialization(t *testing.T) {
 }
 
 func getSegmentListMPD() *MPD {
-	m := NewMPD(DASH_PROFILE_LIVE, "PT30.016S", "PT2.000S")
+	var attributes map[string]string
+	attributes = make(map[string]string)
+
+	attributes[ATTR_MEDIA_PRESENTATION_DURATION] = "PT30.016S"
+	attributes[ATTR_MIN_BUFFER_TIME] = "PT2.000S"
+
+	m := CreateMPDWithArgs(DASH_PROFILE_LIVE, attributes)
 	m.period.BaseURL = "http://localhost:8002/dash/"
 
 	aas, _ := m.AddNewAdaptationSetAudioWithID("1", "audio/mp4", true, 1, "English")
