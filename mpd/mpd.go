@@ -24,6 +24,15 @@ const (
 	DASH_PROFILE_HBBTV_1_5_LIVE DashProfile = "urn:hbbtv:dash:profile:isoff-live:2012,urn:mpeg:dash:profile:isoff-live:2011"
 )
 
+// Constants for DASH mpd tag
+const (
+	ATTR_TYPE                        = "type"
+	ATTR_TYPE_STATIC                 = "static"
+	ATTR_MEDIA_PRESENTATION_DURATION = "mediaPresentationDuration"
+	ATTR_MIN_BUFFER_TIME             = "minBufferTime"
+	ATTR_AVAILABILITY_START_TIME     = "availabilityStartTime"
+)
+
 type AudioChannelConfigurationScheme string
 
 const (
@@ -228,10 +237,10 @@ func NewMPD(profile DashProfile, attributes map[string]string) *MPD {
 	return &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(profile)),
-		Type:     Strptr(defaultValue(attributes["type"], "static")),
-		MediaPresentationDuration: EmptyStrPtr(attributes["mediaPresentationDuration"]),
-		MinBufferTime:             EmptyStrPtr(attributes["minBufferTime"]),
-		AvailabilityStartTime:     EmptyStrPtr(attributes["availabilityStartTime"]),
+		Type:     Strptr(defaultValue(attributes[ATTR_TYPE], ATTR_TYPE_STATIC)),
+		MediaPresentationDuration: EmptyStrPtr(attributes[ATTR_MEDIA_PRESENTATION_DURATION]),
+		MinBufferTime:             EmptyStrPtr(attributes[ATTR_MIN_BUFFER_TIME]),
+		AvailabilityStartTime:     EmptyStrPtr(attributes[ATTR_AVAILABILITY_START_TIME]),
 		period:                    period,
 		Periods:                   []*Period{period},
 	}
