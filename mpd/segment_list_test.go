@@ -53,8 +53,8 @@ func getSegmentListMPD() *MPD {
 	var attributes map[string]string
 	attributes = make(map[string]string)
 
-	attributes["mediaPresentationDuration"] = "PT30.016S"
-	attributes["minBufferTime"] = "PT2.000S"
+	attributes[ATTR_MEDIA_PRESENTATION_DURATION] = "PT30.016S"
+	attributes[ATTR_MIN_BUFFER_TIME] = "PT2.000S"
 
 	m := CreateMPDWithArgs(DASH_PROFILE_LIVE, attributes)
 	m.period.BaseURL = "http://localhost:8002/dash/"

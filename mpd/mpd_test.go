@@ -52,8 +52,8 @@ func CreateMPD(profile DashProfile) *MPD {
 	var attributes map[string]string
 	attributes = make(map[string]string)
 
-	attributes["mediaPresentationDuration"] = VALID_MEDIA_PRESENTATION_DURATION
-	attributes["minBufferTime"] = VALID_MIN_BUFFER_TIME
+	attributes[ATTR_MEDIA_PRESENTATION_DURATION] = VALID_MEDIA_PRESENTATION_DURATION
+	attributes[ATTR_MIN_BUFFER_TIME] = VALID_MIN_BUFFER_TIME
 	return CreateMPDWithArgs(profile, attributes)
 }
 
@@ -67,7 +67,7 @@ func TestNewMPDLive(t *testing.T) {
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -82,17 +82,17 @@ func TestNewDynamicMPDLive(t *testing.T) {
 
 	ast := "2017-10-18T16:23:54Z"
 
-	attributes["availabilityStartTime"] = ast
-	attributes["type"] = "dynamic"
-	attributes["mediaPresentationDuration"] = VALID_MEDIA_PRESENTATION_DURATION
-	attributes["minBufferTime"] = VALID_MIN_BUFFER_TIME
+	attributes[ATTR_AVAILABILITY_START_TIME] = ast
+	attributes[ATTR_TYPE] = ATTR_TYPE_DYNAMIC
+	attributes[ATTR_MEDIA_PRESENTATION_DURATION] = VALID_MEDIA_PRESENTATION_DURATION
+	attributes[ATTR_MIN_BUFFER_TIME] = VALID_MIN_BUFFER_TIME
 
 	m := CreateMPDWithArgs(DASH_PROFILE_LIVE, attributes)
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("dynamic"),
+		Type:     Strptr(ATTR_TYPE_DYNAMIC),
 		AvailabilityStartTime:     Strptr(ast),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
@@ -133,7 +133,7 @@ func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -153,7 +153,7 @@ func TestNewMPDLiveWithBaseURLInPeriod(t *testing.T) {
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    period,
@@ -168,7 +168,7 @@ func TestNewMPDHbbTV(t *testing.T) {
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_HBBTV_1_5_LIVE)),
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -183,7 +183,7 @@ func TestNewMPDOnDemand(t *testing.T) {
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(DASH_PROFILE_ONDEMAND)),
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -571,7 +571,7 @@ func TestSetNewSegmentTemplateErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: nil,
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -678,7 +678,7 @@ func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: nil,
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -721,7 +721,7 @@ func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: nil,
-		Type:     Strptr("static"),
+		Type:     Strptr(ATTR_TYPE_STATIC),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},

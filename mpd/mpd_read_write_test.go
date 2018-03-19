@@ -254,8 +254,8 @@ func OnDemandProfile() *MPD {
 	var attributes map[string]string
 	attributes = make(map[string]string)
 
-	attributes["mediaPresentationDuration"] = "PT30S"
-	attributes["minBufferTime"] = VALID_MIN_BUFFER_TIME
+	attributes[ATTR_MEDIA_PRESENTATION_DURATION] = "PT30S"
+	attributes[ATTR_MIN_BUFFER_TIME] = VALID_MIN_BUFFER_TIME
 	m := CreateMPDWithArgs(DASH_PROFILE_ONDEMAND, attributes)
 
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "und")

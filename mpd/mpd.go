@@ -28,6 +28,7 @@ const (
 const (
 	ATTR_TYPE                        = "type"
 	ATTR_TYPE_STATIC                 = "static"
+	ATTR_TYPE_DYNAMIC                = "dynamic"
 	ATTR_MEDIA_PRESENTATION_DURATION = "mediaPresentationDuration"
 	ATTR_MIN_BUFFER_TIME             = "minBufferTime"
 	ATTR_AVAILABILITY_START_TIME     = "availabilityStartTime"
