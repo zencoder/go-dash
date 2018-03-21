@@ -38,6 +38,44 @@ func TestReadingManifests(t *testing.T) {
 	}
 }
 
+func TestReadWriteManifest(t *testing.T) {
+	var testCases = []struct {
+		err, filepath string
+	}{
+		{filepath: "fixtures/live_profile.mpd", err: ""},
+		{filepath: "fixtures/ondemand_profile.mpd", err: ""},
+		{filepath: "fixtures/hbbtv_profile.mpd", err: ""},
+		{filepath: "fixtures/newperiod.mpd", err: ""},
+		{filepath: "fixtures/segment_list.mpd", err: ""},
+		{filepath: "fixtures/segment_timeline_multi_period.mpd", err: ""},
+		{filepath: "fixtures/segment_timeline.mpd", err: ""},
+	}
+
+	for _, tc := range testCases {
+		// Test reading from manifest files
+		if m, err := ReadFromFile(tc.filepath); tc.err == "" {
+			require.NoError(t, err, "Error while reading "+tc.filepath)
+			require.NotNil(t, m, "Empty result from reading "+tc.filepath)
+			// write to a string and ensure that reading and writing are symmetrical
+			if actual, err := m.WriteToString(); err != nil {
+				require.EqualError(t, err, tc.err)
+			} else {
+				testfixtures.CompareFixture(t, tc.filepath, actual)
+			}
+		} else {
+			require.EqualError(t, err, tc.err)
+		}
+
+		// Test reading valid files from strings
+		if tc.err == "" {
+			xmlStr := testfixtures.LoadFixture(tc.filepath)
+			_, err := ReadFromString(xmlStr)
+			require.NotNil(t, xmlStr)
+			require.NoError(t, err)
+		}
+	}
+}
+
 func TestNewMPDLiveWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 

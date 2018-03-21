@@ -63,30 +63,6 @@ func TestNewMPDLive(t *testing.T) {
 	require.Equal(t, expectedMPD, m)
 }
 
-func TestContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &ContentProtection{})
-	require.Implements(t, cp, ContentProtection{})
-}
-
-func TestCENCContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &CENCContentProtection{})
-	require.Implements(t, cp, CENCContentProtection{})
-}
-
-func TestPlayreadyContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &PlayreadyContentProtection{})
-	require.Implements(t, cp, PlayreadyContentProtection{})
-}
-
-func TestWidevineContentProtection_ImplementsInterface(t *testing.T) {
-	cp := (*ContentProtectioner)(nil)
-	require.Implements(t, cp, &WidevineContentProtection{})
-	require.Implements(t, cp, WidevineContentProtection{})
-}
-
 func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	m.BaseURL = VALID_BASE_URL_VIDEO
@@ -381,8 +357,8 @@ func TestAddNewContentProtection_Proprietary(t *testing.T) {
 	pcp := &TestProprietaryContentProtection{*cp, "foo", "bar"}
 	x, _ := xml.Marshal(pcp)
 	require.Equal(t, `<ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" a="foo" b="bar"></ContentProtection>`, string(x))
-	as.AddContentProtection(pcp)
-	require.Equal(t, as.ContentProtection, []ContentProtectioner{pcp})
+	as.AddContentProtection(ContentProtectioner{Custom: pcp})
+	require.Equal(t, as.ContentProtection, []*ContentProtectioner{&ContentProtectioner{Custom: pcp}})
 }
 
 func TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID(t *testing.T) {

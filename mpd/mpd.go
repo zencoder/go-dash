@@ -89,45 +89,44 @@ type DescriptorType struct {
 
 // ISO 23009-1-2014 5.3.7
 type CommonAttributesAndElements struct {
-	Profiles                  *string               `xml:"profiles,attr"`
-	Width                     *string               `xml:"width,attr"`
-	Height                    *string               `xml:"height,attr"`
-	Sar                       *string               `xml:"sar,attr"`
-	FrameRate                 *string               `xml:"frameRate,attr"`
-	AudioSamplingRate         *string               `xml:"audioSamplingRate,attr"`
-	MimeType                  *string               `xml:"mimeType,attr"`
-	SegmentProfiles           *string               `xml:"segmentProfiles,attr"`
-	Codecs                    *string               `xml:"codecs,attr"`
-	MaximumSAPPeriod          *string               `xml:"maximumSAPPeriod,attr"`
-	StartWithSAP              *int64                `xml:"startWithSAP,attr"`
-	MaxPlayoutRate            *string               `xml:"maxPlayoutRate,attr"`
-	ScanType                  *string               `xml:"scanType,attr"`
-	FramePacking              *DescriptorType       `xml:"framePacking,attr"`
-	AudioChannelConfiguration *DescriptorType       `xml:"audioChannelConfiguration,attr"`
-	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
-	EssentialProperty         *DescriptorType       `xml:"essentialProperty,attr"`
-	SupplementalProperty      *DescriptorType       `xml:"supplmentalProperty,attr"`
-	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
+	Profiles                  *string                `xml:"profiles,attr"`
+	Width                     *string                `xml:"width,attr"`
+	Height                    *string                `xml:"height,attr"`
+	Sar                       *string                `xml:"sar,attr"`
+	FrameRate                 *string                `xml:"frameRate,attr"`
+	AudioSamplingRate         *string                `xml:"audioSamplingRate,attr"`
+	MimeType                  *string                `xml:"mimeType,attr"`
+	SegmentProfiles           *string                `xml:"segmentProfiles,attr"`
+	Codecs                    *string                `xml:"codecs,attr"`
+	MaximumSAPPeriod          *string                `xml:"maximumSAPPeriod,attr"`
+	StartWithSAP              *int64                 `xml:"startWithSAP,attr"`
+	MaxPlayoutRate            *string                `xml:"maxPlayoutRate,attr"`
+	ScanType                  *string                `xml:"scanType,attr"`
+	FramePacking              *DescriptorType        `xml:"framePacking,attr"`
+	AudioChannelConfiguration *DescriptorType        `xml:"audioChannelConfiguration,attr"`
+	ContentProtection         []*ContentProtectioner `xml:"ContentProtection"`
+	EssentialProperty         *DescriptorType        `xml:"essentialProperty,attr"`
+	SupplementalProperty      *DescriptorType        `xml:"supplmentalProperty,attr"`
+	InbandEventStream         *DescriptorType        `xml:"inbandEventStream,attr"`
 }
 
 type AdaptationSet struct {
 	CommonAttributesAndElements
-	XMLName           xml.Name              `xml:"AdaptationSet"`
-	ID                *string               `xml:"id,attr"`
-	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
-	Lang              *string               `xml:"lang,attr"`
-	Group             *string               `xml:"group,attr"`
-	PAR               *string               `xml:"par,attr"`
-	MinBandwidth      *string               `xml:"minBandwidth,attr"`
-	MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
-	MinWidth          *string               `xml:"minWidth,attr"`
-	MaxWidth          *string               `xml:"maxWidth,attr"`
-	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-	Roles             []*Role               `xml:"Role,omitempty"`
-	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
-	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
-	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations   []*Representation     `xml:"Representation,omitempty"`
+	XMLName          xml.Name          `xml:"AdaptationSet"`
+	ID               *string           `xml:"id,attr"`
+	SegmentAlignment *bool             `xml:"segmentAlignment,attr"`
+	Lang             *string           `xml:"lang,attr"`
+	Group            *string           `xml:"group,attr"`
+	PAR              *string           `xml:"par,attr"`
+	MinBandwidth     *string           `xml:"minBandwidth,attr"`
+	MaxBandwidth     *string           `xml:"maxBandwidth,attr"`
+	MinWidth         *string           `xml:"minWidth,attr"`
+	MaxWidth         *string           `xml:"maxWidth,attr"`
+	Roles            []*Role           `xml:"Role,omitempty"`
+	SegmentBase      *SegmentBase      `xml:"SegmentBase,omitempty"`
+	SegmentList      *SegmentList      `xml:"SegmentList,omitempty"`
+	SegmentTemplate  *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations  []*Representation `xml:"Representation,omitempty"`
 }
 
 // Constants for DRM / ContentProtection
@@ -144,8 +143,120 @@ const (
 	CONTENT_PROTECTION_PLAYREADY_XMLNS          = "urn:microsoft:playready"
 )
 
-type ContentProtectioner interface {
-	ContentProtected()
+type ContentProtectioner struct {
+	CENC      *CENCContentProtection      `xml:"ContentProtection"`
+	PlayReady *PlayreadyContentProtection `xml:"ContentProtection"`
+	Widevine  *WidevineContentProtection  `xml:"ContentProtection"`
+	Custom    interface{}                 `xml:"ContentProtection"`
+}
+
+func (c *ContentProtectioner) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var schemeURI string
+	for _, a := range start.Attr {
+		if a.Name.Local == "schemeIdUri" {
+			schemeURI = a.Value
+		}
+	}
+
+	switch schemeURI {
+	case CONTENT_PROTECTION_ROOT_SCHEME_ID_URI,
+		CENC_XMLNS:
+		contentProtectionForUnmarshalling := struct {
+			XMLName       xml.Name       `xml:"ContentProtection"`
+			AdaptationSet *AdaptationSet `xml:"-"`
+			SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+			XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
+			DefaultKID    *string        `xml:"default_KID,attr"`
+			Value         *string        `xml:"value,attr"` // Default: cenc
+		}{}
+
+		err := d.DecodeElement(&contentProtectionForUnmarshalling, &start)
+		if err != nil {
+			return err
+		}
+
+		c.CENC = &CENCContentProtection{
+			ContentProtection: ContentProtection{
+				XMLName:     contentProtectionForUnmarshalling.XMLName,
+				XMLNS:       contentProtectionForUnmarshalling.XMLNS,
+				SchemeIDURI: contentProtectionForUnmarshalling.SchemeIDURI,
+			},
+			DefaultKID: contentProtectionForUnmarshalling.DefaultKID,
+			Value:      contentProtectionForUnmarshalling.Value,
+		}
+		return nil
+
+	case CONTENT_PROTECTION_WIDEVINE_SCHEME_ID,
+		CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX:
+		contentProtectionForUnmarshalling := struct {
+			XMLName       xml.Name       `xml:"ContentProtection"`
+			AdaptationSet *AdaptationSet `xml:"-"`
+			SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+			XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
+			PSSH          *string        `xml:"pssh,omitempty"`
+		}{}
+
+		err := d.DecodeElement(&contentProtectionForUnmarshalling, &start)
+		if err != nil {
+			return err
+		}
+		c.Widevine = &WidevineContentProtection{
+			ContentProtection: ContentProtection{
+				XMLName:     contentProtectionForUnmarshalling.XMLName,
+				XMLNS:       contentProtectionForUnmarshalling.XMLNS,
+				SchemeIDURI: contentProtectionForUnmarshalling.SchemeIDURI,
+			},
+			PSSH: contentProtectionForUnmarshalling.PSSH,
+		}
+		return nil
+
+	case CONTENT_PROTECTION_PLAYREADY_SCHEME_ID,
+		CONTENT_PROTECTION_PLAYREADY_SCHEME_HEX,
+		CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID,
+		CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_HEX,
+		CONTENT_PROTECTION_PLAYREADY_XMLNS:
+
+		contentProtectionForUnmarshalling := struct {
+			XMLName        xml.Name       `xml:"ContentProtection"`
+			AdaptationSet  *AdaptationSet `xml:"-"`
+			SchemeIDURI    *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+			XMLNS          *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
+			PlayreadyXMLNS *string        `xml:"mspr,attr,omitempty"`
+			PRO            *string        `xml:"pro,omitempty"`
+			PSSH           *string        `xml:"pssh,omitempty"`
+		}{}
+		err := d.DecodeElement(&contentProtectionForUnmarshalling, &start)
+		if err != nil {
+			return err
+		}
+		c.PlayReady = &PlayreadyContentProtection{
+			ContentProtection: ContentProtection{
+				XMLName:     contentProtectionForUnmarshalling.XMLName,
+				XMLNS:       contentProtectionForUnmarshalling.XMLNS,
+				SchemeIDURI: contentProtectionForUnmarshalling.SchemeIDURI,
+			},
+			PlayreadyXMLNS: contentProtectionForUnmarshalling.PlayreadyXMLNS,
+			PSSH:           contentProtectionForUnmarshalling.PSSH,
+			PRO:            contentProtectionForUnmarshalling.PRO,
+		}
+		return nil
+	default:
+		return d.DecodeElement(&c.Custom, &start)
+	}
+	return nil
+}
+
+func (c ContentProtectioner) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	if c.CENC != nil {
+		return e.EncodeElement(c.CENC, start)
+	} else if c.PlayReady != nil {
+		return e.EncodeElement(c.PlayReady, start)
+	} else if c.Widevine != nil {
+		return e.EncodeElement(c.Widevine, start)
+	} else if c.Custom != nil {
+		return e.EncodeElement(c.Custom, start)
+	}
+	return nil
 }
 
 type ContentProtection struct {
@@ -172,8 +283,6 @@ type WidevineContentProtection struct {
 	ContentProtection
 	PSSH *string `xml:"cenc:pssh,omitempty"`
 }
-
-func (s ContentProtection) ContentProtected() {}
 
 type Role struct {
 	AdaptationSet *AdaptationSet `xml:"-"`
@@ -450,7 +559,7 @@ func (as *AdaptationSet) AddNewContentProtectionRootLegacyUUID(defaultKIDHex str
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
 	cp.XMLNS = Strptr(CENC_XMLNS)
 
-	err := as.AddContentProtection(cp)
+	err := as.AddContentProtection(ContentProtectioner{CENC: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -475,7 +584,7 @@ func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CEN
 	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
 	cp.XMLNS = Strptr(CENC_XMLNS)
 
-	err := as.AddContentProtection(cp)
+	err := as.AddContentProtection(ContentProtectioner{CENC: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -492,7 +601,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevineWithPSSH(wvHeader 
 		return nil, err
 	}
 
-	err = as.AddContentProtection(cp)
+	err = as.AddContentProtection(ContentProtectioner{Widevine: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -506,7 +615,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemeWidevine() (*WidevineConte
 		return nil, err
 	}
 
-	err = as.AddContentProtection(cp)
+	err = as.AddContentProtection(ContentProtectioner{Widevine: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -542,7 +651,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayready(pro string) (*Pl
 		return nil, err
 	}
 
-	err = as.AddContentProtection(cp)
+	err = as.AddContentProtection(ContentProtectioner{PlayReady: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -557,7 +666,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10(pro string) (
 		return nil, err
 	}
 
-	err = as.AddContentProtection(cp)
+	err = as.AddContentProtection(ContentProtectioner{PlayReady: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -603,7 +712,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyWithPSSH(pro stri
 	}
 	cp.PSSH = Strptr(base64.StdEncoding.EncodeToString(psshBox))
 
-	err = as.AddContentProtection(cp)
+	err = as.AddContentProtection(ContentProtectioner{PlayReady: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -635,7 +744,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10WithPSSH(pro s
 	}
 	cp.PSSH = Strptr(base64.StdEncoding.EncodeToString(psshBox))
 
-	err = as.AddContentProtection(cp)
+	err = as.AddContentProtection(ContentProtectioner{PlayReady: cp})
 	if err != nil {
 		return nil, err
 	}
@@ -644,11 +753,11 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10WithPSSH(pro s
 
 // Internal helper method for adding a ContentProtection to an AdaptationSet.
 func (as *AdaptationSet) AddContentProtection(cp ContentProtectioner) error {
-	if cp == nil {
+	if cp.CENC == nil && cp.PlayReady == nil && cp.Widevine == nil && cp.Custom == nil {
 		return ErrContentProtectionNil
 	}
 
-	as.ContentProtection = append(as.ContentProtection, cp)
+	as.ContentProtection = append(as.ContentProtection, &cp)
 	return nil
 }
 
