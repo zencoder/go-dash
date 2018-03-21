@@ -68,6 +68,7 @@ type MPD struct {
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
 	period                    *Period
 	Periods                   []*Period `xml:"Period,omitempty"`
+	Comments                  string    `xml:",comment"`
 }
 
 type Period struct {
