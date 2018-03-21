@@ -190,11 +190,11 @@ func (c *ContentProtectioner) UnmarshalXML(d *xml.Decoder, start xml.StartElemen
 	case CONTENT_PROTECTION_WIDEVINE_SCHEME_ID,
 		CONTENT_PROTECTION_WIDEVINE_SCHEME_HEX:
 		contentProtectionForUnmarshalling := struct {
-			XMLName       xml.Name       `xml:"ContentProtection"`
-			AdaptationSet *AdaptationSet `xml:"-"`
-			SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-			XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
-			PSSH          *string        `xml:"pssh,omitempty"`
+			XMLName       xml.Name         `xml:"ContentProtection"`
+			AdaptationSet *AdaptationSet   `xml:"-"`
+			SchemeIDURI   *string          `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+			XMLNS         *string          `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
+			PSSH          *UnescapedString `xml:"pssh,omitempty"`
 		}{}
 
 		err := d.DecodeElement(&contentProtectionForUnmarshalling, &start)
@@ -218,13 +218,13 @@ func (c *ContentProtectioner) UnmarshalXML(d *xml.Decoder, start xml.StartElemen
 		CONTENT_PROTECTION_PLAYREADY_XMLNS:
 
 		contentProtectionForUnmarshalling := struct {
-			XMLName        xml.Name       `xml:"ContentProtection"`
-			AdaptationSet  *AdaptationSet `xml:"-"`
-			SchemeIDURI    *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-			XMLNS          *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
-			PlayreadyXMLNS *string        `xml:"mspr,attr,omitempty"`
-			PRO            *string        `xml:"pro,omitempty"`
-			PSSH           *string        `xml:"pssh,omitempty"`
+			XMLName        xml.Name         `xml:"ContentProtection"`
+			AdaptationSet  *AdaptationSet   `xml:"-"`
+			SchemeIDURI    *string          `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+			XMLNS          *string          `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
+			PlayreadyXMLNS *string          `xml:"mspr,attr,omitempty"`
+			PRO            *UnescapedString `xml:"pro,omitempty"`
+			PSSH           *UnescapedString `xml:"pssh,omitempty"`
 		}{}
 		err := d.DecodeElement(&contentProtectionForUnmarshalling, &start)
 		if err != nil {
@@ -275,14 +275,18 @@ type CENCContentProtection struct {
 
 type PlayreadyContentProtection struct {
 	ContentProtection
-	PlayreadyXMLNS *string `xml:"xmlns:mspr,attr,omitempty"`
-	PRO            *string `xml:"mspr:pro,omitempty"`
-	PSSH           *string `xml:"cenc:pssh,omitempty"`
+	PlayreadyXMLNS *string          `xml:"xmlns:mspr,attr,omitempty"`
+	PRO            *UnescapedString `xml:"mspr:pro,omitempty"`
+	PSSH           *UnescapedString `xml:"cenc:pssh,omitempty"`
 }
 
 type WidevineContentProtection struct {
 	ContentProtection
-	PSSH *string `xml:"cenc:pssh,omitempty"`
+	PSSH *UnescapedString `xml:"cenc:pssh,omitempty"`
+}
+
+type UnescapedString struct {
+	Text string `xml:",innerxml"`
 }
 
 type Role struct {
@@ -639,7 +643,7 @@ func NewWidevineContentProtection(wvHeader []byte) (*WidevineContentProtection, 
 		}
 
 		psshB64 := base64.StdEncoding.EncodeToString(psshBox)
-		cp.PSSH = &psshB64
+		cp.PSSH = &UnescapedString{psshB64}
 	}
 	return cp, nil
 }
@@ -681,7 +685,7 @@ func newPlayreadyContentProtection(pro string, schemeIDURI string) (*PlayreadyCo
 
 	cp := &PlayreadyContentProtection{
 		PlayreadyXMLNS: Strptr(CONTENT_PROTECTION_PLAYREADY_XMLNS),
-		PRO:            Strptr(pro),
+		PRO:            &UnescapedString{pro},
 	}
 	cp.SchemeIDURI = Strptr(schemeIDURI)
 
@@ -711,7 +715,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyWithPSSH(pro stri
 	if err != nil {
 		return nil, err
 	}
-	cp.PSSH = Strptr(base64.StdEncoding.EncodeToString(psshBox))
+	cp.PSSH = &UnescapedString{base64.StdEncoding.EncodeToString(psshBox)}
 
 	err = as.AddContentProtection(ContentProtectioner{PlayReady: cp})
 	if err != nil {
@@ -743,7 +747,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10WithPSSH(pro s
 	if err != nil {
 		return nil, err
 	}
-	cp.PSSH = Strptr(base64.StdEncoding.EncodeToString(psshBox))
+	cp.PSSH = &UnescapedString{base64.StdEncoding.EncodeToString(psshBox)}
 
 	err = as.AddContentProtection(ContentProtectioner{PlayReady: cp})
 	if err != nil {
