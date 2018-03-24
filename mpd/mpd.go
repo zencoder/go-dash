@@ -121,19 +121,23 @@ type AdaptationSet struct {
 	XMLName xml.Name `xml:"AdaptationSet"`
 	ID      *string  `xml:"id,attr"`
 	CommonAttributesAndElements
-	SegmentAlignment *bool             `xml:"segmentAlignment,attr"`
-	Lang             *string           `xml:"lang,attr"`
-	Group            *string           `xml:"group,attr"`
-	PAR              *string           `xml:"par,attr"`
-	MinBandwidth     *string           `xml:"minBandwidth,attr"`
-	MaxBandwidth     *string           `xml:"maxBandwidth,attr"`
-	MinWidth         *string           `xml:"minWidth,attr"`
-	MaxWidth         *string           `xml:"maxWidth,attr"`
-	Roles            []*Role           `xml:"Role,omitempty"`
-	SegmentBase      *SegmentBase      `xml:"SegmentBase,omitempty"`
-	SegmentList      *SegmentList      `xml:"SegmentList,omitempty"`
-	SegmentTemplate  *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations  []*Representation `xml:"Representation,omitempty"`
+	SegmentAlignment        *bool             `xml:"segmentAlignment,attr"`
+	SubSegmentAlignment     *bool             `xml:"subSegmentAlignment,attr"`
+	SubsegmentStartsWithSAP *string           `xml:"subsegmentStartsWithSAP,attr"`
+	Lang                    *string           `xml:"lang,attr"`
+	Group                   *string           `xml:"group,attr"`
+	PAR                     *string           `xml:"par,attr"`
+	MinBandwidth            *string           `xml:"minBandwidth,attr"`
+	MaxBandwidth            *string           `xml:"maxBandwidth,attr"`
+	MinWidth                *string           `xml:"minWidth,attr"`
+	MaxWidth                *string           `xml:"maxWidth,attr"`
+	MaxHeight               *string           `xml:"maxHeight,attr"`
+	MaxFrameRate            *string           `xml:"maxFrameRate,attr"`
+	Roles                   []*Role           `xml:"Role,omitempty"`
+	SegmentBase             *SegmentBase      `xml:"SegmentBase,omitempty"`
+	SegmentList             *SegmentList      `xml:"SegmentList,omitempty"`
+	SegmentTemplate         *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations         []*Representation `xml:"Representation,omitempty"`
 }
 
 // Constants for DRM / ContentProtection
@@ -185,7 +189,18 @@ func (t *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) err
 				t.MaxBandwidth = Strptr(attr.Value)
 			case "par":
 				t.PAR = Strptr(attr.Value)
-
+			case "maxHeight":
+				t.MaxHeight = Strptr(attr.Value)
+			case "maxFrameRate":
+				t.MaxFrameRate = Strptr(attr.Value)
+			case "subsegmentAlignment":
+				b, err := strconv.ParseBool(attr.Value)
+				if err != nil {
+					return err
+				}
+				t.SubSegmentAlignment = Boolptr(b)
+			case "subsegmentStartsWithSAP":
+				t.SubsegmentStartsWithSAP = Strptr(attr.Value)
 			default:
 				log.Printf("WARN: unmarshalled attributes %s : %s\n", attr.Name, attr.Value)
 			}
