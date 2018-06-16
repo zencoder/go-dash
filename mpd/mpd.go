@@ -94,7 +94,7 @@ type DescriptorType struct {
 	ID          *string `xml:"id,attr"`
 }
 
-// ISO 23009-1-2014 5.3.7
+// CommonAttributesAndElements - ISO 23009-1-2014 5.3.7
 type CommonAttributesAndElements struct {
 	Profiles                  *string               `xml:"profiles,attr"`
 	Width                     *string               `xml:"width,attr"`
@@ -117,27 +117,29 @@ type CommonAttributesAndElements struct {
 	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
 }
 
+// AdaptationSet -
 type AdaptationSet struct {
-	XMLName xml.Name `xml:"AdaptationSet"`
-	ID      *string  `xml:"id,attr"`
 	CommonAttributesAndElements
-	SegmentAlignment        *bool             `xml:"segmentAlignment,attr"`
-	SubSegmentAlignment     *bool             `xml:"subSegmentAlignment,attr"`
-	SubsegmentStartsWithSAP *string           `xml:"subsegmentStartsWithSAP,attr"`
-	Lang                    *string           `xml:"lang,attr"`
-	Group                   *string           `xml:"group,attr"`
-	PAR                     *string           `xml:"par,attr"`
-	MinBandwidth            *string           `xml:"minBandwidth,attr"`
-	MaxBandwidth            *string           `xml:"maxBandwidth,attr"`
-	MinWidth                *string           `xml:"minWidth,attr"`
-	MaxWidth                *string           `xml:"maxWidth,attr"`
-	MaxHeight               *string           `xml:"maxHeight,attr"`
-	MaxFrameRate            *string           `xml:"maxFrameRate,attr"`
-	Roles                   []*Role           `xml:"Role,omitempty"`
-	SegmentBase             *SegmentBase      `xml:"SegmentBase,omitempty"`
-	SegmentList             *SegmentList      `xml:"SegmentList,omitempty"`
-	SegmentTemplate         *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations         []*Representation `xml:"Representation,omitempty"`
+	XMLName                 xml.Name              `xml:"AdaptationSet"`
+	ContentProtection       []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
+	Group                   *string               `xml:"group,attr"`
+	ID                      *string               `xml:"id,attr"`
+	Lang                    *string               `xml:"lang,attr"`
+	MinBandwidth            *string               `xml:"minBandwidth,attr"`
+	MaxBandwidth            *string               `xml:"maxBandwidth,attr"`
+	MinWidth                *string               `xml:"minWidth,attr"`
+	MaxWidth                *string               `xml:"maxWidth,attr"`
+	MaxHeight               *string               `xml:"maxHeight,attr"`
+	MaxFrameRate            *string               `xml:"maxFrameRate,attr"`
+	PAR                     *string               `xml:"par,attr"`
+	Representations         []*Representation     `xml:"Representation,omitempty"`
+	Roles                   []*Role               `xml:"Role,omitempty"`
+	SegmentAlignment        *bool                 `xml:"segmentAlignment,attr"`
+	SegmentBase             *SegmentBase          `xml:"SegmentBase,omitempty"`
+	SegmentList             *SegmentList          `xml:"SegmentList,omitempty"`
+	SegmentTemplate         *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	SubSegmentAlignment     *bool                 `xml:"subSegmentAlignment,attr"`
+	SubsegmentStartsWithSAP *string               `xml:"subsegmentStartsWithSAP,attr"`
 }
 
 // Constants for DRM / ContentProtection
@@ -386,7 +388,6 @@ type SegmentTemplate struct {
 }
 
 type Representation struct {
-	ID *string `xml:"id,attr"` // Audio + Video
 	CommonAttributesAndElements
 	AdaptationSet             *AdaptationSet             `xml:"-"`
 	AudioChannelConfiguration *AudioChannelConfiguration `xml:"AudioChannelConfiguration,omitempty"`
@@ -395,6 +396,7 @@ type Representation struct {
 	Codecs                    *string                    `xml:"codecs,attr"`              // Audio + Video
 	FrameRate                 *string                    `xml:"frameRate,attr,omitempty"` // Video
 	Height                    *int64                     `xml:"height,attr"`              // Video
+	ID                        *string                    `xml:"id,attr"`                  // Audio + Video
 	Width                     *int64                     `xml:"width,attr"`               // Video
 	BaseURL                   *string                    `xml:"BaseURL,omitempty"`        // On-Demand Profile
 	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
@@ -447,8 +449,8 @@ func (period *Period) SetDuration(d time.Duration) {
 // segmentAlignment - Segment Alignment(i.e. true).
 // startWithSAP - Starts With SAP (i.e. 1).
 // lang - Language (i.e. en).
-func (m *MPD) AddNewAdaptationSetAudio(id string, mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
-	return m.period.AddNewAdaptationSetAudio(id, mimeType, segmentAlignment, startWithSAP, lang)
+func (m *MPD) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetAudio(mimeType, segmentAlignment, startWithSAP, lang)
 }
 
 // Create a new Adaptation Set for Audio Assets.
@@ -456,7 +458,37 @@ func (m *MPD) AddNewAdaptationSetAudio(id string, mimeType string, segmentAlignm
 // segmentAlignment - Segment Alignment(i.e. true).
 // startWithSAP - Starts With SAP (i.e. 1).
 // lang - Language (i.e. en).
-func (period *Period) AddNewAdaptationSetAudio(id string, mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
+func (m *MPD) AddNewAdaptationSetAudioWithID(id string, mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetAudioWithID(id, mimeType, segmentAlignment, startWithSAP, lang)
+}
+
+// Create a new Adaptation Set for Audio Assets.
+// mimeType - MIME Type (i.e. audio/mp4).
+// segmentAlignment - Segment Alignment(i.e. true).
+// startWithSAP - Starts With SAP (i.e. 1).
+// lang - Language (i.e. en).
+func (period *Period) AddNewAdaptationSetAudio(mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
+	as := &AdaptationSet{
+		SegmentAlignment: Boolptr(segmentAlignment),
+		Lang:             Strptr(lang),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			MimeType:     Strptr(mimeType),
+			StartWithSAP: Int64ptr(startWithSAP),
+		},
+	}
+	err := period.addAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
+}
+
+// Create a new Adaptation Set for Audio Assets.
+// mimeType - MIME Type (i.e. audio/mp4).
+// segmentAlignment - Segment Alignment(i.e. true).
+// startWithSAP - Starts With SAP (i.e. 1).
+// lang - Language (i.e. en).
+func (period *Period) AddNewAdaptationSetAudioWithID(id string, mimeType string, segmentAlignment bool, startWithSAP int64, lang string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		ID:               Strptr(id),
 		SegmentAlignment: Boolptr(segmentAlignment),
@@ -478,8 +510,8 @@ func (period *Period) AddNewAdaptationSetAudio(id string, mimeType string, segme
 // scanType - Scan Type (i.e.progressive).
 // segmentAlignment - Segment Alignment(i.e. true).
 // startWithSAP - Starts With SAP (i.e. 1).
-func (m *MPD) AddNewAdaptationSetVideo(id string, mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
-	return m.period.AddNewAdaptationSetVideo(id, mimeType, scanType, segmentAlignment, startWithSAP)
+func (m *MPD) AddNewAdaptationSetVideo(mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetVideo(mimeType, scanType, segmentAlignment, startWithSAP)
 }
 
 // Create a new Adaptation Set for Video Assets.
@@ -487,7 +519,37 @@ func (m *MPD) AddNewAdaptationSetVideo(id string, mimeType string, scanType stri
 // scanType - Scan Type (i.e.progressive).
 // segmentAlignment - Segment Alignment(i.e. true).
 // startWithSAP - Starts With SAP (i.e. 1).
-func (period *Period) AddNewAdaptationSetVideo(id string, mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
+func (m *MPD) AddNewAdaptationSetVideoWithID(id string, mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetVideoWithID(id, mimeType, scanType, segmentAlignment, startWithSAP)
+}
+
+// Create a new Adaptation Set for Video Assets.
+// mimeType - MIME Type (i.e. video/mp4).
+// scanType - Scan Type (i.e.progressive).
+// segmentAlignment - Segment Alignment(i.e. true).
+// startWithSAP - Starts With SAP (i.e. 1).
+func (period *Period) AddNewAdaptationSetVideo(mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
+	as := &AdaptationSet{
+		SegmentAlignment: Boolptr(segmentAlignment),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			MimeType:     Strptr(mimeType),
+			StartWithSAP: Int64ptr(startWithSAP),
+			ScanType:     Strptr(scanType),
+		},
+	}
+	err := period.addAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
+}
+
+// Create a new Adaptation Set for Video Assets.
+// mimeType - MIME Type (i.e. video/mp4).
+// scanType - Scan Type (i.e.progressive).
+// segmentAlignment - Segment Alignment(i.e. true).
+// startWithSAP - Starts With SAP (i.e. 1).
+func (period *Period) AddNewAdaptationSetVideoWithID(id string, mimeType string, scanType string, segmentAlignment bool, startWithSAP int64) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		SegmentAlignment: Boolptr(segmentAlignment),
 		ID:               Strptr(id),
@@ -507,14 +569,38 @@ func (period *Period) AddNewAdaptationSetVideo(id string, mimeType string, scanT
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
-func (m *MPD) AddNewAdaptationSetSubtitle(id string, mimeType string, lang string) (*AdaptationSet, error) {
-	return m.period.AddNewAdaptationSetSubtitle(id, mimeType, lang)
+func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetSubtitle(mimeType, lang)
 }
 
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
-func (period *Period) AddNewAdaptationSetSubtitle(id string, mimeType string, lang string) (*AdaptationSet, error) {
+func (m *MPD) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetSubtitleWithID(id, mimeType, lang)
+}
+
+// Create a new Adaptation Set for Subtitle Assets.
+// mimeType - MIME Type (i.e. text/vtt).
+// lang - Language (i.e. en).
+func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
+	as := &AdaptationSet{
+		Lang: Strptr(lang),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			MimeType: Strptr(mimeType),
+		},
+	}
+	err := period.addAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
+}
+
+// Create a new Adaptation Set for Subtitle Assets.
+// mimeType - MIME Type (i.e. text/vtt).
+// lang - Language (i.e. en).
+func (period *Period) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		ID:   Strptr(id),
 		Lang: Strptr(lang),
@@ -541,13 +627,40 @@ func (period *Period) addAdaptationSet(as *AdaptationSet) error {
 // Adds a ContentProtection tag at the root level of an AdaptationSet.
 // This ContentProtection tag does not include signaling for any particular DRM scheme.
 // defaultKIDHex - Default Key ID as a Hex String.
-func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CENCContentProtection, error) {
+//
+// NOTE: this is only here for Legacy purposes. This will create an invalid UUID.
+func (as *AdaptationSet) AddNewContentProtectionRootLegacyUUID(defaultKIDHex string) (*CENCContentProtection, error) {
 	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
 		return nil, ErrInvalidDefaultKID
 	}
 
 	// Convert the KID into the correct format
 	defaultKID := strings.ToLower(defaultKIDHex[0:8] + "-" + defaultKIDHex[8:12] + "-" + defaultKIDHex[12:16] + "-" + defaultKIDHex[16:32])
+
+	cp := &CENCContentProtection{
+		DefaultKID: Strptr(defaultKID),
+		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
+	}
+	cp.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
+	cp.XMLNS = Strptr(CENC_XMLNS)
+
+	err := as.AddContentProtection(cp)
+	if err != nil {
+		return nil, err
+	}
+	return cp, nil
+}
+
+// Adds a ContentProtection tag at the root level of an AdaptationSet.
+// This ContentProtection tag does not include signaling for any particular DRM scheme.
+// defaultKIDHex - Default Key ID as a Hex String.
+func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CENCContentProtection, error) {
+	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
+		return nil, ErrInvalidDefaultKID
+	}
+
+	// Convert the KID into the correct format
+	defaultKID := strings.ToLower(defaultKIDHex[0:8] + "-" + defaultKIDHex[8:12] + "-" + defaultKIDHex[12:16] + "-" + defaultKIDHex[16:20] + "-" + defaultKIDHex[20:32])
 
 	cp := &CENCContentProtection{
 		DefaultKID: Strptr(defaultKID),
