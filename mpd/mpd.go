@@ -72,49 +72,6 @@ type MPD struct {
 	Periods                   []*Period `xml:"Period,omitempty"`
 }
 
-type AttrMPD interface {
-	GetStrptr() *string
-}
-
-type attrAvailabilityStartTime struct {
-	strptr *string
-}
-
-func (attr *attrAvailabilityStartTime) GetStrptr() *string {
-	return attr.strptr
-}
-
-// AttrAvailabilityStartTime returns AttrMPD object for NewMPD
-func AttrAvailabilityStartTime(value string) AttrMPD {
-	return &attrAvailabilityStartTime{strptr: &value}
-}
-
-type attrMinimumUpdatePeriod struct {
-	strptr *string
-}
-
-func (attr *attrMinimumUpdatePeriod) GetStrptr() *string {
-	return attr.strptr
-}
-
-// AttrMinimumUpdatePeriod returns AttrMPD object for NewMPD
-func AttrMinimumUpdatePeriod(value string) AttrMPD {
-	return &attrMinimumUpdatePeriod{strptr: &value}
-}
-
-type attrMediaPresentationDuration struct {
-	strptr *string
-}
-
-func (attr *attrMediaPresentationDuration) GetStrptr() *string {
-	return attr.strptr
-}
-
-// AttrMediaPresentationDuration returns AttrMPD object for NewMPD
-func AttrMediaPresentationDuration(value string) AttrMPD {
-	return &attrMediaPresentationDuration{strptr: &value}
-}
-
 type Period struct {
 	ID              string           `xml:"id,attr,omitempty"`
 	Duration        Duration         `xml:"duration,attr,omitempty"`
@@ -261,25 +218,52 @@ type AudioChannelConfiguration struct {
 	Value *string `xml:"value,attr"`
 }
 
-// Creates a new MPD object.
+// Creates a new static MPD object.
 // profile - DASH Profile (Live or OnDemand).
+// mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
 // minBufferTime - Min Buffer Time (i.e. PT1.97S).
-// attributes - Other attributes (optional)
-func NewMPD(profile DashProfile, minBufferTime string, attributes ...AttrMPD) *MPD {
+// attributes - Other attributes (optional).
+func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:         Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles:      Strptr((string)(profile)),
-		Type:          Strptr("static"),
-		MinBufferTime: Strptr(minBufferTime),
-		period:        period,
-		Periods:       []*Period{period},
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: Strptr((string)(profile)),
+		Type:     Strptr("static"),
+		MediaPresentationDuration: Strptr(mediaPresentationDuration),
+		MinBufferTime:             Strptr(minBufferTime),
+		period:                    period,
+		Periods:                   []*Period{period},
 	}
 
 	for i := range attributes {
 		switch attr := attributes[i].(type) {
 		case *attrAvailabilityStartTime:
 			mpd.AvailabilityStartTime = attr.GetStrptr()
+		}
+	}
+
+	return mpd
+}
+
+// Creates a new dynamic MPD object.
+// profile - DASH Profile (Live or OnDemand).
+// availabilityStartTime - anchor for the computation of the earliest availability time (in UTC).
+// minBufferTime - Min Buffer Time (i.e. PT1.97S).
+// attributes - Other attributes (optional).
+func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime string, attributes ...AttrMPD) *MPD {
+	period := &Period{}
+	mpd := &MPD{
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: Strptr((string)(profile)),
+		Type:     Strptr("dynamic"),
+		AvailabilityStartTime: Strptr(availabilityStartTime),
+		MinBufferTime:         Strptr(minBufferTime),
+		period:                period,
+		Periods:               []*Period{period},
+	}
+
+	for i := range attributes {
+		switch attr := attributes[i].(type) {
 		case *attrMinimumUpdatePeriod:
 			mpd.MinimumUpdatePeriod = attr.GetStrptr()
 		case *attrMediaPresentationDuration:
