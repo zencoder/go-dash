@@ -65,6 +65,8 @@ type MPD struct {
 	Type                      *string `xml:"type,attr"`
 	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
+	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
+	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
 	period                    *Period
 	Periods                   []*Period `xml:"Period,omitempty"`
@@ -216,13 +218,14 @@ type AudioChannelConfiguration struct {
 	Value *string `xml:"value,attr"`
 }
 
-// Creates a new MPD object.
+// Creates a new static MPD object.
 // profile - DASH Profile (Live or OnDemand).
 // mediaPresentationDuration - Media Presentation Duration (i.e. PT6M16S).
 // minBufferTime - Min Buffer Time (i.e. PT1.97S).
-func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime string) *MPD {
+// attributes - Other attributes (optional).
+func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
-	return &MPD{
+	mpd := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
 		Profiles: Strptr((string)(profile)),
 		Type:     Strptr("static"),
@@ -231,6 +234,44 @@ func NewMPD(profile DashProfile, mediaPresentationDuration string, minBufferTime
 		period:                    period,
 		Periods:                   []*Period{period},
 	}
+
+	for i := range attributes {
+		switch attr := attributes[i].(type) {
+		case *attrAvailabilityStartTime:
+			mpd.AvailabilityStartTime = attr.GetStrptr()
+		}
+	}
+
+	return mpd
+}
+
+// Creates a new dynamic MPD object.
+// profile - DASH Profile (Live or OnDemand).
+// availabilityStartTime - anchor for the computation of the earliest availability time (in UTC).
+// minBufferTime - Min Buffer Time (i.e. PT1.97S).
+// attributes - Other attributes (optional).
+func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime string, attributes ...AttrMPD) *MPD {
+	period := &Period{}
+	mpd := &MPD{
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: Strptr((string)(profile)),
+		Type:     Strptr("dynamic"),
+		AvailabilityStartTime: Strptr(availabilityStartTime),
+		MinBufferTime:         Strptr(minBufferTime),
+		period:                period,
+		Periods:               []*Period{period},
+	}
+
+	for i := range attributes {
+		switch attr := attributes[i].(type) {
+		case *attrMinimumUpdatePeriod:
+			mpd.MinimumUpdatePeriod = attr.GetStrptr()
+		case *attrMediaPresentationDuration:
+			mpd.MediaPresentationDuration = attr.GetStrptr()
+		}
+	}
+
+	return mpd
 }
 
 // AddNewPeriod creates a new Period and make it the currently active one.

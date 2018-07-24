@@ -12,6 +12,8 @@ import (
 const (
 	VALID_MEDIA_PRESENTATION_DURATION string = "PT6M16S"
 	VALID_MIN_BUFFER_TIME             string = "PT1.97S"
+	VALID_AVAILABILITY_START_TIME     string = "1970-01-01T00:00:00Z"
+	VALID_MINIMUM_UPDATE_PERIOD       string = "PT5S"
 	VALID_MIME_TYPE_VIDEO             string = "video/mp4"
 	VALID_MIME_TYPE_AUDIO             string = "audio/mp4"
 	VALID_MIME_TYPE_SUBTITLE_VTT      string = "text/vtt"
@@ -49,7 +51,8 @@ const (
 )
 
 func TestNewMPDLive(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME,
+		AttrAvailabilityStartTime(VALID_AVAILABILITY_START_TIME))
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -57,6 +60,26 @@ func TestNewMPDLive(t *testing.T) {
 		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
+		AvailabilityStartTime:     Strptr(VALID_AVAILABILITY_START_TIME),
+		period:                    &Period{},
+		Periods:                   []*Period{{}},
+	}
+	require.Equal(t, expectedMPD, m)
+}
+
+func TestNewDynamicMPDLive(t *testing.T) {
+	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
+		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+	require.NotNil(t, m)
+	expectedMPD := &MPD{
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:     Strptr("dynamic"),
+		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
+		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
+		AvailabilityStartTime:     Strptr(VALID_AVAILABILITY_START_TIME),
+		MinimumUpdatePeriod:       Strptr(VALID_MINIMUM_UPDATE_PERIOD),
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
 	}

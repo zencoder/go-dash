@@ -39,12 +39,28 @@ func TestReadingManifests(t *testing.T) {
 }
 
 func TestNewMPDLiveWriteToString(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME,
+		AttrAvailabilityStartTime(VALID_AVAILABILITY_START_TIME))
 
 	xmlStr, err := m.WriteToString()
 	require.Nil(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
-<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z">
+  <Period></Period>
+</MPD>
+`
+	require.Equal(t, expectedXML, xmlStr)
+}
+
+func TestNewDynamicMPDLiveWriteToString(t *testing.T) {
+	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
+		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+
+	xmlStr, err := m.WriteToString()
+	require.Nil(t, err)
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S">
   <Period></Period>
 </MPD>
 `
@@ -143,7 +159,8 @@ func TestExampleAddNewPeriod(t *testing.T) {
 }
 
 func LiveProfile() *MPD {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME,
+		AttrAvailabilityStartTime(VALID_AVAILABILITY_START_TIME))
 
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
@@ -193,6 +210,62 @@ func TestFullLiveProfileWriteToFile(t *testing.T) {
 	expectedXML := testfixtures.LoadFixture("fixtures/live_profile.mpd")
 	require.Equal(t, expectedXML, xmlStr)
 	defer os.Remove("test_live.mpd")
+	require.Nil(t, err)
+}
+
+func LiveProfileDynamic() *MPD {
+	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
+		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+
+	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
+
+	audioAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
+	audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+
+	audioAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
+
+	audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
+	audioAS.AddNewRepresentationAudio(44100, 67095, "mp4a.40.2", "800")
+
+	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	videoAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
+	videoAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	videoAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+
+	videoAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
+
+	videoAS.SetNewSegmentTemplate(1968, "$RepresentationID$/video/1/init.mp4", "$RepresentationID$/video/1/seg-$Number$.m4f", 0, 1000)
+	videoAS.AddNewRepresentationVideo(1518664, "avc1.4d401f", "800", "30000/1001", 960, 540)
+	videoAS.AddNewRepresentationVideo(1911775, "avc1.4d401f", "1000", "30000/1001", 1024, 576)
+	videoAS.AddNewRepresentationVideo(2295158, "avc1.4d401f", "1200", "30000/1001", 1024, 576)
+	videoAS.AddNewRepresentationVideo(2780732, "avc1.4d401f", "1500", "30000/1001", 1280, 720)
+
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	subtitleRep, _ := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
+	subtitleRep.SetNewBaseURL(VALID_SUBTITLE_URL)
+
+	return m
+}
+
+func TestFullLiveProfileDynamicWriteToString(t *testing.T) {
+	m := LiveProfileDynamic()
+	require.NotNil(t, m)
+	xmlStr, err := m.WriteToString()
+	require.Nil(t, err)
+	testfixtures.CompareFixture(t, "fixtures/live_profile_dynamic.mpd", xmlStr)
+}
+
+func TestFullLiveProfileDynamicWriteToFile(t *testing.T) {
+	m := LiveProfileDynamic()
+	require.NotNil(t, m)
+	err := m.WriteToFile("test_live_dynamic.mpd")
+	xmlStr := testfixtures.LoadFixture("test_live_dynamic.mpd")
+	expectedXML := testfixtures.LoadFixture("fixtures/live_profile_dynamic.mpd")
+	require.Equal(t, expectedXML, xmlStr)
+	defer os.Remove("test_live_dynamic.mpd")
 	require.Nil(t, err)
 }
 
