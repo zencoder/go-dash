@@ -386,7 +386,7 @@ func TestAddNewContentProtectionRoot(t *testing.T) {
 }
 
 type TestProprietaryContentProtection struct {
-	ContentProtection
+	ContentProtectionMarshal
 	TestAttrA string `xml:"a,attr,omitempty"`
 	TestAttrB string `xml:"b,attr,omitempty"`
 }
@@ -397,7 +397,7 @@ func TestAddNewContentProtection_Proprietary(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	as, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
-	cp := &ContentProtection{
+	cp := &ContentProtectionMarshal{
 		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
 	}
 
