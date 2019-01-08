@@ -80,8 +80,8 @@ func (m *MPD) Write(w io.Writer) error {
 		return err
 	}
 
-	w.Write([]byte(xml.Header))
-	w.Write(b)
-	w.Write([]byte("\n"))
+	_, _ = w.Write([]byte(xml.Header))
+	_, _ = w.Write(b)
+	_, _ = w.Write([]byte("\n"))
 	return nil
 }

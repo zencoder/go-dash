@@ -156,11 +156,11 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 
 	var (
 		contentProtectionTags []ContentProtectioner
-		roles []*Role
-		segmentBase *SegmentBase
-		segmentList *SegmentList
-		segmentTemplate *SegmentTemplate
-		representations []*Representation
+		roles                 []*Role
+		segmentBase           *SegmentBase
+		segmentList           *SegmentList
+		segmentTemplate       *SegmentTemplate
+		representations       []*Representation
 	)
 
 	// decode inner elements
@@ -176,7 +176,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 			case "ContentProtection":
 				var (
 					schemeUri string
-					cp ContentProtectioner
+					cp        ContentProtectioner
 				)
 
 				for _, attr := range tt.Attr {
@@ -240,7 +240,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 			}
 		case xml.EndElement:
 			if tt == start.End() {
-				d.DecodeElement(&adaptationSet, &start)
+				_ = d.DecodeElement(&adaptationSet, &start)
 				*as = adaptationSet
 				as.ContentProtection = contentProtectionTags
 				as.Roles = roles
@@ -277,7 +277,7 @@ type ContentProtection struct {
 	AdaptationSet *AdaptationSet `xml:"-"`
 	XMLName       xml.Name       `xml:"ContentProtection"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	XMLNS         *string        `xml:"cenc,attr"`  // Default: urn:mpeg:cenc:2013
+	XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
 }
 
 type CENCContentProtection struct {
@@ -438,9 +438,9 @@ type AudioChannelConfiguration struct {
 func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(profile)),
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(profile)),
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(mediaPresentationDuration),
 		MinBufferTime:             Strptr(minBufferTime),
 		period:                    period,
@@ -465,9 +465,9 @@ func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string
 func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(profile)),
-		Type:     Strptr("dynamic"),
+		XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:              Strptr((string)(profile)),
+		Type:                  Strptr("dynamic"),
 		AvailabilityStartTime: Strptr(availabilityStartTime),
 		MinBufferTime:         Strptr(minBufferTime),
 		period:                period,

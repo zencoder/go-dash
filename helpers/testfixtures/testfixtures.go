@@ -21,9 +21,9 @@ func LoadFixture(path string) (js string) {
 func CompareFixture(t *testing.T, fixturePath string, actualContent string) {
 	expectedContent := LoadFixture(fixturePath)
 	if os.Getenv("GENERATE_FIXTURES") != "" {
-		ioutil.WriteFile(fixturePath, []byte(actualContent), os.ModePerm)
+		_ = ioutil.WriteFile(fixturePath, []byte(actualContent), os.ModePerm)
 		fmt.Println("Wrote fixture: " + fixturePath)
-	} else {
-		require.Equal(t, expectedContent, actualContent)
+		return
 	}
+	require.Equal(t, expectedContent, actualContent)
 }
