@@ -1,10 +1,9 @@
 ---
 version: 2
-executorType: docker
-containerInfo:
-  - image: circleci/golang
 jobs:
   build:
+    docker:
+      - image: circleci/golang
     working_directory: "/go/src/github.com/zencoder/go-dash"
     steps:
       - checkout
@@ -19,14 +18,9 @@ jobs:
             rm -rf glide glide-v0.12.3-linux-amd64.tar.gz
       - restore_cache:
           key: glide-{{ checksum "glide.lock" }}
-      - run:
-          name: Download vendored Go dependencies
-          command: /go/bin/glide install
+      - run: /go/bin/glide install
       - save_cache:
           key: glide-{{ checksum "glide.lock" }}
           paths:
             - vendor
-      - run:
-          name: Run unit tests
-          command: |
-            make test
+      - run: make test
