@@ -5,7 +5,7 @@ containerInfo:
   - image: circleci/golang
 jobs:
   build:
-    workdir: "/go/src/github.com/zencoder/go-dash"
+    working_directory: "/go/src/github.com/zencoder/go-dash"
     steps:
       - checkout
       - run:
@@ -13,15 +13,15 @@ jobs:
           command: |
             set -eux
             curl -sSLfO https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-linux-amd64.tar.gz
-            mkdir glide
+            mkdir -p /go/bin glide
             tar -xzf glide-v0.12.3-linux-amd64.tar.gz -C ./glide
-            cp ./glide/linux-amd64/glide /usr/local/bin/glide
-            rm -r glide glide-v0.12.3-linux-amd64.tar.gz
+            cp ./glide/linux-amd64/glide /go/bin/glide
+            rm -rf glide glide-v0.12.3-linux-amd64.tar.gz
       - restore_cache:
           key: glide-{{ checksum "glide.lock" }}
       - run:
           name: Download vendored Go dependencies
-          command: glide install
+          command: /go/bin/glide install
       - save_cache:
           key: glide-{{ checksum "glide.lock" }}
           paths:
