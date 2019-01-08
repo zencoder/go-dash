@@ -132,6 +132,129 @@ type AdaptationSet struct {
 	Representations   []*Representation     `xml:"Representation,omitempty"`
 }
 
+func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+
+	adaptationSet := struct {
+		CommonAttributesAndElements
+		XMLName           xml.Name              `xml:"AdaptationSet"`
+		ID                *string               `xml:"id,attr"`
+		SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
+		Lang              *string               `xml:"lang,attr"`
+		Group             *string               `xml:"group,attr"`
+		PAR               *string               `xml:"par,attr"`
+		MinBandwidth      *string               `xml:"minBandwidth,attr"`
+		MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
+		MinWidth          *string               `xml:"minWidth,attr"`
+		MaxWidth          *string               `xml:"maxWidth,attr"`
+		ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
+		Roles             []*Role               `xml:"Role,omitempty"`
+		SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
+		SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
+		SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+		Representations   []*Representation     `xml:"Representation,omitempty"`
+	}{}
+
+	var (
+		contentProtectionTags []ContentProtectioner
+		roles []*Role
+		segmentBase *SegmentBase
+		segmentList *SegmentList
+		segmentTemplate *SegmentTemplate
+		representations []*Representation
+	)
+
+	// decode inner elements
+	for {
+		t, err := d.Token()
+		if err != nil {
+			return err
+		}
+
+		switch tt := t.(type) {
+		case xml.StartElement:
+			switch tt.Name.Local {
+			case "ContentProtection":
+				var (
+					schemeUri string
+					cp ContentProtectioner
+				)
+
+				for _, attr := range tt.Attr {
+					if attr.Name.Local == "schemeIdUri" {
+						schemeUri = attr.Value
+					}
+				}
+				switch schemeUri {
+				case CONTENT_PROTECTION_ROOT_SCHEME_ID_URI:
+					cp = new(CENCContentProtection)
+				case CONTENT_PROTECTION_PLAYREADY_SCHEME_ID:
+					cp = new(PlayreadyContentProtection)
+				case CONTENT_PROTECTION_WIDEVINE_SCHEME_ID:
+					cp = new(WidevineContentProtection)
+				default:
+					cp = new(ContentProtection)
+				}
+
+				err = d.DecodeElement(cp, &tt)
+				if err != nil {
+					return err
+				}
+				contentProtectionTags = append(contentProtectionTags, cp)
+			case "Role":
+				rl := new(Role)
+				err = d.DecodeElement(rl, &tt)
+				if err != nil {
+					return err
+				}
+				roles = append(roles, rl)
+			case "SegmentBase":
+				sb := new(SegmentBase)
+				err = d.DecodeElement(sb, &tt)
+				if err != nil {
+					return err
+				}
+				segmentBase = sb
+			case "SegmentList":
+				sl := new(SegmentList)
+				err = d.DecodeElement(sl, &tt)
+				if err != nil {
+					return err
+				}
+				segmentList = sl
+			case "SegmentTemplate":
+				st := new(SegmentTemplate)
+				err = d.DecodeElement(st, &tt)
+				if err != nil {
+					return err
+				}
+				segmentTemplate = st
+			case "Representation":
+				rp := new(Representation)
+				err = d.DecodeElement(rp, &tt)
+				if err != nil {
+					return err
+				}
+				representations = append(representations, rp)
+			default:
+				return errors.New("Unrecognized element in AdaptationSet")
+			}
+		case xml.EndElement:
+			if tt == start.End() {
+				d.DecodeElement(&adaptationSet, &start)
+				*as = adaptationSet
+				as.ContentProtection = contentProtectionTags
+				as.Roles = roles
+				as.SegmentBase = segmentBase
+				as.SegmentList = segmentList
+				as.SegmentTemplate = segmentTemplate
+				as.Representations = representations
+				return nil
+			}
+		}
+
+	}
+}
+
 // Constants for DRM / ContentProtection
 const (
 	CONTENT_PROTECTION_ROOT_SCHEME_ID_URI       = "urn:mpeg:dash:mp4protection:2011"
@@ -154,28 +277,117 @@ type ContentProtection struct {
 	AdaptationSet *AdaptationSet `xml:"-"`
 	XMLName       xml.Name       `xml:"ContentProtection"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
+	XMLNS         *string        `xml:"cenc,attr"`  // Default: urn:mpeg:cenc:2013
 }
 
 type CENCContentProtection struct {
 	ContentProtection
-	DefaultKID *string `xml:"cenc:default_KID,attr"`
+	DefaultKID *string `xml:"default_KID,attr"`
 	Value      *string `xml:"value,attr"` // Default: cenc
 }
 
 type PlayreadyContentProtection struct {
 	ContentProtection
+	PlayreadyXMLNS *string `xml:"mspr,attr,omitempty"`
+	PRO            *string `xml:"pro,omitempty"`
+	PSSH           *string `xml:"pssh,omitempty"`
+}
+
+type WidevineContentProtection struct {
+	ContentProtection
+	PSSH *string `xml:"pssh,omitempty"`
+}
+
+type ContentProtectionMarshal struct {
+	AdaptationSet *AdaptationSet `xml:"-"`
+	XMLName       xml.Name       `xml:"ContentProtection"`
+	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
+	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
+}
+
+type CENCContentProtectionMarshal struct {
+	ContentProtectionMarshal
+	DefaultKID *string `xml:"cenc:default_KID,attr"`
+	Value      *string `xml:"value,attr"` // Default: cenc
+}
+
+type PlayreadyContentProtectionMarshal struct {
+	ContentProtectionMarshal
 	PlayreadyXMLNS *string `xml:"xmlns:mspr,attr,omitempty"`
 	PRO            *string `xml:"mspr:pro,omitempty"`
 	PSSH           *string `xml:"cenc:pssh,omitempty"`
 }
 
-type WidevineContentProtection struct {
-	ContentProtection
+type WidevineContentProtectionMarshal struct {
+	ContentProtectionMarshal
 	PSSH *string `xml:"cenc:pssh,omitempty"`
 }
 
 func (s ContentProtection) ContentProtected() {}
+
+func (s ContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	err := e.Encode(&ContentProtectionMarshal{
+		s.AdaptationSet,
+		s.XMLName,
+		s.SchemeIDURI,
+		s.XMLNS,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s CENCContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	err := e.Encode(&CENCContentProtectionMarshal{
+		ContentProtectionMarshal{
+			s.AdaptationSet,
+			s.XMLName,
+			s.SchemeIDURI,
+			s.XMLNS,
+		},
+		s.DefaultKID,
+		s.Value,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s PlayreadyContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	err := e.Encode(&PlayreadyContentProtectionMarshal{
+		ContentProtectionMarshal{
+			s.AdaptationSet,
+			s.XMLName,
+			s.SchemeIDURI,
+			s.XMLNS,
+		},
+		s.PlayreadyXMLNS,
+		s.PRO,
+		s.PSSH,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s WidevineContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	err := e.Encode(&WidevineContentProtectionMarshal{
+		ContentProtectionMarshal{
+			s.AdaptationSet,
+			s.XMLName,
+			s.SchemeIDURI,
+			s.XMLNS,
+		},
+		s.PSSH,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 type Role struct {
 	AdaptationSet *AdaptationSet `xml:"-"`
