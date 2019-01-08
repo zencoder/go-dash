@@ -1,4 +1,3 @@
-go run examples/ondemand.go
 <?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT30S" minBufferTime="PT1.97S">
   <Period>
@@ -41,4 +40,3 @@ go run examples/ondemand.go
     </AdaptationSet>
   </Period>
 </MPD>
-
