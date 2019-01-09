@@ -278,6 +278,7 @@ type ContentProtection struct {
 	XMLName       xml.Name       `xml:"ContentProtection"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
 	XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
+	Attrs         []*xml.Attr    `xml:",any,attr"`
 }
 
 type CENCContentProtection struct {
