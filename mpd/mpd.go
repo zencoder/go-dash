@@ -304,6 +304,7 @@ type ContentProtectionMarshal struct {
 	XMLName       xml.Name       `xml:"ContentProtection"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
 	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
+	Attrs         []*xml.Attr    `xml:",any,attr"`
 }
 
 type CENCContentProtectionMarshal struct {
@@ -332,6 +333,7 @@ func (s ContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) er
 		s.XMLName,
 		s.SchemeIDURI,
 		s.XMLNS,
+		s.Attrs,
 	})
 	if err != nil {
 		return err
@@ -346,6 +348,7 @@ func (s CENCContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement
 			s.XMLName,
 			s.SchemeIDURI,
 			s.XMLNS,
+			s.Attrs,
 		},
 		s.DefaultKID,
 		s.Value,
@@ -363,6 +366,7 @@ func (s PlayreadyContentProtection) MarshalXML(e *xml.Encoder, start xml.StartEl
 			s.XMLName,
 			s.SchemeIDURI,
 			s.XMLNS,
+			s.Attrs,
 		},
 		s.PlayreadyXMLNS,
 		s.PRO,
@@ -381,6 +385,7 @@ func (s WidevineContentProtection) MarshalXML(e *xml.Encoder, start xml.StartEle
 			s.XMLName,
 			s.SchemeIDURI,
 			s.XMLNS,
+			s.Attrs,
 		},
 		s.PSSH,
 	})
