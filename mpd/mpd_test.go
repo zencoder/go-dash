@@ -55,9 +55,9 @@ func TestNewMPDLive(t *testing.T) {
 		AttrAvailabilityStartTime(VALID_AVAILABILITY_START_TIME))
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		AvailabilityStartTime:     Strptr(VALID_AVAILABILITY_START_TIME),
@@ -73,9 +73,9 @@ func TestNewDynamicMPDLive(t *testing.T) {
 		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("dynamic"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                      Strptr("dynamic"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		AvailabilityStartTime:     Strptr(VALID_AVAILABILITY_START_TIME),
@@ -115,9 +115,9 @@ func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 	m.BaseURL = VALID_BASE_URL_VIDEO
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -135,9 +135,9 @@ func TestNewMPDLiveWithBaseURLInPeriod(t *testing.T) {
 		BaseURL: VALID_BASE_URL_VIDEO,
 	}
 	expectedMPD := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    period,
@@ -150,9 +150,9 @@ func TestNewMPDHbbTV(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_HBBTV_1_5_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(DASH_PROFILE_HBBTV_1_5_LIVE)),
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_HBBTV_1_5_LIVE)),
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -165,9 +165,9 @@ func TestNewMPDOnDemand(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(DASH_PROFILE_ONDEMAND)),
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_ONDEMAND)),
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -404,7 +404,7 @@ func TestAddNewContentProtection_Proprietary(t *testing.T) {
 	pcp := &TestProprietaryContentProtection{*cp, "foo", "bar"}
 	x, _ := xml.Marshal(pcp)
 	require.Equal(t, `<ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" a="foo" b="bar"></ContentProtection>`, string(x))
-	as.AddContentProtection(pcp)
+	_ = as.AddContentProtection(pcp)
 	require.Equal(t, as.ContentProtection, []ContentProtectioner{pcp})
 }
 
@@ -553,15 +553,15 @@ func TestSetNewSegmentTemplate(t *testing.T) {
 
 func TestSetNewSegmentTemplateErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: nil,
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  nil,
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
 	}
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
+	_, _ = audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
 	err := m.Validate()
 	require.Equal(t, ErrNoDASHProfileSet, err)
 }
@@ -660,9 +660,9 @@ func TestSetNewBaseURLSubtitle(t *testing.T) {
 
 func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: nil,
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  nil,
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -671,7 +671,7 @@ func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
-	r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
+	_ = r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
 	err := m.Validate()
 
 	require.NotNil(t, err)
@@ -703,9 +703,9 @@ func TestSetNewSegmentBase(t *testing.T) {
 
 func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
 	m := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: nil,
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  nil,
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
@@ -714,7 +714,7 @@ func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
-	r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
+	_, _ = r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
 
 	err := m.Validate()
 	require.Equal(t, ErrNoDASHProfileSet, err)

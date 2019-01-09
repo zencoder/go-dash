@@ -156,11 +156,11 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 
 	var (
 		contentProtectionTags []ContentProtectioner
-		roles []*Role
-		segmentBase *SegmentBase
-		segmentList *SegmentList
-		segmentTemplate *SegmentTemplate
-		representations []*Representation
+		roles                 []*Role
+		segmentBase           *SegmentBase
+		segmentList           *SegmentList
+		segmentTemplate       *SegmentTemplate
+		representations       []*Representation
 	)
 
 	// decode inner elements
@@ -176,7 +176,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 			case "ContentProtection":
 				var (
 					schemeUri string
-					cp ContentProtectioner
+					cp        ContentProtectioner
 				)
 
 				for _, attr := range tt.Attr {
@@ -240,7 +240,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 			}
 		case xml.EndElement:
 			if tt == start.End() {
-				d.DecodeElement(&adaptationSet, &start)
+				_ = d.DecodeElement(&adaptationSet, &start)
 				*as = adaptationSet
 				as.ContentProtection = contentProtectionTags
 				as.Roles = roles
@@ -277,7 +277,8 @@ type ContentProtection struct {
 	AdaptationSet *AdaptationSet `xml:"-"`
 	XMLName       xml.Name       `xml:"ContentProtection"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	XMLNS         *string        `xml:"cenc,attr"`  // Default: urn:mpeg:cenc:2013
+	XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
+	Attrs         []*xml.Attr    `xml:",any,attr"`
 }
 
 type CENCContentProtection struct {
@@ -303,6 +304,7 @@ type ContentProtectionMarshal struct {
 	XMLName       xml.Name       `xml:"ContentProtection"`
 	SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
 	XMLNS         *string        `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
+	Attrs         []*xml.Attr    `xml:",any,attr"`
 }
 
 type CENCContentProtectionMarshal struct {
@@ -331,6 +333,7 @@ func (s ContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) er
 		s.XMLName,
 		s.SchemeIDURI,
 		s.XMLNS,
+		s.Attrs,
 	})
 	if err != nil {
 		return err
@@ -345,6 +348,7 @@ func (s CENCContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement
 			s.XMLName,
 			s.SchemeIDURI,
 			s.XMLNS,
+			s.Attrs,
 		},
 		s.DefaultKID,
 		s.Value,
@@ -362,6 +366,7 @@ func (s PlayreadyContentProtection) MarshalXML(e *xml.Encoder, start xml.StartEl
 			s.XMLName,
 			s.SchemeIDURI,
 			s.XMLNS,
+			s.Attrs,
 		},
 		s.PlayreadyXMLNS,
 		s.PRO,
@@ -380,6 +385,7 @@ func (s WidevineContentProtection) MarshalXML(e *xml.Encoder, start xml.StartEle
 			s.XMLName,
 			s.SchemeIDURI,
 			s.XMLNS,
+			s.Attrs,
 		},
 		s.PSSH,
 	})
@@ -438,9 +444,9 @@ type AudioChannelConfiguration struct {
 func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(profile)),
-		Type:     Strptr("static"),
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(profile)),
+		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(mediaPresentationDuration),
 		MinBufferTime:             Strptr(minBufferTime),
 		period:                    period,
@@ -465,9 +471,9 @@ func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string
 func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles: Strptr((string)(profile)),
-		Type:     Strptr("dynamic"),
+		XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:              Strptr((string)(profile)),
+		Type:                  Strptr("dynamic"),
 		AvailabilityStartTime: Strptr(availabilityStartTime),
 		MinBufferTime:         Strptr(minBufferTime),
 		period:                period,

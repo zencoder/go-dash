@@ -59,7 +59,7 @@ func getMultiPeriodSegmentTimelineMPD() *MPD {
 		p.ID = strconv.Itoa(i)
 		p.Duration = Duration(30 * time.Second)
 		aas, _ := p.AddNewAdaptationSetAudioWithID("1", "audio/mp4", true, 1, "en")
-		aas.AddNewRepresentationAudio(48000, 92000, "mp4a.40.2", "audio_1")
+		_, _ = aas.AddNewRepresentationAudio(48000, 92000, "mp4a.40.2", "audio_1")
 		aas.SegmentTemplate = &SegmentTemplate{
 			Timescale:      ptrs.Int64ptr(48000),
 			Initialization: ptrs.Strptr("audio/init.m4f"),
@@ -72,8 +72,8 @@ func getMultiPeriodSegmentTimelineMPD() *MPD {
 			},
 		}
 		vas, _ := p.AddNewAdaptationSetVideoWithID("2", "video/mp4", "progressive", true, 1)
-		vas.AddNewRepresentationVideo(3532000, "avc1.640028", "video_1", "2997/100", 2048, 854)
-		vas.AddNewRepresentationVideo(453000, "avc1.420016", "video_2", "2997/100", 648, 270)
+		_, _ = vas.AddNewRepresentationVideo(3532000, "avc1.640028", "video_1", "2997/100", 2048, 854)
+		_, _ = vas.AddNewRepresentationVideo(453000, "avc1.420016", "video_2", "2997/100", 648, 270)
 		vas.SegmentTemplate = &SegmentTemplate{
 			Timescale:      ptrs.Int64ptr(30000),
 			Initialization: ptrs.Strptr("video/$RepresentationID$/init.m4f"),

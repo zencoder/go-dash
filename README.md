@@ -1,20 +1,11 @@
-# go-dash
+# go-dash [![godoc](https://godoc.org/github.com/zencoder/go-dash/mpd?status.svg)](http://godoc.org/github.com/zencoder/go-dash/mpd)
 
-[![godoc](https://godoc.org/github.com/zencoder/go-dash/mpd?status.svg)](http://godoc.org/github.com/zencoder/go-dash/mpd)
-
-A Go library for generating MPEG-DASH manifests.
+A [Go](https://golang.org) library for generating [MPEG-DASH](https://en.wikipedia.org/wiki/Dynamic_Adaptive_Streaming_over_HTTP) manifests.
 
 ## Install
 
-This library uses [Glide](https://github.com/Masterminds/glide) to manage it's dependencies. Please refer to the Glide documentation to see how to install glide.
-
-```bash
-mkdir -p $GOPATH/src/github.com/zencoder
-cd $GOPATH/src/github.com/zencoder
-git clone https://github.com/zencoder/go-dash
-cd go-dash
-glide install
-go install ./...
+```
+go get -u github.com/zencoder/go-dash
 ```
 
 ## Supported Features
@@ -38,31 +29,17 @@ go install ./...
 
 ## Example Usage
 
-See [examples/](https://github.com/zencoder/go-dash/tree/master/examples)
-
-To run (Live Profile example):
-```
-make examples-live
-```
-
-To run (OnDemand Profile example):
-```
-make examples-ondemand
-```
+See the [examples/](https://github.com/zencoder/go-dash/tree/master/examples) directory.
 
 ## Development
 
-### Dependencies
-
-Tested on go 1.9.2.
-
-### Build and run unit tests
-
-    make test
+```
+make test
+```
 
 ### CI
 
-[This library builds on Circle CI, here.](https://circleci.com/gh/zencoder/go-dash/)
+[This project builds in Circle CI](https://circleci.com/gh/zencoder/go-dash/)
 
 ## License
 
