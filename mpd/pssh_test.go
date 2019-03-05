@@ -3,9 +3,8 @@ package mpd
 import (
 	"encoding/base64"
 	"encoding/hex"
+	"github.com/zencoder/go-dash/helpers/require"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestMakePSSHBox_Widevine(t *testing.T) {
@@ -27,7 +26,7 @@ func TestMakePSSHBox_Widevine(t *testing.T) {
 	psshBox, err := makePSSHBox(wvSystemID, payload)
 	require.NoError(t, err)
 
-	require.Equal(t, expectedPSSH, psshBox)
+	require.EqualString(t, string(expectedPSSH), string(psshBox))
 }
 
 func TestMakePSSHBox_Playready(t *testing.T) {
@@ -50,15 +49,15 @@ func TestMakePSSHBox_Playready(t *testing.T) {
 	psshBox, err := makePSSHBox(wvSystemID, payload)
 	require.NoError(t, err)
 
-	require.Equal(t, expectedPSSH, psshBox)
+	require.EqualString(t, string(expectedPSSH), string(psshBox))
 }
 
 func TestMakePSSHBox_BadSystemID(t *testing.T) {
 	_, err := makePSSHBox([]byte("meaningless byte array"), nil)
-	require.Error(t, err)
+	require.EqualError(t, err, "SystemID must be 16 bytes, was: 22")
 }
 
 func TestMakePSSHBox_NilSystemID(t *testing.T) {
 	_, err := makePSSHBox(nil, nil)
-	require.Error(t, err)
+	require.EqualError(t, err, "SystemID must be 16 bytes, was: 0")
 }

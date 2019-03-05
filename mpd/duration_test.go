@@ -1,10 +1,10 @@
 package mpd
 
 import (
+	"fmt"
+	"github.com/zencoder/go-dash/helpers/require"
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/require"
 )
 
 func TestDuration(t *testing.T) {
@@ -15,9 +15,9 @@ func TestDuration(t *testing.T) {
 	}
 	for ins, ex := range in {
 		timeDur, err := time.ParseDuration(ins)
-		require.Equal(t, nil, err)
+		require.NoError(t, err)
 		dur := Duration(timeDur)
-		require.Equal(t, ex, dur.String())
+		require.EqualString(t, ex, dur.String())
 	}
 }
 
@@ -37,7 +37,7 @@ func TestParseDuration(t *testing.T) {
 	for ins, ex := range in {
 		act, err := parseDuration(ins)
 		require.NoError(t, err, ins)
-		require.Equal(t, ex, act.Seconds(), ins)
+		require.EqualFloat64(t, ex, act.Seconds(), ins)
 	}
 }
 
@@ -54,6 +54,6 @@ func TestParseBadDurations(t *testing.T) {
 	}
 	for ins, msg := range in {
 		_, err := parseDuration(ins)
-		require.EqualError(t, err, msg, "Expected an error for: %s", ins)
+		require.EqualError(t, err, msg, fmt.Sprintf("Expected an error for: %s", ins))
 	}
 }

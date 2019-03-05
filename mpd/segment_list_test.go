@@ -3,8 +3,8 @@ package mpd
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/zencoder/go-dash/helpers/ptrs"
+	"github.com/zencoder/go-dash/helpers/require"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
@@ -19,32 +19,40 @@ func TestSegmentListDeserialization(t *testing.T) {
 	xml := testfixtures.LoadFixture("fixtures/segment_list.mpd")
 	m, err := ReadFromString(xml)
 
-	require.Nil(t, err)
+	require.NoError(t, err)
 	if err == nil {
 		expected := getSegmentListMPD()
 
-		require.Equal(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
+		require.EqualString(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
 
 		expectedAudioSegList := expected.Periods[0].AdaptationSets[0].Representations[0].SegmentList
 		audioSegList := m.Periods[0].AdaptationSets[0].Representations[0].SegmentList
 
-		require.Equal(t, expectedAudioSegList.Timescale, audioSegList.Timescale)
-		require.Equal(t, expectedAudioSegList.Duration, audioSegList.Duration)
-		require.Equal(t, expectedAudioSegList.Initialization, audioSegList.Initialization)
+		require.EqualUInt32(t, *expectedAudioSegList.Timescale, *audioSegList.Timescale)
+		require.EqualUInt32(t, *expectedAudioSegList.Duration, *audioSegList.Duration)
+		require.EqualStringPtr(t, expectedAudioSegList.Initialization.SourceURL, audioSegList.Initialization.SourceURL)
+		require.EqualStringPtr(t, expectedAudioSegList.Initialization.Range, audioSegList.Initialization.Range)
 
 		for i := range expectedAudioSegList.SegmentURLs {
-			require.Equal(t, expectedAudioSegList.SegmentURLs[i], audioSegList.SegmentURLs[i])
+			require.EqualStringPtr(t, expectedAudioSegList.SegmentURLs[i].Media, audioSegList.SegmentURLs[i].Media)
+			require.EqualStringPtr(t, expectedAudioSegList.SegmentURLs[i].Index, audioSegList.SegmentURLs[i].Index)
+			require.EqualStringPtr(t, expectedAudioSegList.SegmentURLs[i].IndexRange, audioSegList.SegmentURLs[i].IndexRange)
+			require.EqualStringPtr(t, expectedAudioSegList.SegmentURLs[i].MediaRange, audioSegList.SegmentURLs[i].MediaRange)
 		}
 
 		expectedVideoSegList := expected.Periods[0].AdaptationSets[1].Representations[0].SegmentList
 		videoSegList := m.Periods[0].AdaptationSets[1].Representations[0].SegmentList
 
-		require.Equal(t, expectedVideoSegList.Timescale, videoSegList.Timescale)
-		require.Equal(t, expectedVideoSegList.Duration, videoSegList.Duration)
-		require.Equal(t, expectedVideoSegList.Initialization, videoSegList.Initialization)
+		require.EqualUInt32(t, *expectedVideoSegList.Timescale, *videoSegList.Timescale)
+		require.EqualUInt32(t, *expectedVideoSegList.Duration, *videoSegList.Duration)
+		require.EqualStringPtr(t, expectedVideoSegList.Initialization.Range, videoSegList.Initialization.Range)
+		require.EqualStringPtr(t, expectedVideoSegList.Initialization.SourceURL, videoSegList.Initialization.SourceURL)
 
 		for i := range expectedVideoSegList.SegmentURLs {
-			require.Equal(t, expectedVideoSegList.SegmentURLs[i], videoSegList.SegmentURLs[i])
+			require.EqualStringPtr(t, expectedVideoSegList.SegmentURLs[i].Media, videoSegList.SegmentURLs[i].Media)
+			require.EqualStringPtr(t, expectedVideoSegList.SegmentURLs[i].Index, videoSegList.SegmentURLs[i].Index)
+			require.EqualStringPtr(t, expectedVideoSegList.SegmentURLs[i].IndexRange, videoSegList.SegmentURLs[i].IndexRange)
+			require.EqualStringPtr(t, expectedVideoSegList.SegmentURLs[i].MediaRange, videoSegList.SegmentURLs[i].MediaRange)
 		}
 	}
 }
