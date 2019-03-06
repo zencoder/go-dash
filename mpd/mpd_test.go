@@ -2,11 +2,10 @@ package mpd
 
 import (
 	"encoding/base64"
-	"encoding/xml"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	. "github.com/zencoder/go-dash/helpers/ptrs"
+	"github.com/zencoder/go-dash/helpers/require"
 )
 
 const (
@@ -14,9 +13,6 @@ const (
 	VALID_MIN_BUFFER_TIME             string = "PT1.97S"
 	VALID_AVAILABILITY_START_TIME     string = "1970-01-01T00:00:00Z"
 	VALID_MINIMUM_UPDATE_PERIOD       string = "PT5S"
-	VALID_MIME_TYPE_VIDEO             string = "video/mp4"
-	VALID_MIME_TYPE_AUDIO             string = "audio/mp4"
-	VALID_MIME_TYPE_SUBTITLE_VTT      string = "text/vtt"
 	VALID_SCAN_TYPE                   string = "progressive"
 	VALID_SEGMENT_ALIGNMENT           bool   = true
 	VALID_START_WITH_SAP              int64  = 1
@@ -39,9 +35,6 @@ const (
 	VALID_BASE_URL_VIDEO              string = "800k/output-video-1.mp4"
 	VALID_INDEX_RANGE                 string = "629-756"
 	VALID_INIT_RANGE                  string = "0-628"
-	VALID_DEFAULT_KID_HEX             string = "08e367028f33436ca5dd60ffe5571e60"
-	VALID_DEFAULT_KID                 string = "08e36702-8f33-436c-a5dd-60ffe5571e60"
-	VALID_PLAYREADY_XMLNS             string = "urn:microsoft:playready"
 	VALID_PLAYREADY_PRO               string = "BgIAAAEAAQD8ATwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4ATAA5AFcAOQBXAGsAcABWAEsAawArADQAMABHAEgAMwBZAFUASgBSAFYAUQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBJAEsAegBZADIASABaAEwAQQBsAEkAPQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APAAvAEQAQQBUAEEAPgA8AC8AVwBSAE0ASABFAEEARABFAFIAPgA="
 	VALID_WV_HEADER                   string = "CAESEFq91S9VSk8quNBh92FCUVUaCGNhc3RsYWJzIhhXcjNWTDFWS1R5cTQwR0gzWVVKUlZRPT0yB2RlZmF1bHQ="
 	VALID_SUBTITLE_BANDWIDTH          int64  = 256
@@ -64,7 +57,13 @@ func TestNewMPDLive(t *testing.T) {
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
 	}
-	require.Equal(t, expectedMPD, m)
+
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
+
+	require.EqualString(t, expectedString, actualString)
 }
 
 func TestNewDynamicMPDLive(t *testing.T) {
@@ -83,7 +82,13 @@ func TestNewDynamicMPDLive(t *testing.T) {
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
 	}
-	require.Equal(t, expectedMPD, m)
+
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
+
+	require.EqualString(t, expectedString, actualString)
 }
 
 func TestContentProtection_ImplementsInterface(t *testing.T) {
@@ -124,7 +129,13 @@ func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 		Periods:                   []*Period{{}},
 		BaseURL:                   VALID_BASE_URL_VIDEO,
 	}
-	require.Equal(t, expectedMPD, m)
+
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
+
+	require.EqualString(t, expectedString, actualString)
 }
 
 func TestNewMPDLiveWithBaseURLInPeriod(t *testing.T) {
@@ -143,7 +154,13 @@ func TestNewMPDLiveWithBaseURLInPeriod(t *testing.T) {
 		period:                    period,
 		Periods:                   []*Period{period},
 	}
-	require.Equal(t, expectedMPD, m)
+
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
+
+	require.EqualString(t, expectedString, actualString)
 }
 
 func TestNewMPDHbbTV(t *testing.T) {
@@ -158,7 +175,13 @@ func TestNewMPDHbbTV(t *testing.T) {
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
 	}
-	require.Equal(t, expectedMPD, m)
+
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
+
+	require.EqualString(t, expectedString, actualString)
 }
 
 func TestNewMPDOnDemand(t *testing.T) {
@@ -173,174 +196,13 @@ func TestNewMPDOnDemand(t *testing.T) {
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
 	}
-	require.Equal(t, expectedMPD, m)
-}
 
-func TestAddNewAdaptationSetAudio(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, err := m.AddNewAdaptationSetAudio(DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	require.NotNil(t, as)
-	require.Nil(t, err)
-	expectedAS := &AdaptationSet{
-		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		Lang:             Strptr(VALID_LANG),
-		ID:               nil,
-		CommonAttributesAndElements: CommonAttributesAndElements{
-			Profiles:                  nil,
-			Width:                     nil,
-			Height:                    nil,
-			Sar:                       nil,
-			FrameRate:                 nil,
-			AudioSamplingRate:         nil,
-			MimeType:                  Strptr(VALID_MIME_TYPE_AUDIO),
-			SegmentProfiles:           nil,
-			Codecs:                    nil,
-			MaximumSAPPeriod:          nil,
-			StartWithSAP:              Int64ptr(VALID_START_WITH_SAP),
-			MaxPlayoutRate:            nil,
-			ScanType:                  nil,
-			FramePacking:              nil,
-			AudioChannelConfiguration: nil,
-			ContentProtection:         nil,
-			EssentialProperty:         nil,
-			SupplementalProperty:      nil,
-			InbandEventStream:         nil,
-		},
-	}
-	require.Equal(t, expectedAS, as)
-}
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
 
-func TestAddNewAdaptationSetAudioWithID(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, err := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
-	require.NotNil(t, as)
-	require.Nil(t, err)
-	expectedAS := &AdaptationSet{
-		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		Lang:             Strptr(VALID_LANG),
-		ID:               Strptr("7357"),
-		CommonAttributesAndElements: CommonAttributesAndElements{
-			Profiles:                  nil,
-			Width:                     nil,
-			Height:                    nil,
-			Sar:                       nil,
-			FrameRate:                 nil,
-			AudioSamplingRate:         nil,
-			MimeType:                  Strptr(VALID_MIME_TYPE_AUDIO),
-			SegmentProfiles:           nil,
-			Codecs:                    nil,
-			MaximumSAPPeriod:          nil,
-			StartWithSAP:              Int64ptr(VALID_START_WITH_SAP),
-			MaxPlayoutRate:            nil,
-			ScanType:                  nil,
-			FramePacking:              nil,
-			AudioChannelConfiguration: nil,
-			ContentProtection:         nil,
-			EssentialProperty:         nil,
-			SupplementalProperty:      nil,
-			InbandEventStream:         nil,
-		},
-	}
-	require.Equal(t, expectedAS, as)
-}
-
-func TestAddNewAdaptationSetVideo(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-
-	as, err := m.AddNewAdaptationSetVideo(DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-	require.NotNil(t, as)
-	require.Nil(t, err)
-	expectedAS := &AdaptationSet{
-		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		ID:               nil,
-		CommonAttributesAndElements: CommonAttributesAndElements{
-			Profiles:                  nil,
-			Width:                     nil,
-			Height:                    nil,
-			Sar:                       nil,
-			FrameRate:                 nil,
-			AudioSamplingRate:         nil,
-			MimeType:                  Strptr(VALID_MIME_TYPE_VIDEO),
-			SegmentProfiles:           nil,
-			Codecs:                    nil,
-			MaximumSAPPeriod:          nil,
-			StartWithSAP:              Int64ptr(VALID_START_WITH_SAP),
-			MaxPlayoutRate:            nil,
-			ScanType:                  Strptr(VALID_SCAN_TYPE),
-			FramePacking:              nil,
-			AudioChannelConfiguration: nil,
-			ContentProtection:         nil,
-			EssentialProperty:         nil,
-			SupplementalProperty:      nil,
-			InbandEventStream:         nil,
-		},
-	}
-	require.Equal(t, expectedAS, as)
-}
-
-func TestAddNewAdaptationSetVideoWithID(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-
-	as, err := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-	require.NotNil(t, as)
-	require.Nil(t, err)
-	expectedAS := &AdaptationSet{
-		SegmentAlignment: Boolptr(VALID_SEGMENT_ALIGNMENT),
-		ID:               Strptr("7357"),
-		CommonAttributesAndElements: CommonAttributesAndElements{
-			Profiles:                  nil,
-			Width:                     nil,
-			Height:                    nil,
-			Sar:                       nil,
-			FrameRate:                 nil,
-			AudioSamplingRate:         nil,
-			MimeType:                  Strptr(VALID_MIME_TYPE_VIDEO),
-			SegmentProfiles:           nil,
-			Codecs:                    nil,
-			MaximumSAPPeriod:          nil,
-			StartWithSAP:              Int64ptr(VALID_START_WITH_SAP),
-			MaxPlayoutRate:            nil,
-			ScanType:                  Strptr(VALID_SCAN_TYPE),
-			FramePacking:              nil,
-			AudioChannelConfiguration: nil,
-			ContentProtection:         nil,
-			EssentialProperty:         nil,
-			SupplementalProperty:      nil,
-			InbandEventStream:         nil,
-		},
-	}
-	require.Equal(t, expectedAS, as)
-}
-
-func TestAddNewAdaptationSetSubtitle(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-
-	as, err := m.AddNewAdaptationSetSubtitle(DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
-	require.NotNil(t, as)
-	require.Nil(t, err)
-	expectedAS := &AdaptationSet{
-		Lang: Strptr(VALID_LANG),
-		CommonAttributesAndElements: CommonAttributesAndElements{
-			MimeType: Strptr(VALID_MIME_TYPE_SUBTITLE_VTT),
-		},
-	}
-	require.Equal(t, expectedAS, as)
-}
-
-func TestAddNewAdaptationSetSubtitleWithID(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-
-	as, err := m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
-	require.NotNil(t, as)
-	require.Nil(t, err)
-	expectedAS := &AdaptationSet{
-		ID:   Strptr("7357"),
-		Lang: Strptr(VALID_LANG),
-		CommonAttributesAndElements: CommonAttributesAndElements{
-			MimeType: Strptr(VALID_MIME_TYPE_SUBTITLE_VTT),
-		},
-	}
-	require.Equal(t, expectedAS, as)
+	require.EqualString(t, expectedString, actualString)
 }
 
 func TestAddAdaptationSetErrorNil(t *testing.T) {
@@ -348,41 +210,7 @@ func TestAddAdaptationSetErrorNil(t *testing.T) {
 
 	err := m.period.addAdaptationSet(nil)
 	require.NotNil(t, err)
-	require.Equal(t, ErrAdaptationSetNil, err)
-}
-
-func TestAddNewContentProtectionRoot_Legacy(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionRootLegacyUUID(VALID_DEFAULT_KID_HEX)
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &CENCContentProtection{
-		DefaultKID: Strptr("08e36702-8f33-436c-a5dd60ffe5571e60"),
-		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
-	}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
-	expectedCP.XMLNS = Strptr(CENC_XMLNS)
-
-	require.Equal(t, expectedCP, cp)
-}
-
-func TestAddNewContentProtectionRoot(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionRoot(VALID_DEFAULT_KID_HEX)
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &CENCContentProtection{
-		DefaultKID: Strptr(VALID_DEFAULT_KID),
-		Value:      Strptr(CONTENT_PROTECTION_ROOT_VALUE),
-	}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI)
-	expectedCP.XMLNS = Strptr(CENC_XMLNS)
-
-	require.Equal(t, expectedCP, cp)
+	require.EqualErr(t, ErrAdaptationSetNil, err)
 }
 
 type TestProprietaryContentProtection struct {
@@ -393,28 +221,13 @@ type TestProprietaryContentProtection struct {
 
 func (s *TestProprietaryContentProtection) ContentProtected() {}
 
-func TestAddNewContentProtection_Proprietary(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	as, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp := &ContentProtectionMarshal{
-		SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
-	}
-
-	pcp := &TestProprietaryContentProtection{*cp, "foo", "bar"}
-	x, _ := xml.Marshal(pcp)
-	require.Equal(t, `<ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" a="foo" b="bar"></ContentProtection>`, string(x))
-	_ = as.AddContentProtection(pcp)
-	require.Equal(t, as.ContentProtection, []ContentProtectioner{pcp})
-}
-
 func TestAddNewContentProtectionRootErrorInvalidLengthDefaultKID(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	cp, err := s.AddNewContentProtectionRoot("invalidkid")
 	require.NotNil(t, err)
-	require.Equal(t, ErrInvalidDefaultKID, err)
+	require.EqualErr(t, ErrInvalidDefaultKID, err)
 	require.Nil(t, cp)
 }
 
@@ -424,35 +237,8 @@ func TestAddNewContentProtectionRootErrorEmptyDefaultKID(t *testing.T) {
 
 	cp, err := s.AddNewContentProtectionRoot("")
 	require.NotNil(t, err)
-	require.Equal(t, ErrInvalidDefaultKID, err)
+	require.EqualErr(t, ErrInvalidDefaultKID, err)
 	require.Nil(t, cp)
-}
-
-func TestAddNewContentProtectionSchemeWidevineWithPSSH(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &WidevineContentProtection{
-		PSSH: Strptr("AAAAYXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAEEIARIQWr3VL1VKTyq40GH3YUJRVRoIY2FzdGxhYnMiGFdyM1ZMMVZLVHlxNDBHSDNZVUpSVlE9PTIHZGVmYXVsdA=="),
-	}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
-	expectedCP.XMLNS = Strptr(CENC_XMLNS)
-	require.Equal(t, expectedCP, cp)
-}
-
-func TestAddNewContentProtectionSchemeWidevine(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionSchemeWidevine()
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &WidevineContentProtection{}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_WIDEVINE_SCHEME_ID)
-	require.Equal(t, expectedCP, cp)
 }
 
 func TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO(t *testing.T) {
@@ -461,24 +247,8 @@ func TestAddNewContentProtectionSchemePlayreadyErrorEmptyPRO(t *testing.T) {
 
 	cp, err := s.AddNewContentProtectionSchemePlayready("")
 	require.NotNil(t, err)
-	require.Equal(t, ErrPROEmpty, err)
+	require.EqualErr(t, ErrPROEmpty, err)
 	require.Nil(t, cp)
-}
-
-func TestAddNewContentProtectionSchemePlayready(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionSchemePlayready(VALID_PLAYREADY_PRO)
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
-		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
-		PRO:            Strptr(VALID_PLAYREADY_PRO),
-	}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
-
-	require.Equal(t, expectedCP, cp)
 }
 
 func TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO(t *testing.T) {
@@ -487,60 +257,8 @@ func TestAddNewContentProtectionSchemePlayreadyV10ErrorEmptyPRO(t *testing.T) {
 
 	cp, err := s.AddNewContentProtectionSchemePlayreadyV10("")
 	require.NotNil(t, err)
-	require.Equal(t, ErrPROEmpty, err)
+	require.EqualErr(t, ErrPROEmpty, err)
 	require.Nil(t, cp)
-}
-
-func TestAddNewContentProtectionSchemePlayreadyV10(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionSchemePlayreadyV10(VALID_PLAYREADY_PRO)
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
-		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
-		PRO:            Strptr(VALID_PLAYREADY_PRO),
-	}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID)
-
-	require.Equal(t, expectedCP, cp)
-}
-
-func TestAddNewContentProtectionSchemePlayreadyWithPSSH(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
-		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
-		PRO:            Strptr(VALID_PLAYREADY_PRO),
-	}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_ID)
-	expectedCP.XMLNS = Strptr(CENC_XMLNS)
-	expectedCP.PSSH = Strptr("AAACJnBzc2gAAAAAmgTweZhAQoarkuZb4IhflQAAAgYGAgAAAQABAPwBPABXAFIATQBIAEUAQQBEAEUAUgAgAHgAbQBsAG4AcwA9ACIAaAB0AHQAcAA6AC8ALwBzAGMAaABlAG0AYQBzAC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAEQAUgBNAC8AMgAwADAANwAvADAAMwAvAFAAbABhAHkAUgBlAGEAZAB5AEgAZQBhAGQAZQByACIAIAB2AGUAcgBzAGkAbwBuAD0AIgA0AC4AMAAuADAALgAwACIAPgA8AEQAQQBUAEEAPgA8AFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBFAFkATABFAE4APgAxADYAPAAvAEsARQBZAEwARQBOAD4APABBAEwARwBJAEQAPgBBAEUAUwBDAFQAUgA8AC8AQQBMAEcASQBEAD4APAAvAFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBJAEQAPgBMADkAVwA5AFcAawBwAFYASwBrACsANAAwAEcASAAzAFkAVQBKAFIAVgBRAD0APQA8AC8ASwBJAEQAPgA8AEMASABFAEMASwBTAFUATQA+AEkASwB6AFkAMgBIAFoATABBAGwASQA9ADwALwBDAEgARQBDAEsAUwBVAE0APgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA==")
-
-	require.Equal(t, expectedCP, cp)
-}
-
-func TestAddNewContentProtectionSchemePlayreadyV10WithPSSH(t *testing.T) {
-	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	s, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-
-	cp, err := s.AddNewContentProtectionSchemePlayreadyV10WithPSSH(VALID_PLAYREADY_PRO)
-	require.Nil(t, err)
-	require.NotNil(t, cp)
-	expectedCP := &PlayreadyContentProtection{
-		PlayreadyXMLNS: Strptr(VALID_PLAYREADY_XMLNS),
-		PRO:            Strptr(VALID_PLAYREADY_PRO),
-	}
-	expectedCP.SchemeIDURI = Strptr(CONTENT_PROTECTION_PLAYREADY_SCHEME_V10_ID)
-	expectedCP.XMLNS = Strptr(CENC_XMLNS)
-	expectedCP.PSSH = Strptr("AAACJnBzc2gAAAAAefAEmkCYhkKrkuZb4IhflQAAAgYGAgAAAQABAPwBPABXAFIATQBIAEUAQQBEAEUAUgAgAHgAbQBsAG4AcwA9ACIAaAB0AHQAcAA6AC8ALwBzAGMAaABlAG0AYQBzAC4AbQBpAGMAcgBvAHMAbwBmAHQALgBjAG8AbQAvAEQAUgBNAC8AMgAwADAANwAvADAAMwAvAFAAbABhAHkAUgBlAGEAZAB5AEgAZQBhAGQAZQByACIAIAB2AGUAcgBzAGkAbwBuAD0AIgA0AC4AMAAuADAALgAwACIAPgA8AEQAQQBUAEEAPgA8AFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBFAFkATABFAE4APgAxADYAPAAvAEsARQBZAEwARQBOAD4APABBAEwARwBJAEQAPgBBAEUAUwBDAFQAUgA8AC8AQQBMAEcASQBEAD4APAAvAFAAUgBPAFQARQBDAFQASQBOAEYATwA+ADwASwBJAEQAPgBMADkAVwA5AFcAawBwAFYASwBrACsANAAwAEcASAAzAFkAVQBKAFIAVgBRAD0APQA8AC8ASwBJAEQAPgA8AEMASABFAEMASwBTAFUATQA+AEkASwB6AFkAMgBIAFoATABBAGwASQA9ADwALwBDAEgARQBDAEsAUwBVAE0APgA8AC8ARABBAFQAQQA+ADwALwBXAFIATQBIAEUAQQBEAEUAUgA+AA==")
-
-	require.Equal(t, expectedCP, cp)
 }
 
 func TestSetNewSegmentTemplate(t *testing.T) {
@@ -548,7 +266,7 @@ func TestSetNewSegmentTemplate(t *testing.T) {
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	st, err := audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
 	require.NotNil(t, st)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestSetNewSegmentTemplateErrorNoDASHProfile(t *testing.T) {
@@ -563,7 +281,7 @@ func TestSetNewSegmentTemplateErrorNoDASHProfile(t *testing.T) {
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	_, _ = audioAS.SetNewSegmentTemplate(VALID_DURATION, VALID_INIT_PATH_AUDIO, VALID_MEDIA_PATH_AUDIO, VALID_START_NUMBER, VALID_TIMESCALE)
 	err := m.Validate()
-	require.Equal(t, ErrNoDASHProfileSet, err)
+	require.EqualErr(t, ErrNoDASHProfileSet, err)
 }
 
 func TestAddRepresentationAudio(t *testing.T) {
@@ -573,7 +291,7 @@ func TestAddRepresentationAudio(t *testing.T) {
 	r, err := audioAS.AddNewRepresentationAudio(VALID_AUDIO_SAMPLE_RATE, VALID_AUDIO_BITRATE, VALID_AUDIO_CODEC, VALID_AUDIO_ID)
 
 	require.NotNil(t, r)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestAddAudioChannelConfiguration(t *testing.T) {
@@ -585,7 +303,7 @@ func TestAddAudioChannelConfiguration(t *testing.T) {
 	acc, err := r.AddNewAudioChannelConfiguration(AUDIO_CHANNEL_CONFIGURATION_MPEG_DASH, "2")
 
 	require.NotNil(t, acc)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestAddRepresentationVideo(t *testing.T) {
@@ -595,7 +313,7 @@ func TestAddRepresentationVideo(t *testing.T) {
 	r, err := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
 	require.NotNil(t, r)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestAddRepresentationSubtitle(t *testing.T) {
@@ -606,7 +324,7 @@ func TestAddRepresentationSubtitle(t *testing.T) {
 	r, err := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
 
 	require.NotNil(t, r)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestAddRepresentationErrorNil(t *testing.T) {
@@ -615,7 +333,7 @@ func TestAddRepresentationErrorNil(t *testing.T) {
 
 	err := videoAS.addRepresentation(nil)
 	require.NotNil(t, err)
-	require.Equal(t, ErrRepresentationNil, err)
+	require.EqualErr(t, ErrRepresentationNil, err)
 }
 
 func TestAddRole(t *testing.T) {
@@ -625,7 +343,7 @@ func TestAddRole(t *testing.T) {
 	r, err := audioAS.AddNewRole("urn:mpeg:dash:role:2011", VALID_ROLE)
 
 	require.NotNil(t, r)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestSetSegmentTemplateErrorNil(t *testing.T) {
@@ -633,7 +351,7 @@ func TestSetSegmentTemplateErrorNil(t *testing.T) {
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 	err := audioAS.setSegmentTemplate(nil)
 	require.NotNil(t, err)
-	require.Equal(t, ErrSegmentTemplateNil, err)
+	require.EqualErr(t, ErrSegmentTemplateNil, err)
 }
 
 func TestSetNewBaseURLVideo(t *testing.T) {
@@ -644,7 +362,7 @@ func TestSetNewBaseURLVideo(t *testing.T) {
 
 	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
 
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestSetNewBaseURLSubtitle(t *testing.T) {
@@ -655,7 +373,7 @@ func TestSetNewBaseURLSubtitle(t *testing.T) {
 
 	err := r.SetNewBaseURL(VALID_SUBTITLE_URL)
 
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
@@ -675,7 +393,7 @@ func TestSetNewBaseURLErrorNoDASHProfile(t *testing.T) {
 	err := m.Validate()
 
 	require.NotNil(t, err)
-	require.Equal(t, ErrNoDASHProfileSet, err)
+	require.EqualErr(t, ErrNoDASHProfileSet, err)
 }
 
 func TestSetNewBaseURLErrorEmpty(t *testing.T) {
@@ -687,7 +405,7 @@ func TestSetNewBaseURLErrorEmpty(t *testing.T) {
 	err := r.SetNewBaseURL("")
 
 	require.NotNil(t, err)
-	require.Equal(t, ErrBaseURLEmpty, err)
+	require.EqualErr(t, ErrBaseURLEmpty, err)
 }
 
 func TestSetNewSegmentBase(t *testing.T) {
@@ -698,7 +416,7 @@ func TestSetNewSegmentBase(t *testing.T) {
 
 	sb, err := r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
 	require.NotNil(t, sb)
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
@@ -717,7 +435,7 @@ func TestSetNewSegmentBaseErrorNoDASHProfile(t *testing.T) {
 	_, _ = r.AddNewSegmentBase(VALID_INDEX_RANGE, VALID_INIT_RANGE)
 
 	err := m.Validate()
-	require.Equal(t, ErrNoDASHProfileSet, err)
+	require.EqualErr(t, ErrNoDASHProfileSet, err)
 }
 
 func TestSetSegmentBaseErrorNil(t *testing.T) {
@@ -728,7 +446,7 @@ func TestSetSegmentBaseErrorNil(t *testing.T) {
 
 	err := r.setSegmentBase(nil)
 	require.NotNil(t, err)
-	require.Equal(t, ErrSegmentBaseNil, err)
+	require.EqualErr(t, ErrSegmentBaseNil, err)
 }
 
 func getValidWVHeaderBytes() []byte {

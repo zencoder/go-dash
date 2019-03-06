@@ -25,6 +25,16 @@ func NotNil(t *testing.T, object interface{}, msgs ...string) {
 	}
 }
 
+func Nil(t *testing.T, object interface{}, msgs ...string) {
+	if !isNil(object) {
+		t.Errorf("Expected an object, but got nil")
+		for _, msg := range msgs {
+			t.Errorf("\n" + msg)
+		}
+		t.FailNow()
+	}
+}
+
 func isNil(object interface{}) bool {
 	if object == nil {
 		return true
@@ -149,6 +159,28 @@ func EqualIntPtr(t *testing.T, expected, actual *int, msgs ...string) {
 func EqualInt(t *testing.T, expected, actual int, msgs ...string) {
 	if expected != actual {
 		t.Errorf("Expected %d but got %d", expected, actual)
+		for _, msg := range msgs {
+			t.Errorf("\n" + msg)
+		}
+		t.FailNow()
+	}
+}
+
+func EqualErr(t *testing.T, expected, actual error, msgs ...string) {
+	if expected != actual {
+		t.Errorf("Expected %s but got %s", expected, actual)
+		for _, msg := range msgs {
+			t.Errorf("\n" + msg)
+		}
+		t.FailNow()
+	}
+}
+
+func Implements(t *testing.T, interfaceObject interface{}, object interface{}, msgs ...string) {
+	interfaceType := reflect.TypeOf(interfaceObject).Elem()
+
+	if !reflect.TypeOf(object).Implements(interfaceType) {
+		t.Errorf("Expected %T but got %v", object, interfaceType)
 		for _, msg := range msgs {
 			t.Errorf("\n" + msg)
 		}
