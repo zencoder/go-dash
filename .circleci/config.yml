@@ -4,6 +4,7 @@ jobs:
   build:
     docker:
       - image: circleci/golang
+    working_directory: "/go/src/github.com/zencoder/go-dash"
     steps:
       - checkout
       - run: make test
