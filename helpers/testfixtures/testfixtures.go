@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/zencoder/go-dash/helpers/require"
 )
 
 // Load test fixture from path relative to fixtures directory
@@ -25,5 +25,5 @@ func CompareFixture(t *testing.T, fixturePath string, actualContent string) {
 		fmt.Println("Wrote fixture: " + fixturePath)
 		return
 	}
-	require.Equal(t, expectedContent, actualContent)
+	require.EqualString(t, expectedContent, actualContent)
 }

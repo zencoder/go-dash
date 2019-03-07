@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
+	"github.com/zencoder/go-dash/helpers/require"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
@@ -43,13 +43,13 @@ func TestNewMPDLiveWriteToString(t *testing.T) {
 		AttrAvailabilityStartTime(VALID_AVAILABILITY_START_TIME))
 
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z">
   <Period></Period>
 </MPD>
 `
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 }
 
 func TestNewDynamicMPDLiveWriteToString(t *testing.T) {
@@ -58,26 +58,26 @@ func TestNewDynamicMPDLiveWriteToString(t *testing.T) {
 		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
 
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S">
   <Period></Period>
 </MPD>
 `
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 }
 
 func TestNewMPDOnDemandWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period></Period>
 </MPD>
 `
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 }
 
 func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
@@ -86,7 +86,7 @@ func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
 	_, _ = m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
@@ -94,7 +94,7 @@ func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
   </Period>
 </MPD>
 `
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 }
 
 func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
@@ -103,7 +103,7 @@ func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 	_, _ = m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
@@ -111,7 +111,7 @@ func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
   </Period>
 </MPD>
 `
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 }
 
 func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
@@ -120,7 +120,7 @@ func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
 	_, _ = m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
 
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
@@ -128,7 +128,7 @@ func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
   </Period>
 </MPD>
 `
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 }
 
 func TestExampleAddNewPeriod(t *testing.T) {
@@ -154,7 +154,7 @@ func TestExampleAddNewPeriod(t *testing.T) {
 	_, _ = as.SetNewSegmentTemplate(1968, "$RepresentationID$/audio-2.mp4", "$RepresentationID$/audio-2/seg-$Number$.m4f", 0, 1000)
 
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	testfixtures.CompareFixture(t, "fixtures/newperiod.mpd", xmlStr)
 }
 
@@ -198,7 +198,7 @@ func TestFullLiveProfileWriteToString(t *testing.T) {
 	m := LiveProfile()
 	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	testfixtures.CompareFixture(t, "fixtures/live_profile.mpd", xmlStr)
 }
 
@@ -208,9 +208,9 @@ func TestFullLiveProfileWriteToFile(t *testing.T) {
 	err := m.WriteToFile("test_live.mpd")
 	xmlStr := testfixtures.LoadFixture("test_live.mpd")
 	expectedXML := testfixtures.LoadFixture("fixtures/live_profile.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 	defer os.Remove("test_live.mpd")
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func LiveProfileDynamic() *MPD {
@@ -254,7 +254,7 @@ func TestFullLiveProfileDynamicWriteToString(t *testing.T) {
 	m := LiveProfileDynamic()
 	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	testfixtures.CompareFixture(t, "fixtures/live_profile_dynamic.mpd", xmlStr)
 }
 
@@ -264,9 +264,9 @@ func TestFullLiveProfileDynamicWriteToFile(t *testing.T) {
 	err := m.WriteToFile("test_live_dynamic.mpd")
 	xmlStr := testfixtures.LoadFixture("test_live_dynamic.mpd")
 	expectedXML := testfixtures.LoadFixture("fixtures/live_profile_dynamic.mpd")
-	require.Equal(t, expectedXML, xmlStr)
+	require.EqualString(t, expectedXML, xmlStr)
 	defer os.Remove("test_live_dynamic.mpd")
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func HbbTVProfile() *MPD {
@@ -309,7 +309,7 @@ func TestFullHbbTVProfileWriteToString(t *testing.T) {
 	m := HbbTVProfile()
 	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	testfixtures.CompareFixture(t, "fixtures/hbbtv_profile.mpd", xmlStr)
 }
 
@@ -320,7 +320,7 @@ func TestFullHbbTVProfileWriteToFile(t *testing.T) {
 	xmlStr := testfixtures.LoadFixture("test_hbbtv.mpd")
 	testfixtures.CompareFixture(t, "fixtures/hbbtv_profile.mpd", xmlStr)
 	defer os.Remove("test_hbbtv.mpd")
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func OnDemandProfile() *MPD {
@@ -361,7 +361,7 @@ func TestFullOnDemandProfileWriteToString(t *testing.T) {
 	m := OnDemandProfile()
 	require.NotNil(t, m)
 	xmlStr, err := m.WriteToString()
-	require.Nil(t, err)
+	require.NoError(t, err)
 	testfixtures.CompareFixture(t, "fixtures/ondemand_profile.mpd", xmlStr)
 }
 
@@ -372,7 +372,7 @@ func TestFullOnDemandProfileWriteToFile(t *testing.T) {
 	xmlStr := testfixtures.LoadFixture("test-ondemand.mpd")
 	testfixtures.CompareFixture(t, "fixtures/ondemand_profile.mpd", xmlStr)
 	defer os.Remove("test-ondemand.mpd")
-	require.Nil(t, err)
+	require.NoError(t, err)
 }
 
 func TestWriteToFileInvalidFilePath(t *testing.T) {

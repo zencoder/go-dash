@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
 	"github.com/zencoder/go-dash/helpers/ptrs"
+	"github.com/zencoder/go-dash/helpers/require"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
@@ -32,20 +32,24 @@ func TestSegmentTimelineDeserialization(t *testing.T) {
 	m, err := ReadFromString(xml)
 	require.NoError(t, err)
 	expected := getSegmentTimelineMPD()
-	require.Equal(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
+	require.EqualString(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
 
 	expectedAudioSegTimeline := expected.Periods[0].AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
 	audioSegTimeline := m.Periods[0].AdaptationSets[0].Representations[0].SegmentTemplate.SegmentTimeline
 
 	for i := range expectedAudioSegTimeline.Segments {
-		require.Equal(t, expectedAudioSegTimeline.Segments[i], audioSegTimeline.Segments[i])
+		require.EqualUInt64(t, expectedAudioSegTimeline.Segments[i].Duration, audioSegTimeline.Segments[i].Duration)
+		require.EqualUInt64Ptr(t, expectedAudioSegTimeline.Segments[i].StartTime, audioSegTimeline.Segments[i].StartTime)
+		require.EqualIntPtr(t, expectedAudioSegTimeline.Segments[i].RepeatCount, audioSegTimeline.Segments[i].RepeatCount)
 	}
 
 	expectedVideoSegTimeline := expected.Periods[0].AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
 	videoSegTimeline := m.Periods[0].AdaptationSets[1].Representations[0].SegmentTemplate.SegmentTimeline
 
 	for i := range expectedVideoSegTimeline.Segments {
-		require.Equal(t, expectedVideoSegTimeline.Segments[i], videoSegTimeline.Segments[i])
+		require.EqualUInt64(t, expectedVideoSegTimeline.Segments[i].Duration, videoSegTimeline.Segments[i].Duration)
+		require.EqualUInt64Ptr(t, expectedVideoSegTimeline.Segments[i].StartTime, videoSegTimeline.Segments[i].StartTime)
+		require.EqualIntPtr(t, expectedVideoSegTimeline.Segments[i].RepeatCount, videoSegTimeline.Segments[i].RepeatCount)
 	}
 }
 

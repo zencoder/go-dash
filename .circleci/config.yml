@@ -7,20 +7,4 @@ jobs:
     working_directory: "/go/src/github.com/zencoder/go-dash"
     steps:
       - checkout
-      - run:
-          name: Install Glide
-          command: |
-            set -eux
-            curl -sSLfO https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-linux-amd64.tar.gz
-            mkdir -p /go/bin glide
-            tar -xzf glide-v0.12.3-linux-amd64.tar.gz -C ./glide
-            cp ./glide/linux-amd64/glide /go/bin/glide
-            rm -rf glide glide-v0.12.3-linux-amd64.tar.gz
-      - restore_cache:
-          key: glide-{{ checksum "glide.lock" }}
-      - run: /go/bin/glide install
-      - save_cache:
-          key: glide-{{ checksum "glide.lock" }}
-          paths:
-            - vendor
       - run: make test
