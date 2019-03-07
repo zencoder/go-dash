@@ -15,8 +15,8 @@ test:
 	go test $(V) ./... -race
 
 .PHONY: generate
-generate:
-	GENERATE_FIXTURES=true $(MAKE) test
+generate: export GENERATE_FIXTURES=true
+generate: test
 
 .PHONY: fmt
 fmt:
