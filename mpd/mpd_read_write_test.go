@@ -62,6 +62,7 @@ func TestNewDynamicMPDLiveWriteToString(t *testing.T) {
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S">
   <Period></Period>
+  <UTCTiming></UTCTiming>
 </MPD>
 `
 	require.EqualString(t, expectedXML, xmlStr)

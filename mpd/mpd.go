@@ -69,7 +69,8 @@ type MPD struct {
 	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
 	period                    *Period
-	Periods                   []*Period `xml:"Period,omitempty"`
+	Periods                   []*Period       `xml:"Period,omitempty"`
+	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
 type Period struct {
@@ -478,6 +479,7 @@ func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime str
 		MinBufferTime:         Strptr(minBufferTime),
 		period:                period,
 		Periods:               []*Period{period},
+		UTCTiming:             &DescriptorType{},
 	}
 
 	for i := range attributes {
