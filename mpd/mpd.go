@@ -235,6 +235,12 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 					return err
 				}
 				representations = append(representations, rp)
+			case "Accessibility":
+				ac := new(Accessibility)
+				err = d.DecodeElement(ac, &tt)
+				if err != nil {
+					return err
+				}
 			default:
 				return errors.New("Unrecognized element in AdaptationSet: " + tt.Name.Local)
 			}
@@ -428,6 +434,11 @@ type Representation struct {
 	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
 	SegmentList               *SegmentList               `xml:"SegmentList,omitempty"`
 	SegmentTemplate           *SegmentTemplate           `xml:"SegmentTemplate,omitempty"`
+}
+
+type Accessibility struct {
+	SchemeIdUri *string `xml:"schemeIdUri,omitempty"`
+	Value       *int64  `xml:"value,omitempty"`
 }
 
 type AudioChannelConfiguration struct {
