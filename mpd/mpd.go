@@ -68,7 +68,7 @@ type MPD struct {
 	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
 	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
 	PublishTime               *string `xml:"publishTime,attr"`
-	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDeptd,attr"`
+	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
 	period                    *Period
 	Periods                   []*Period       `xml:"Period,omitempty"`
