@@ -125,6 +125,7 @@ type AdaptationSet struct {
 	MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
 	MinWidth          *string               `xml:"minWidth,attr"`
 	MaxWidth          *string               `xml:"maxWidth,attr"`
+	ContentType       *string               `xml:"contentType,attr"`
 	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 	Roles             []*Role               `xml:"Role,omitempty"`
 	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
@@ -147,6 +148,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
 		MinWidth          *string               `xml:"minWidth,attr"`
 		MaxWidth          *string               `xml:"maxWidth,attr"`
+		ContentType       *string               `xml:"contentType,attr"`
 		ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 		Roles             []*Role               `xml:"Role,omitempty"`
 		SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
