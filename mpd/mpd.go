@@ -67,9 +67,12 @@ type MPD struct {
 	MinBufferTime             *string `xml:"minBufferTime,attr"`
 	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
 	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
+	PublishTime               *string `xml:"publishTime,attr"`
+	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
 	period                    *Period
-	Periods                   []*Period `xml:"Period,omitempty"`
+	Periods                   []*Period       `xml:"Period,omitempty"`
+	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
 type Period struct {
@@ -124,6 +127,7 @@ type AdaptationSet struct {
 	MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
 	MinWidth          *string               `xml:"minWidth,attr"`
 	MaxWidth          *string               `xml:"maxWidth,attr"`
+	ContentType       *string               `xml:"contentType,attr"`
 	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 	Roles             []*Role               `xml:"Role,omitempty"`
 	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
@@ -146,6 +150,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
 		MinWidth          *string               `xml:"minWidth,attr"`
 		MaxWidth          *string               `xml:"maxWidth,attr"`
+		ContentType       *string               `xml:"contentType,attr"`
 		ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 		Roles             []*Role               `xml:"Role,omitempty"`
 		SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
@@ -478,6 +483,7 @@ func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime str
 		MinBufferTime:         Strptr(minBufferTime),
 		period:                period,
 		Periods:               []*Period{period},
+		UTCTiming:             &DescriptorType{},
 	}
 
 	for i := range attributes {
