@@ -108,7 +108,7 @@ type CommonAttributesAndElements struct {
 	MaxPlayoutRate            *string               `xml:"maxPlayoutRate,attr"`
 	ScanType                  *string               `xml:"scanType,attr"`
 	FramePacking              *DescriptorType       `xml:"framePacking,attr"`
-	AudioChannelConfiguration *DescriptorType       `xml:"audioChannelConfiguration,attr"`
+	AudioChannelConfiguration *DescriptorType       `xml:"AudioChannelConfiguration"`
 	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	EssentialProperty         *DescriptorType       `xml:"essentialProperty,attr"`
 	SupplementalProperty      *DescriptorType       `xml:"SupplementalProperty"`
@@ -246,6 +246,13 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 					return err
 				}
 				representations = append(representations, rp)
+			case "AudioChannelConfiguration":
+				acc := new(DescriptorType)
+				err = d.DecodeElement(acc, &tt)
+				if err != nil {
+					return err
+				}
+				adaptationSet.AudioChannelConfiguration = acc
 			case "SupplementalProperty":
 				sp := new(DescriptorType)
 				err = d.DecodeElement(sp, &tt)
