@@ -69,7 +69,9 @@ type MPD struct {
 	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
 	PublishTime               *string `xml:"publishTime,attr"`
 	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
+	MaxSegmentDuration        *string `xml:"maxSegmentDuration,attr"`
 	BaseURL                   string  `xml:"BaseURL,omitempty"`
+	ID                        *string `xml:"id,attr,omitempty"`
 	period                    *Period
 	Periods                   []*Period       `xml:"Period,omitempty"`
 	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
