@@ -111,7 +111,7 @@ type CommonAttributesAndElements struct {
 	AudioChannelConfiguration *DescriptorType       `xml:"audioChannelConfiguration,attr"`
 	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	EssentialProperty         *DescriptorType       `xml:"essentialProperty,attr"`
-	SupplementalProperty      *DescriptorType       `xml:"supplmentalProperty,attr"`
+	SupplementalProperty      *DescriptorType       `xml:"SupplementalProperty"`
 	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
 }
 
@@ -246,6 +246,13 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 					return err
 				}
 				representations = append(representations, rp)
+			case "SupplementalProperty":
+				sp := new(DescriptorType)
+				err = d.DecodeElement(sp, &tt)
+				if err != nil {
+					return err
+				}
+				adaptationSet.SupplementalProperty = sp
 			default:
 				return errors.New("Unrecognized element in AdaptationSet " + tt.Name.Local)
 			}
