@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
+	. "github.com/jgert/go-dash/helpers/ptrs"
 	"github.com/jgert/gots/scte35"
-	. "github.com/zencoder/go-dash/helpers/ptrs"
 	"strings"
 	"time"
 )
