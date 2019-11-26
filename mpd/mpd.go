@@ -82,7 +82,7 @@ type Period struct {
 	Duration        Duration         `xml:"duration,attr,omitempty"`
 	Start           Duration         `xml:"start,attr,omitempty"`
 	BaseURL         string           `xml:"BaseURL,omitempty"`
-	EventStream     EventStream      `xml:"EventStream,omitempty"`
+	EventStream     *EventStream     `xml:"EventStream,omitempty"`
 	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
 	SegmentTemplate *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
