@@ -43,7 +43,7 @@ func Read(r io.Reader) (*MPD, error) {
 // path - Output path to write the manifest to.
 func (m *MPD) WriteToFile(path string) error {
 	// Open the file to write the XML to
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}
