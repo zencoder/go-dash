@@ -382,3 +382,27 @@ func TestWriteToFileInvalidFilePath(t *testing.T) {
 	err := m.WriteToFile("")
 	require.NotNil(t, err)
 }
+
+func TestWriteToFileTruncate(t *testing.T) {
+	out := "test-truncate.mpd"
+
+	m, err := ReadFromFile("fixtures/truncate.mpd")
+	require.NoError(t, err)
+
+	err = m.WriteToFile(out)
+	require.NoError(t, err)
+
+	defer os.Remove(out)
+
+	xmlStr := testfixtures.LoadFixture(out)
+	testfixtures.CompareFixture(t, "fixtures/truncate.mpd", xmlStr)
+
+	m, err = ReadFromFile("fixtures/truncate_short.mpd")
+	require.NoError(t, err)
+
+	err = m.WriteToFile(out)
+	require.NoError(t, err)
+
+	xmlStr = testfixtures.LoadFixture(out)
+	testfixtures.CompareFixture(t, "fixtures/truncate_short.mpd", xmlStr)
+}
