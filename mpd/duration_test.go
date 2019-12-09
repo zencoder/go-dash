@@ -36,7 +36,7 @@ func TestParseDuration(t *testing.T) {
 		"PT1004199059S": (1004199059 * time.Second).Seconds(),
 	}
 	for ins, ex := range in {
-		act, err := parseDuration(ins)
+		act, err := ParseDuration(ins)
 		require.NoError(t, err, ins)
 		require.EqualFloat64(t, ex, act.Seconds(), ins)
 	}
@@ -54,7 +54,7 @@ func TestParseBadDurations(t *testing.T) {
 		"-P20H":  `Duration cannot be negative`,                          // Negative duration doesn't make sense
 	}
 	for ins, msg := range in {
-		_, err := parseDuration(ins)
+		_, err := ParseDuration(ins)
 		require.EqualError(t, err, msg, fmt.Sprintf("Expected an error for: %s", ins))
 	}
 }
