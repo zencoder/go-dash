@@ -87,7 +87,7 @@ type Period struct {
 }
 
 type DescriptorType struct {
-	SchemeIDURI *string `xml:"schemeIDURI,attr"`
+	SchemeIDURI *string `xml:"schemeIdUri,attr"`
 	Value       *string `xml:"value,attr"`
 	ID          *string `xml:"id,attr"`
 }
