@@ -60,19 +60,20 @@ var (
 )
 
 type MPD struct {
-	XMLNs                     *string `xml:"xmlns,attr"`
-	Profiles                  *string `xml:"profiles,attr"`
-	Type                      *string `xml:"type,attr"`
-	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
-	MinBufferTime             *string `xml:"minBufferTime,attr"`
-	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
-	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
-	PublishTime               *string `xml:"publishTime,attr"`
-	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
-	BaseURL                   string  `xml:"BaseURL,omitempty"`
-	period                    *Period
-	Periods                   []*Period       `xml:"Period,omitempty"`
-	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
+	XMLNs                      *string  `xml:"xmlns,attr"`
+	Profiles                   *string  `xml:"profiles,attr"`
+	Type                       *string  `xml:"type,attr"`
+	MediaPresentationDuration  *string  `xml:"mediaPresentationDuration,attr"`
+	MinBufferTime              *string  `xml:"minBufferTime,attr"`
+	AvailabilityStartTime      *string  `xml:"availabilityStartTime,attr,omitempty"`
+	MinimumUpdatePeriod        *string  `xml:"minimumUpdatePeriod,attr"`
+	PublishTime                *string  `xml:"publishTime,attr"`
+	SuggestedPresentationDelay Duration `xml:"suggestedPresentationDelay,attr,omitempty"`
+	TimeShiftBufferDepth       *string  `xml:"timeShiftBufferDepth,attr"`
+	BaseURL                    string   `xml:"BaseURL,omitempty"`
+	period                     *Period
+	Periods                    []*Period       `xml:"Period,omitempty"`
+	UTCTiming                  *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
 type Period struct {
@@ -127,6 +128,8 @@ type AdaptationSet struct {
 	MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
 	MinWidth          *string               `xml:"minWidth,attr"`
 	MaxWidth          *string               `xml:"maxWidth,attr"`
+	MinHeight         *string               `xml:"minHeight,attr"`
+	MaxHeight         *string               `xml:"maxHeight,attr"`
 	ContentType       *string               `xml:"contentType,attr"`
 	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 	Roles             []*Role               `xml:"Role,omitempty"`
@@ -150,6 +153,8 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
 		MinWidth          *string               `xml:"minWidth,attr"`
 		MaxWidth          *string               `xml:"maxWidth,attr"`
+		MinHeight         *string               `xml:"minHeight,attr"`
+		MaxHeight         *string               `xml:"maxHeight,attr"`
 		ContentType       *string               `xml:"contentType,attr"`
 		ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
 		Roles             []*Role               `xml:"Role,omitempty"`
