@@ -78,7 +78,7 @@ type MPD struct {
 type Period struct {
 	ID              string           `xml:"id,attr,omitempty"`
 	Duration        Duration         `xml:"duration,attr,omitempty"`
-	Start           Duration         `xml:"start,attr,omitempty"`
+	Start           *Duration        `xml:"start,attr,omitempty"`
 	BaseURL         string           `xml:"BaseURL,omitempty"`
 	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
