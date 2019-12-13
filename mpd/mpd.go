@@ -60,17 +60,17 @@ var (
 )
 
 type MPD struct {
-	XMLNs                      *string   `xml:"xmlns,attr"`
-	Profiles                   *string   `xml:"profiles,attr"`
-	Type                       *string   `xml:"type,attr"`
-	MediaPresentationDuration  *string   `xml:"mediaPresentationDuration,attr"`
-	MinBufferTime              *string   `xml:"minBufferTime,attr"`
-	AvailabilityStartTime      *string   `xml:"availabilityStartTime,attr,omitempty"`
-	MinimumUpdatePeriod        *string   `xml:"minimumUpdatePeriod,attr"`
-	PublishTime                *string   `xml:"publishTime,attr"`
-	SuggestedPresentationDelay *Duration `xml:"suggestedPresentationDelay,attr,omitempty"`
-	TimeShiftBufferDepth       *string   `xml:"timeShiftBufferDepth,attr"`
-	BaseURL                    string    `xml:"BaseURL,omitempty"`
+	XMLNs                      *string  `xml:"xmlns,attr"`
+	Profiles                   *string  `xml:"profiles,attr"`
+	Type                       *string  `xml:"type,attr"`
+	MediaPresentationDuration  *string  `xml:"mediaPresentationDuration,attr"`
+	MinBufferTime              *string  `xml:"minBufferTime,attr"`
+	AvailabilityStartTime      *string  `xml:"availabilityStartTime,attr,omitempty"`
+	MinimumUpdatePeriod        *string  `xml:"minimumUpdatePeriod,attr"`
+	PublishTime                *string  `xml:"publishTime,attr"`
+	SuggestedPresentationDelay Duration `xml:"suggestedPresentationDelay,attr,omitempty"`
+	TimeShiftBufferDepth       *string  `xml:"timeShiftBufferDepth,attr"`
+	BaseURL                    string   `xml:"BaseURL,omitempty"`
 	period                     *Period
 	Periods                    []*Period       `xml:"Period,omitempty"`
 	UTCTiming                  *DescriptorType `xml:"UTCTiming,omitempty"`
