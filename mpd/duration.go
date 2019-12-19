@@ -31,7 +31,7 @@ func (d Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 }
 
 func (d *Duration) UnmarshalXMLAttr(attr xml.Attr) error {
-	dur, err := parseDuration(attr.Value)
+	dur, err := ParseDuration(attr.Value)
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func fmtInt(buf []byte, v uint64) int {
 	return w
 }
 
-func parseDuration(str string) (time.Duration, error) {
+func ParseDuration(str string) (time.Duration, error) {
 	if len(str) < 3 {
 		return 0, errors.New("At least one number and designator are required")
 	}

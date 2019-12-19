@@ -81,6 +81,7 @@ func TestNewDynamicMPDLive(t *testing.T) {
 		MinimumUpdatePeriod:       Strptr(VALID_MINIMUM_UPDATE_PERIOD),
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
+		UTCTiming:                 &DescriptorType{},
 	}
 
 	expectedString, err := expectedMPD.WriteToString()

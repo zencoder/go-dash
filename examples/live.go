@@ -6,7 +6,7 @@ import (
 	"github.com/zencoder/go-dash/mpd"
 )
 
-func exampleLive() {
+func main() {
 	m := mpd.NewMPD(mpd.DASH_PROFILE_LIVE, "PT6M16S", "PT1.97S")
 
 	audioAS, _ := m.AddNewAdaptationSetAudio(mpd.DASH_MIME_TYPE_AUDIO_MP4, true, 1, "und")
@@ -29,6 +29,12 @@ func exampleLive() {
 	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(mpd.DASH_MIME_TYPE_SUBTITLE_VTT, "en")
 	subtitleRep, _ := subtitleAS.AddNewRepresentationSubtitle(256, "subtitle_en")
 	_ = subtitleRep.SetNewBaseURL("http://example.com/content/sintel/subtitles/subtitles_en.vtt")
+	schemeIDURI := "urn:mpeg:dash:utc:direct:2014"
+	value := "2019-10-23T15:56:29Z"
+	m.UTCTiming = &mpd.DescriptorType{
+		SchemeIDURI: &schemeIDURI,
+		Value:       &value,
+	}
 
 	mpdStr, _ := m.WriteToString()
 	fmt.Println(mpdStr)
