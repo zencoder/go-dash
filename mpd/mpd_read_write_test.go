@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/require"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
@@ -89,6 +90,26 @@ func TestNewDynamicMPDLiveWithPeriodStartWriteToString(t *testing.T) {
 	require.EqualString(t, expectedXML, xmlStr)
 }
 
+func TestNewDynamicMPDLiveWithSuggestedPresentationDelayToString(t *testing.T) {
+	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
+		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+
+	// Set first period start time to PT0S
+	spd := Duration(time.Duration(18) * time.Second)
+	m.SuggestedPresentationDelay = &spd
+
+	xmlStr, err := m.WriteToString()
+	require.NoError(t, err)
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S" suggestedPresentationDelay="PT18S">
+  <Period></Period>
+  <UTCTiming></UTCTiming>
+</MPD>
+`
+	require.EqualString(t, expectedXML, xmlStr)
+}
+
 func TestNewMPDOnDemandWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
@@ -122,14 +143,20 @@ func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
 func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	_, _ = m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as, err := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	require.NoError(t, err)
+
+	as.MinWidth = ptrs.Strptr("720")
+	as.MaxWidth = ptrs.Strptr("720")
+	as.MinHeight = ptrs.Strptr("480")
+	as.MaxHeight = ptrs.Strptr("480")
 
 	xmlStr, err := m.WriteToString()
 	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true"></AdaptationSet>
+    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true" minWidth="720" maxWidth="720" minHeight="480" maxHeight="480"></AdaptationSet>
   </Period>
 </MPD>
 `
