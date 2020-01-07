@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/zencoder/go-dash/helpers/ptrs"
+	. "github.com/zencoder/go-dash/v3/helpers/ptrs"
 )
 
 // Type definition for DASH profiles

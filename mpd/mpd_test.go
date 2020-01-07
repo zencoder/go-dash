@@ -4,8 +4,8 @@ import (
 	"encoding/base64"
 	"testing"
 
-	. "github.com/zencoder/go-dash/helpers/ptrs"
-	"github.com/zencoder/go-dash/helpers/require"
+	. "github.com/zencoder/go-dash/v3/helpers/ptrs"
+	"github.com/zencoder/go-dash/v3/helpers/require"
 )
 
 const (

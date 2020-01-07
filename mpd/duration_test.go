@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/zencoder/go-dash/helpers/require"
+	"github.com/zencoder/go-dash/v3/helpers/require"
 )
 
 func TestDuration(t *testing.T) {
