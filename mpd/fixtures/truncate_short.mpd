@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" minBufferTime="PT2S" availabilityStartTime="2019-12-03T20:57:14Z" minimumUpdatePeriod="PT5S" publishTime="2019-12-03T21:05:05Z" timeShiftBufferDepth="PT120S">
+  <Period id="1" start="PT31.421333333S">
+    <AdaptationSet frameRate="90000/3000" id="0" segmentAlignment="true" maxWidth="720" contentType="video">
+      <Representation sar="1:1" mimeType="video/mp4" bandwidth="311792" codecs="avc1.42c01e" height="480" id="0" width="720">
+        <SegmentTemplate initialization="video_0/init.mp4" media="video_0/media_$Number$.m4s" startNumber="6" timescale="90000">
+          <SegmentTimeline>
+            <S t="2827920" d="540000" r="9"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+      <Representation sar="1:1" mimeType="video/mp4" bandwidth="209067" codecs="avc1.42c01e" height="360" id="2" width="640">
+        <SegmentTemplate initialization="video_1/init.mp4" media="video_1/media_$Number$.m4s" startNumber="6" timescale="90000">
+          <SegmentTimeline>
+            <S t="2827920" d="540000" r="9"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet id="1" segmentAlignment="true" contentType="audio">
+      <Representation mimeType="audio/mp4" audioSamplingRate="48000" bandwidth="97888" codecs="mp4a.40.2" id="1">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"></AudioChannelConfiguration>
+        <SegmentTemplate initialization="audio_0/init.mp4" media="audio_0/media_$Number$.m4s" startNumber="7" timescale="90000">
+          <SegmentTimeline>
+            <S t="2827440" d="540000" r="9"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+      <Representation mimeType="audio/mp4" audioSamplingRate="48000" bandwidth="97888" codecs="mp4a.40.2" id="3">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"></AudioChannelConfiguration>
+        <SegmentTemplate initialization="audio_1/init.mp4" media="audio_1/media_$Number$.m4s" startNumber="7" timescale="90000">
+          <SegmentTimeline>
+            <S t="2827440" d="540000" r="9"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+  <UTCTiming schemeIdUri="urn:mpeg:dash:utc:http-iso:2014" value="https://time.akamai.com/?iso"></UTCTiming>
+</MPD>

@@ -62,6 +62,28 @@ func TestNewDynamicMPDLiveWriteToString(t *testing.T) {
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S">
   <Period></Period>
+  <UTCTiming></UTCTiming>
+</MPD>
+`
+	require.EqualString(t, expectedXML, xmlStr)
+}
+
+func TestNewDynamicMPDLiveWithPeriodStartWriteToString(t *testing.T) {
+	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
+		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+
+	// Set first period start time to PT0S
+	p := m.GetCurrentPeriod()
+	start := Duration(time.Duration(0))
+	p.Start = &start
+
+	xmlStr, err := m.WriteToString()
+	require.NoError(t, err)
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S">
+  <Period start="PT0S"></Period>
+  <UTCTiming></UTCTiming>
 </MPD>
 `
 	require.EqualString(t, expectedXML, xmlStr)
@@ -380,4 +402,28 @@ func TestWriteToFileInvalidFilePath(t *testing.T) {
 	require.NotNil(t, m)
 	err := m.WriteToFile("")
 	require.NotNil(t, err)
+}
+
+func TestWriteToFileTruncate(t *testing.T) {
+	out := "test-truncate.mpd"
+
+	m, err := ReadFromFile("fixtures/truncate.mpd")
+	require.NoError(t, err)
+
+	err = m.WriteToFile(out)
+	require.NoError(t, err)
+
+	defer os.Remove(out)
+
+	xmlStr := testfixtures.LoadFixture(out)
+	testfixtures.CompareFixture(t, "fixtures/truncate.mpd", xmlStr)
+
+	m, err = ReadFromFile("fixtures/truncate_short.mpd")
+	require.NoError(t, err)
+
+	err = m.WriteToFile(out)
+	require.NoError(t, err)
+
+	xmlStr = testfixtures.LoadFixture(out)
+	testfixtures.CompareFixture(t, "fixtures/truncate_short.mpd", xmlStr)
 }
