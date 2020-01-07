@@ -482,4 +482,5 @@ func TestAddNewAccessibilityElement(t *testing.T) {
 	elem := audioAS.AccessibilityElems[0]
 
 	require.EqualStringPtr(t, Strptr((string)(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO)), elem.SchemeIdUri)
+	require.EqualStringPtr(t, Strptr("1"), elem.Value)
 }
