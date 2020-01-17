@@ -119,7 +119,7 @@ type CommonAttributesAndElements struct {
 	AudioChannelConfiguration *DescriptorType       `xml:"audioChannelConfiguration,attr"`
 	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	EssentialProperty         *DescriptorType       `xml:"essentialProperty,attr"`
-	SupplementalProperty      *DescriptorType       `xml:"supplmentalProperty,attr"`
+	SupplementalProperty      *DescriptorType       `xml:"supplementalProperty,attr"`
 	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
 }
 
