@@ -457,3 +457,30 @@ func getValidWVHeaderBytes() []byte {
 	}
 	return wvHeader
 }
+
+func TestAddNewAccessibilityElement(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, err := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT,
+		VALID_START_WITH_SAP, VALID_LANG)
+	if err != nil {
+		t.Errorf("AddNewAccessibilityElement() error adding audio adaptation set: %v", err)
+		return
+	}
+
+	_, err = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
+	if err != nil {
+		t.Errorf("AddNewAccessibilityElement() error adding accessibility element: %v", err)
+		return
+	}
+
+	if g, e := len(audioAS.AccessibilityElems), 1; g != e {
+		t.Errorf("AddNewAccessibilityElement() wrong number of accessibility elements, got: %d, expected: %d",
+			g, e)
+		return
+	}
+
+	elem := audioAS.AccessibilityElems[0]
+
+	require.EqualStringPtr(t, Strptr((string)(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO)), elem.SchemeIdUri)
+	require.EqualStringPtr(t, Strptr("1"), elem.Value)
+}

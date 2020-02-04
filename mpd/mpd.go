@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -33,6 +34,12 @@ const (
 	AUDIO_CHANNEL_CONFIGURATION_MPEG_DOLBY AudioChannelConfigurationScheme = "tag:dolby.com,2014:dash:audio_channel_configuration:2011"
 )
 
+// AccessibilityElementScheme is the scheme definition for an Accessibility element
+type AccessibilityElementScheme string
+
+// Accessibility descriptor values for Audio Description
+const ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO AccessibilityElementScheme = "urn:tva:metadata:cs:AudioPurposeCS:2007"
+
 // Constants for some known MIME types, this is a limited list and others can be used.
 const (
 	DASH_MIME_TYPE_VIDEO_MP4     string = "video/mp4"
@@ -50,6 +57,7 @@ var (
 	ErrSegmentTemplateLiveProfileOnly       = errors.New("Segment template can only be used with Live Profile")
 	ErrSegmentTemplateNil                   = errors.New("Segment Template nil ")
 	ErrRepresentationNil                    = errors.New("Representation nil")
+	ErrAccessibilityNil                     = errors.New("Accessibility nil")
 	ErrBaseURLEmpty                         = errors.New("Base URL empty")
 	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
 	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
@@ -137,6 +145,7 @@ type AdaptationSet struct {
 	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
 	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
 	Representations   []*Representation     `xml:"Representation,omitempty"`
+	AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
@@ -162,6 +171,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
 		SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
 		Representations   []*Representation     `xml:"Representation,omitempty"`
+		AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
 	}{}
 
 	var (
@@ -245,8 +255,14 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 					return err
 				}
 				representations = append(representations, rp)
+			case "Accessibility":
+				ac := new(Accessibility)
+				err = d.DecodeElement(ac, &tt)
+				if err != nil {
+					return err
+				}
 			default:
-				return errors.New("Unrecognized element in AdaptationSet")
+				return fmt.Errorf("unrecognized element in AdaptationSet %q", tt.Name.Local)
 			}
 		case xml.EndElement:
 			if tt == start.End() {
@@ -438,6 +454,12 @@ type Representation struct {
 	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
 	SegmentList               *SegmentList               `xml:"SegmentList,omitempty"`
 	SegmentTemplate           *SegmentTemplate           `xml:"SegmentTemplate,omitempty"`
+}
+
+type Accessibility struct {
+	AdaptationSet *AdaptationSet `xml:"-"`
+	SchemeIdUri   *string        `xml:"schemeIdUri,attr,omitempty"`
+	Value         *string        `xml:"value,attr,omitempty"`
 }
 
 type AudioChannelConfiguration struct {
@@ -1024,6 +1046,16 @@ func (as *AdaptationSet) addRepresentation(r *Representation) error {
 	return nil
 }
 
+// Internal helper method for adding an Accessibility element to an AdaptationSet.
+func (as *AdaptationSet) addAccessibility(a *Accessibility) error {
+	if a == nil {
+		return ErrAccessibilityNil
+	}
+	a.AdaptationSet = as
+	as.AccessibilityElems = append(as.AccessibilityElems, a)
+	return nil
+}
+
 // Adds a new Role to an AdaptationSet
 // schemeIdUri - Scheme ID URI string (i.e. urn:mpeg:dash:role:2011)
 // value - Value for this role, (i.e. caption, subtitle, main, alternate, supplementary, commentary, dub)
@@ -1035,6 +1067,23 @@ func (as *AdaptationSet) AddNewRole(schemeIDURI string, value string) (*Role, er
 	r.AdaptationSet = as
 	as.Roles = append(as.Roles, r)
 	return r, nil
+}
+
+// AddNewAccessibilityElement adds a new accessibility element to an adaptation set
+// schemeIdUri - Scheme ID URI for the Accessibility element (i.e. urn:tva:metadata:cs:AudioPurposeCS:2007)
+// value - specified value based on scheme
+func (as *AdaptationSet) AddNewAccessibilityElement(scheme AccessibilityElementScheme, val string) (*Accessibility, error) {
+	accessibility := &Accessibility{
+		SchemeIdUri: Strptr((string)(scheme)),
+		Value:       Strptr(val),
+	}
+
+	err := as.addAccessibility(accessibility)
+	if err != nil {
+		return nil, err
+	}
+
+	return accessibility, nil
 }
 
 // Sets the BaseURL for a Representation.
