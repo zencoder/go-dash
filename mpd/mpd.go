@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -33,6 +34,12 @@ const (
 	AUDIO_CHANNEL_CONFIGURATION_MPEG_DOLBY AudioChannelConfigurationScheme = "tag:dolby.com,2014:dash:audio_channel_configuration:2011"
 )
 
+// AccessibilityElementScheme is the scheme definition for an Accessibility element
+type AccessibilityElementScheme string
+
+// Accessibility descriptor values for Audio Description
+const ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO AccessibilityElementScheme = "urn:tva:metadata:cs:AudioPurposeCS:2007"
+
 // Constants for some known MIME types, this is a limited list and others can be used.
 const (
 	DASH_MIME_TYPE_VIDEO_MP4     string = "video/mp4"
@@ -50,6 +57,7 @@ var (
 	ErrSegmentTemplateLiveProfileOnly       = errors.New("Segment template can only be used with Live Profile")
 	ErrSegmentTemplateNil                   = errors.New("Segment Template nil ")
 	ErrRepresentationNil                    = errors.New("Representation nil")
+	ErrAccessibilityNil                     = errors.New("Accessibility nil")
 	ErrBaseURLEmpty                         = errors.New("Base URL empty")
 	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
 	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
@@ -60,19 +68,20 @@ var (
 )
 
 type MPD struct {
-	XMLNs                     *string `xml:"xmlns,attr"`
-	Profiles                  *string `xml:"profiles,attr"`
-	Type                      *string `xml:"type,attr"`
-	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
-	MinBufferTime             *string `xml:"minBufferTime,attr"`
-	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
-	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
-	PublishTime               *string `xml:"publishTime,attr"`
-	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
-	BaseURL                   string  `xml:"BaseURL,omitempty"`
-	period                    *Period
-	Periods                   []*Period       `xml:"Period,omitempty"`
-	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
+	XMLNs                      *string   `xml:"xmlns,attr"`
+	Profiles                   *string   `xml:"profiles,attr"`
+	Type                       *string   `xml:"type,attr"`
+	MediaPresentationDuration  *string   `xml:"mediaPresentationDuration,attr"`
+	MinBufferTime              *string   `xml:"minBufferTime,attr"`
+	AvailabilityStartTime      *string   `xml:"availabilityStartTime,attr,omitempty"`
+	MinimumUpdatePeriod        *string   `xml:"minimumUpdatePeriod,attr"`
+	PublishTime                *string   `xml:"publishTime,attr"`
+	TimeShiftBufferDepth       *string   `xml:"timeShiftBufferDepth,attr"`
+	SuggestedPresentationDelay *Duration `xml:"suggestedPresentationDelay,attr,omitempty"`
+	BaseURL                    string    `xml:"BaseURL,omitempty"`
+	period                     *Period
+	Periods                    []*Period       `xml:"Period,omitempty"`
+	UTCTiming                  *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
 type Period struct {
@@ -117,46 +126,52 @@ type CommonAttributesAndElements struct {
 
 type AdaptationSet struct {
 	CommonAttributesAndElements
-	XMLName           xml.Name              `xml:"AdaptationSet"`
-	ID                *string               `xml:"id,attr"`
-	SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
-	Lang              *string               `xml:"lang,attr"`
-	Group             *string               `xml:"group,attr"`
-	PAR               *string               `xml:"par,attr"`
-	MinBandwidth      *string               `xml:"minBandwidth,attr"`
-	MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
-	MinWidth          *string               `xml:"minWidth,attr"`
-	MaxWidth          *string               `xml:"maxWidth,attr"`
-	ContentType       *string               `xml:"contentType,attr"`
-	ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-	Roles             []*Role               `xml:"Role,omitempty"`
-	SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
-	SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
-	SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations   []*Representation     `xml:"Representation,omitempty"`
+	XMLName            xml.Name              `xml:"AdaptationSet"`
+	ID                 *string               `xml:"id,attr"`
+	SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
+	Lang               *string               `xml:"lang,attr"`
+	Group              *string               `xml:"group,attr"`
+	PAR                *string               `xml:"par,attr"`
+	MinBandwidth       *string               `xml:"minBandwidth,attr"`
+	MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
+	MinWidth           *string               `xml:"minWidth,attr"`
+	MaxWidth           *string               `xml:"maxWidth,attr"`
+	MinHeight          *string               `xml:"minHeight,attr"`
+	MaxHeight          *string               `xml:"maxHeight,attr"`
+	ContentType        *string               `xml:"contentType,attr"`
+	ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
+	Roles              []*Role               `xml:"Role,omitempty"`
+	SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
+	SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
+	SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations    []*Representation     `xml:"Representation,omitempty"`
+	AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 
 	adaptationSet := struct {
 		CommonAttributesAndElements
-		XMLName           xml.Name              `xml:"AdaptationSet"`
-		ID                *string               `xml:"id,attr"`
-		SegmentAlignment  *bool                 `xml:"segmentAlignment,attr"`
-		Lang              *string               `xml:"lang,attr"`
-		Group             *string               `xml:"group,attr"`
-		PAR               *string               `xml:"par,attr"`
-		MinBandwidth      *string               `xml:"minBandwidth,attr"`
-		MaxBandwidth      *string               `xml:"maxBandwidth,attr"`
-		MinWidth          *string               `xml:"minWidth,attr"`
-		MaxWidth          *string               `xml:"maxWidth,attr"`
-		ContentType       *string               `xml:"contentType,attr"`
-		ContentProtection []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-		Roles             []*Role               `xml:"Role,omitempty"`
-		SegmentBase       *SegmentBase          `xml:"SegmentBase,omitempty"`
-		SegmentList       *SegmentList          `xml:"SegmentList,omitempty"`
-		SegmentTemplate   *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-		Representations   []*Representation     `xml:"Representation,omitempty"`
+		XMLName            xml.Name              `xml:"AdaptationSet"`
+		ID                 *string               `xml:"id,attr"`
+		SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
+		Lang               *string               `xml:"lang,attr"`
+		Group              *string               `xml:"group,attr"`
+		PAR                *string               `xml:"par,attr"`
+		MinBandwidth       *string               `xml:"minBandwidth,attr"`
+		MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
+		MinWidth           *string               `xml:"minWidth,attr"`
+		MaxWidth           *string               `xml:"maxWidth,attr"`
+		MinHeight          *string               `xml:"minHeight,attr"`
+		MaxHeight          *string               `xml:"maxHeight,attr"`
+		ContentType        *string               `xml:"contentType,attr"`
+		ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
+		Roles              []*Role               `xml:"Role,omitempty"`
+		SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
+		SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
+		SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+		Representations    []*Representation     `xml:"Representation,omitempty"`
+		AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
 	}{}
 
 	var (
@@ -247,7 +262,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 					return err
 				}
 			default:
-				return errors.New("Unrecognized element in AdaptationSet: " + tt.Name.Local)
+				return fmt.Errorf("unrecognized element in AdaptationSet %q", tt.Name.Local)
 			}
 		case xml.EndElement:
 			if tt == start.End() {
@@ -442,8 +457,9 @@ type Representation struct {
 }
 
 type Accessibility struct {
-	SchemeIdUri *string `xml:"schemeIdUri,omitempty"`
-	Value       *int64  `xml:"value,omitempty"`
+	AdaptationSet *AdaptationSet `xml:"-"`
+	SchemeIdUri   *string        `xml:"schemeIdUri,attr,omitempty"`
+	Value         *string        `xml:"value,attr,omitempty"`
 }
 
 type AudioChannelConfiguration struct {
@@ -1030,6 +1046,16 @@ func (as *AdaptationSet) addRepresentation(r *Representation) error {
 	return nil
 }
 
+// Internal helper method for adding an Accessibility element to an AdaptationSet.
+func (as *AdaptationSet) addAccessibility(a *Accessibility) error {
+	if a == nil {
+		return ErrAccessibilityNil
+	}
+	a.AdaptationSet = as
+	as.AccessibilityElems = append(as.AccessibilityElems, a)
+	return nil
+}
+
 // Adds a new Role to an AdaptationSet
 // schemeIdUri - Scheme ID URI string (i.e. urn:mpeg:dash:role:2011)
 // value - Value for this role, (i.e. caption, subtitle, main, alternate, supplementary, commentary, dub)
@@ -1041,6 +1067,23 @@ func (as *AdaptationSet) AddNewRole(schemeIDURI string, value string) (*Role, er
 	r.AdaptationSet = as
 	as.Roles = append(as.Roles, r)
 	return r, nil
+}
+
+// AddNewAccessibilityElement adds a new accessibility element to an adaptation set
+// schemeIdUri - Scheme ID URI for the Accessibility element (i.e. urn:tva:metadata:cs:AudioPurposeCS:2007)
+// value - specified value based on scheme
+func (as *AdaptationSet) AddNewAccessibilityElement(scheme AccessibilityElementScheme, val string) (*Accessibility, error) {
+	accessibility := &Accessibility{
+		SchemeIdUri: Strptr((string)(scheme)),
+		Value:       Strptr(val),
+	}
+
+	err := as.addAccessibility(accessibility)
+	if err != nil {
+		return nil, err
+	}
+
+	return accessibility, nil
 }
 
 // Sets the BaseURL for a Representation.

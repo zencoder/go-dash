@@ -13,6 +13,7 @@
       <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"></Role>
       <SegmentTemplate duration="1968" initialization="$RepresentationID$/audio/en/init.mp4" media="$RepresentationID$/audio/en/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
       <Representation audioSamplingRate="44100" bandwidth="67095" codecs="mp4a.40.2" id="800"></Representation>
+      <Accessibility schemeIdUri="urn:tva:metadata:cs:AudioPurposeCS:2007" value="1"></Accessibility>
     </AdaptationSet>
     <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true">
       <ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" xmlns:cenc="urn:mpeg:cenc:2013" cenc:default_KID="08e36702-8f33-436c-a5dd-60ffe5571e60" value="cenc"></ContentProtection>
