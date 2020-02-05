@@ -7,7 +7,7 @@ type EventStream struct {
 	SchemeIDURI *string  `xml:"schemeIdUri,attr"`
 	Value       *string  `xml:"value,attr,omitempty"`
 	Timescale   *int64   `xml:"timescale,attr"`
-	Events      []*Event `xml:"Event,omitempty"`
+	Events      []Event  `xml:"Event,omitempty"`
 }
 
 type Event struct {
