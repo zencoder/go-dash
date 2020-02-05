@@ -92,6 +92,7 @@ type Period struct {
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
 	SegmentTemplate *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
 	AdaptationSets  []*AdaptationSet `xml:"AdaptationSet,omitempty"`
+	EventStreams    []*EventStream   `xml:"EventStream,omitempty"`
 }
 
 type DescriptorType struct {
