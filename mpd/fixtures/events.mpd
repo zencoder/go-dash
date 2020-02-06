@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z">
+  <Period>
+    <EventStream schemeIdUri="urn:example:eventstream" value="eventstream" timescale="10">
+      <Event id="event-0" presentationTime="100" duration="50"></Event>
+      <Event id="event-1" presentationTime="200" duration="50"></Event>
+    </EventStream>
+  </Period>
+  <UTCTiming></UTCTiming>
+</MPD>
