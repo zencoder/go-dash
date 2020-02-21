@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/zencoder/go-dash/helpers/ptrs"
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/require"
 	"github.com/zencoder/go-dash/helpers/testfixtures"
@@ -490,12 +489,12 @@ func TestAddNewAccessibilityElement(t *testing.T) {
 
 func TestLocationWriteToString(t *testing.T) {
 	m := &MPD{
-		XMLNs:                 ptrs.Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles:              ptrs.Strptr((string)(DASH_PROFILE_LIVE)),
-		Type:                  ptrs.Strptr("dynamic"),
-		AvailabilityStartTime: ptrs.Strptr(VALID_AVAILABILITY_START_TIME),
-		MinimumUpdatePeriod:   ptrs.Strptr(VALID_MINIMUM_UPDATE_PERIOD),
-		PublishTime:           ptrs.Strptr(VALID_AVAILABILITY_START_TIME),
+		XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:              Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                  Strptr("dynamic"),
+		AvailabilityStartTime: Strptr(VALID_AVAILABILITY_START_TIME),
+		MinimumUpdatePeriod:   Strptr(VALID_MINIMUM_UPDATE_PERIOD),
+		PublishTime:           Strptr(VALID_AVAILABILITY_START_TIME),
 		Location:              VALID_LOCATION,
 	}
 
