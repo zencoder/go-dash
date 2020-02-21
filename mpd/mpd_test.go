@@ -6,6 +6,7 @@ import (
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
 	"github.com/zencoder/go-dash/helpers/require"
+	"github.com/zencoder/go-dash/helpers/testfixtures"
 )
 
 const (
@@ -41,6 +42,7 @@ const (
 	VALID_SUBTITLE_ID                 string = "subtitle_en"
 	VALID_SUBTITLE_URL                string = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
 	VALID_ROLE                        string = "main"
+	VALID_LOCATION                    string = "https://example.com/location.mpd"
 )
 
 func TestNewMPDLive(t *testing.T) {
@@ -483,4 +485,31 @@ func TestAddNewAccessibilityElement(t *testing.T) {
 
 	require.EqualStringPtr(t, Strptr((string)(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO)), elem.SchemeIdUri)
 	require.EqualStringPtr(t, Strptr("1"), elem.Value)
+}
+
+func TestLocationWriteToString(t *testing.T) {
+	m := &MPD{
+		XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:              Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                  Strptr("dynamic"),
+		AvailabilityStartTime: Strptr(VALID_AVAILABILITY_START_TIME),
+		MinimumUpdatePeriod:   Strptr(VALID_MINIMUM_UPDATE_PERIOD),
+		PublishTime:           Strptr(VALID_AVAILABILITY_START_TIME),
+		Location:              VALID_LOCATION,
+	}
+
+	got, err := m.WriteToString()
+	require.NoError(t, err)
+
+	testfixtures.CompareFixture(t, "fixtures/location.mpd", got)
+}
+
+func TestReadLocation(t *testing.T) {
+	m, err := ReadFromFile("fixtures/location.mpd")
+	require.NoError(t, err)
+
+	got, err := m.WriteToString()
+	require.NoError(t, err)
+
+	testfixtures.CompareFixture(t, "fixtures/location.mpd", got)
 }
