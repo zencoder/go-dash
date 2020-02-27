@@ -5,8 +5,8 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
+	"github.com/Comcast/gots/scte35"
 	. "github.com/jgert/go-dash/helpers/ptrs"
-	"github.com/jgert/gots/scte35"
 	"strings"
 	"time"
 )
@@ -79,8 +79,8 @@ type MPD struct {
 
 type Period struct {
 	ID              string           `xml:"id,attr,omitempty"`
-	Duration        Duration         `xml:"duration,attr,omitempty"`
-	Start           Duration         `xml:"start,attr,omitempty"`
+	Duration        *Duration        `xml:"duration,attr,omitempty"`
+	Start           *Duration        `xml:"start,attr,omitempty"`
 	BaseURL         string           `xml:"BaseURL,omitempty"`
 	EventStream     *EventStream     `xml:"EventStream,omitempty"`
 	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
@@ -585,7 +585,7 @@ func (m *MPD) GetCurrentPeriod() *Period {
 }
 
 func (period *Period) SetDuration(d time.Duration) {
-	period.Duration = Duration(d)
+	period.Duration = DurationPtr(Duration(d))
 }
 
 // Create a new Adaptation Set for Audio Assets.
