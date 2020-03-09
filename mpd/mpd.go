@@ -181,6 +181,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		segmentList           *SegmentList
 		segmentTemplate       *SegmentTemplate
 		representations       []*Representation
+		accessibility         []*Accessibility
 	)
 
 	// decode inner elements
@@ -261,6 +262,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 				if err != nil {
 					return err
 				}
+				accessibility = append(accessibility, ac)
 			default:
 				return fmt.Errorf("unrecognized element in AdaptationSet %q", tt.Name.Local)
 			}
@@ -274,6 +276,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 				as.SegmentList = segmentList
 				as.SegmentTemplate = segmentTemplate
 				as.Representations = representations
+				as.AccessibilityElems = accessibility
 				return nil
 			}
 		}
