@@ -159,14 +159,10 @@ type wrappedAdaptationSet AdaptationSet
 
 // dtoAdaptationSet parses the items out of AdaptationSet
 // that give us trouble:
-// * slices of pointers
 // * Content Protection interface
 type dtoAdaptationSet struct {
 	wrappedAdaptationSet
-	Roles              []Role             `xml:"Role,omitempty"`
-	Representations    []Representation   `xml:"Representation,omitempty"`
-	AccessibilityElems []Accessibility    `xml:"Accessibility,omitempty"`
-	ContentProtection  contentProtections `xml:"ContentProtection,omitempty"`
+	ContentProtection contentProtections `xml:"ContentProtection,omitempty"`
 }
 
 type AdaptationSet struct {
@@ -199,18 +195,6 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 		return err
 	}
 	*as = AdaptationSet(n.wrappedAdaptationSet)
-	as.Roles = make([]*Role, len(n.Roles))
-	for i := range n.Roles {
-		as.Roles[i] = &n.Roles[i]
-	}
-	as.Representations = make([]*Representation, len(n.Representations))
-	for i := range n.Representations {
-		as.Representations[i] = &n.Representations[i]
-	}
-	as.AccessibilityElems = make([]*Accessibility, len(n.AccessibilityElems))
-	for i := range n.AccessibilityElems {
-		as.AccessibilityElems[i] = &n.AccessibilityElems[i]
-	}
 	as.ContentProtection = make([]ContentProtectioner, len(n.ContentProtection))
 	for i := range n.ContentProtection {
 		as.ContentProtection[i] = n.ContentProtection[i]
