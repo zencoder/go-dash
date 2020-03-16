@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
@@ -126,6 +125,50 @@ type CommonAttributesAndElements struct {
 	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
 }
 
+type contentProtections []ContentProtectioner
+
+func (as *contentProtections) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var scheme string
+	for _, a := range start.Attr {
+		if a.Name.Local == "schemeIdUri" {
+			scheme = a.Value
+			break
+		}
+	}
+	var target ContentProtectioner
+	switch scheme {
+	case CONTENT_PROTECTION_ROOT_SCHEME_ID_URI:
+		target = &CENCContentProtection{}
+	case CONTENT_PROTECTION_PLAYREADY_SCHEME_ID:
+		target = &PlayreadyContentProtection{}
+	case CONTENT_PROTECTION_WIDEVINE_SCHEME_ID:
+		target = &WidevineContentProtection{}
+	default:
+		target = &ContentProtection{}
+	}
+	if err := d.DecodeElement(target, &start); err != nil {
+		return err
+	}
+	*as = append(*as, target)
+	return nil
+}
+
+// wrappedAdaptationSet provides the default xml unmarshal
+// to take care of the majority of our unmarshalling
+type wrappedAdaptationSet AdaptationSet
+
+// dtoAdaptationSet parses the items out of AdaptationSet
+// that give us trouble:
+// * slices of pointers
+// * Content Protection interface
+type dtoAdaptationSet struct {
+	wrappedAdaptationSet
+	Roles              []Role             `xml:"Role,omitempty"`
+	Representations    []Representation   `xml:"Representation,omitempty"`
+	AccessibilityElems []Accessibility    `xml:"Accessibility,omitempty"`
+	ContentProtection  contentProtections `xml:"ContentProtection,omitempty"`
+}
+
 type AdaptationSet struct {
 	CommonAttributesAndElements
 	XMLName            xml.Name              `xml:"AdaptationSet"`
@@ -151,146 +194,28 @@ type AdaptationSet struct {
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var (
-		adaptationSet struct {
-			CommonAttributesAndElements
-			XMLName            xml.Name              `xml:"AdaptationSet"`
-			ID                 *string               `xml:"id,attr"`
-			SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
-			Lang               *string               `xml:"lang,attr"`
-			Group              *string               `xml:"group,attr"`
-			PAR                *string               `xml:"par,attr"`
-			MinBandwidth       *string               `xml:"minBandwidth,attr"`
-			MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
-			MinWidth           *string               `xml:"minWidth,attr"`
-			MaxWidth           *string               `xml:"maxWidth,attr"`
-			MinHeight          *string               `xml:"minHeight,attr"`
-			MaxHeight          *string               `xml:"maxHeight,attr"`
-			ContentType        *string               `xml:"contentType,attr"`
-			ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-			Roles              []*Role               `xml:"Role,omitempty"`
-			SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
-			SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
-			SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-			Representations    []*Representation     `xml:"Representation,omitempty"`
-			AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
-		}
-		contentProtectionTags []ContentProtectioner
-		roles                 []*Role
-		segmentBase           *SegmentBase
-		segmentList           *SegmentList
-		segmentTemplate       *SegmentTemplate
-		representations       []*Representation
-	)
-
-	// decode inner elements
-	for {
-		t, err := d.Token()
-		if err != nil {
-			return err
-		}
-
-		switch tt := t.(type) {
-		case xml.StartElement:
-			switch tt.Name.Local {
-			case "ContentProtection":
-				var (
-					schemeUri string
-					cp        ContentProtectioner
-				)
-
-				for _, attr := range tt.Attr {
-					if attr.Name.Local == "schemeIdUri" {
-						schemeUri = attr.Value
-					}
-				}
-				switch schemeUri {
-				case CONTENT_PROTECTION_ROOT_SCHEME_ID_URI:
-					cp = new(CENCContentProtection)
-				case CONTENT_PROTECTION_PLAYREADY_SCHEME_ID:
-					cp = new(PlayreadyContentProtection)
-				case CONTENT_PROTECTION_WIDEVINE_SCHEME_ID:
-					cp = new(WidevineContentProtection)
-				default:
-					cp = new(ContentProtection)
-				}
-
-				err = d.DecodeElement(cp, &tt)
-				if err != nil {
-					return err
-				}
-				contentProtectionTags = append(contentProtectionTags, cp)
-			case "Role":
-				rl := new(Role)
-				err = d.DecodeElement(rl, &tt)
-				if err != nil {
-					return err
-				}
-				roles = append(roles, rl)
-			case "SegmentBase":
-				sb := new(SegmentBase)
-				err = d.DecodeElement(sb, &tt)
-				if err != nil {
-					return err
-				}
-				segmentBase = sb
-			case "SegmentList":
-				sl := new(SegmentList)
-				err = d.DecodeElement(sl, &tt)
-				if err != nil {
-					return err
-				}
-				segmentList = sl
-			case "SegmentTemplate":
-				st := new(SegmentTemplate)
-				err = d.DecodeElement(st, &tt)
-				if err != nil {
-					return err
-				}
-				segmentTemplate = st
-			case "Representation":
-				rp := new(Representation)
-				err = d.DecodeElement(rp, &tt)
-				if err != nil {
-					return err
-				}
-				representations = append(representations, rp)
-			case "Accessibility":
-				var a Accessibility
-				adaptationSet.AccessibilityElems = append(adaptationSet.AccessibilityElems, &a)
-				if err = d.DecodeElement(&a, &tt); err != nil {
-					return err
-				}
-			case "AudioChannelConfiguration":
-				var dt DescriptorType
-				if err = d.DecodeElement(&dt, &tt); err != nil {
-					return err
-				}
-				adaptationSet.AudioChannelConfiguration = append(adaptationSet.AudioChannelConfiguration, dt)
-			case "SupplementalProperty":
-				var dt DescriptorType
-				if err = d.DecodeElement(&dt, &tt); err != nil {
-					return err
-				}
-				adaptationSet.SupplementalProperty = append(adaptationSet.SupplementalProperty, dt)
-			default:
-				return fmt.Errorf("unrecognized element in AdaptationSet %q", tt.Name.Local)
-			}
-		case xml.EndElement:
-			if tt == start.End() {
-				_ = d.DecodeElement(&adaptationSet, &start)
-				*as = adaptationSet
-				as.ContentProtection = contentProtectionTags
-				as.Roles = roles
-				as.SegmentBase = segmentBase
-				as.SegmentList = segmentList
-				as.SegmentTemplate = segmentTemplate
-				as.Representations = representations
-				return nil
-			}
-		}
-
+	var n dtoAdaptationSet
+	if err := d.DecodeElement(&n, &start); err != nil {
+		return err
 	}
+	*as = AdaptationSet(n.wrappedAdaptationSet)
+	as.Roles = make([]*Role, len(n.Roles))
+	for i := range n.Roles {
+		as.Roles[i] = &n.Roles[i]
+	}
+	as.Representations = make([]*Representation, len(n.Representations))
+	for i := range n.Representations {
+		as.Representations[i] = &n.Representations[i]
+	}
+	as.AccessibilityElems = make([]*Accessibility, len(n.AccessibilityElems))
+	for i := range n.AccessibilityElems {
+		as.AccessibilityElems[i] = &n.AccessibilityElems[i]
+	}
+	as.ContentProtection = make([]ContentProtectioner, len(n.ContentProtection))
+	for i := range n.ContentProtection {
+		as.ContentProtection[i] = n.ContentProtection[i]
+	}
+	return nil
 }
 
 // Constants for DRM / ContentProtection
