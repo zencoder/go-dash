@@ -2,6 +2,7 @@ package mpd
 
 import (
 	"encoding/base64"
+	"path/filepath"
 	"testing"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
@@ -504,12 +505,24 @@ func TestLocationWriteToString(t *testing.T) {
 	testfixtures.CompareFixture(t, "fixtures/location.mpd", got)
 }
 
-func TestReadLocation(t *testing.T) {
-	m, err := ReadFromFile("fixtures/location.mpd")
+func TestReadWriteIdentical(t *testing.T) {
+	const fixtures = "fixtures/"
+	var (
+		skipFixtures = map[string]struct{}{"invalid.mpd": {}}
+		matches, err = filepath.Glob(fixtures + "*.mpd")
+	)
 	require.NoError(t, err)
-
-	got, err := m.WriteToString()
-	require.NoError(t, err)
-
-	testfixtures.CompareFixture(t, "fixtures/location.mpd", got)
+	for _, file := range matches {
+		file := filepath.Base(file)
+		if _, ok := skipFixtures[file]; ok {
+			continue
+		}
+		t.Run(file, func(t *testing.T) {
+			m, err := ReadFromFile(fixtures + file)
+			require.NoError(t, err)
+			got, err := m.WriteToString()
+			require.NoError(t, err)
+			testfixtures.CompareFixture(t, fixtures+file, got)
+		})
+	}
 }

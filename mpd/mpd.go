@@ -118,11 +118,11 @@ type CommonAttributesAndElements struct {
 	StartWithSAP              *int64                `xml:"startWithSAP,attr"`
 	MaxPlayoutRate            *string               `xml:"maxPlayoutRate,attr"`
 	ScanType                  *string               `xml:"scanType,attr"`
-	FramePacking              *DescriptorType       `xml:"framePacking,attr"`
-	AudioChannelConfiguration *DescriptorType       `xml:"audioChannelConfiguration,attr"`
+	FramePacking              []DescriptorType      `xml:"FramePacking,omitempty"`
+	AudioChannelConfiguration []DescriptorType      `xml:"AudioChannelConfiguration,omitempty"`
 	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
-	EssentialProperty         *DescriptorType       `xml:"essentialProperty,attr"`
-	SupplementalProperty      *DescriptorType       `xml:"supplmentalProperty,attr"`
+	EssentialProperty         []DescriptorType      `xml:"EssentialProperty,omitempty"`
+	SupplementalProperty      []DescriptorType      `xml:"SupplementalProperty,omitempty"`
 	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
 }
 
@@ -151,32 +151,30 @@ type AdaptationSet struct {
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-
-	adaptationSet := struct {
-		CommonAttributesAndElements
-		XMLName            xml.Name              `xml:"AdaptationSet"`
-		ID                 *string               `xml:"id,attr"`
-		SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
-		Lang               *string               `xml:"lang,attr"`
-		Group              *string               `xml:"group,attr"`
-		PAR                *string               `xml:"par,attr"`
-		MinBandwidth       *string               `xml:"minBandwidth,attr"`
-		MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
-		MinWidth           *string               `xml:"minWidth,attr"`
-		MaxWidth           *string               `xml:"maxWidth,attr"`
-		MinHeight          *string               `xml:"minHeight,attr"`
-		MaxHeight          *string               `xml:"maxHeight,attr"`
-		ContentType        *string               `xml:"contentType,attr"`
-		ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-		Roles              []*Role               `xml:"Role,omitempty"`
-		SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
-		SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
-		SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-		Representations    []*Representation     `xml:"Representation,omitempty"`
-		AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
-	}{}
-
 	var (
+		adaptationSet struct {
+			CommonAttributesAndElements
+			XMLName            xml.Name              `xml:"AdaptationSet"`
+			ID                 *string               `xml:"id,attr"`
+			SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
+			Lang               *string               `xml:"lang,attr"`
+			Group              *string               `xml:"group,attr"`
+			PAR                *string               `xml:"par,attr"`
+			MinBandwidth       *string               `xml:"minBandwidth,attr"`
+			MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
+			MinWidth           *string               `xml:"minWidth,attr"`
+			MaxWidth           *string               `xml:"maxWidth,attr"`
+			MinHeight          *string               `xml:"minHeight,attr"`
+			MaxHeight          *string               `xml:"maxHeight,attr"`
+			ContentType        *string               `xml:"contentType,attr"`
+			ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
+			Roles              []*Role               `xml:"Role,omitempty"`
+			SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
+			SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
+			SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+			Representations    []*Representation     `xml:"Representation,omitempty"`
+			AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
+		}
 		contentProtectionTags []ContentProtectioner
 		roles                 []*Role
 		segmentBase           *SegmentBase
@@ -258,11 +256,23 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 				}
 				representations = append(representations, rp)
 			case "Accessibility":
-				ac := new(Accessibility)
-				err = d.DecodeElement(ac, &tt)
-				if err != nil {
+				var a Accessibility
+				adaptationSet.AccessibilityElems = append(adaptationSet.AccessibilityElems, &a)
+				if err = d.DecodeElement(&a, &tt); err != nil {
 					return err
 				}
+			case "AudioChannelConfiguration":
+				var dt DescriptorType
+				if err = d.DecodeElement(&dt, &tt); err != nil {
+					return err
+				}
+				adaptationSet.AudioChannelConfiguration = append(adaptationSet.AudioChannelConfiguration, dt)
+			case "SupplementalProperty":
+				var dt DescriptorType
+				if err = d.DecodeElement(&dt, &tt); err != nil {
+					return err
+				}
+				adaptationSet.SupplementalProperty = append(adaptationSet.SupplementalProperty, dt)
 			default:
 				return fmt.Errorf("unrecognized element in AdaptationSet %q", tt.Name.Local)
 			}
