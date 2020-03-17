@@ -167,26 +167,25 @@ type dtoAdaptationSet struct {
 
 type AdaptationSet struct {
 	CommonAttributesAndElements
-	XMLName            xml.Name              `xml:"AdaptationSet"`
-	ID                 *string               `xml:"id,attr"`
-	SegmentAlignment   *bool                 `xml:"segmentAlignment,attr"`
-	Lang               *string               `xml:"lang,attr"`
-	Group              *string               `xml:"group,attr"`
-	PAR                *string               `xml:"par,attr"`
-	MinBandwidth       *string               `xml:"minBandwidth,attr"`
-	MaxBandwidth       *string               `xml:"maxBandwidth,attr"`
-	MinWidth           *string               `xml:"minWidth,attr"`
-	MaxWidth           *string               `xml:"maxWidth,attr"`
-	MinHeight          *string               `xml:"minHeight,attr"`
-	MaxHeight          *string               `xml:"maxHeight,attr"`
-	ContentType        *string               `xml:"contentType,attr"`
-	ContentProtection  []ContentProtectioner `xml:"ContentProtection,omitempty"` // Common attribute, can be deprecated here
-	Roles              []*Role               `xml:"Role,omitempty"`
-	SegmentBase        *SegmentBase          `xml:"SegmentBase,omitempty"`
-	SegmentList        *SegmentList          `xml:"SegmentList,omitempty"`
-	SegmentTemplate    *SegmentTemplate      `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations    []*Representation     `xml:"Representation,omitempty"`
-	AccessibilityElems []*Accessibility      `xml:"Accessibility,omitempty"`
+	XMLName            xml.Name          `xml:"AdaptationSet"`
+	ID                 *string           `xml:"id,attr"`
+	SegmentAlignment   *bool             `xml:"segmentAlignment,attr"`
+	Lang               *string           `xml:"lang,attr"`
+	Group              *string           `xml:"group,attr"`
+	PAR                *string           `xml:"par,attr"`
+	MinBandwidth       *string           `xml:"minBandwidth,attr"`
+	MaxBandwidth       *string           `xml:"maxBandwidth,attr"`
+	MinWidth           *string           `xml:"minWidth,attr"`
+	MaxWidth           *string           `xml:"maxWidth,attr"`
+	MinHeight          *string           `xml:"minHeight,attr"`
+	MaxHeight          *string           `xml:"maxHeight,attr"`
+	ContentType        *string           `xml:"contentType,attr"`
+	Roles              []*Role           `xml:"Role,omitempty"`
+	SegmentBase        *SegmentBase      `xml:"SegmentBase,omitempty"`
+	SegmentList        *SegmentList      `xml:"SegmentList,omitempty"`
+	SegmentTemplate    *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations    []*Representation `xml:"Representation,omitempty"`
+	AccessibilityElems []*Accessibility  `xml:"Accessibility,omitempty"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
