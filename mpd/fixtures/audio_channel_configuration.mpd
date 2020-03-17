@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT30.016S" minBufferTime="PT2.000S">
+  <Period>
+    <BaseURL>http://localhost:8002/dash/</BaseURL>
+    <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="1" segmentAlignment="true" lang="English">
+      <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"></AudioChannelConfiguration>
+      <Representation audioSamplingRate="48000" bandwidth="255000" codecs="mp4a.40.2" id="audio_1">
+        <SegmentList timescale="48000" duration="479232">
+          <Initialization sourceURL="b4324d65-ad06-4735-9535-5cd4af84ebb6/dcb11457-9092-4410-b204-67b3c6d9a9e2/init.m4f"></Initialization>
+          <SegmentURL media="b4324d65-ad06-4735-9535-5cd4af84ebb6/dcb11457-9092-4410-b204-67b3c6d9a9e2/segment0.m4f"></SegmentURL>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
+      <Representation bandwidth="4172274" codecs="avc1.640028" frameRate="30000/1001" height="720" id="video_1" width="1280">
+        <SegmentList timescale="30000" duration="225120">
+          <Initialization sourceURL="b4324d65-ad06-4735-9535-5cd4af84ebb6/f2ad47b2-5362-46e6-ad1d-dff7b10f00b8/init.m4f"></Initialization>
+          <SegmentURL media="b4324d65-ad06-4735-9535-5cd4af84ebb6/f2ad47b2-5362-46e6-ad1d-dff7b10f00b8/segment0.m4f"></SegmentURL>
+        </SegmentList>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+</MPD>
