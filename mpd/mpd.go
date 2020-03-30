@@ -180,6 +180,7 @@ type AdaptationSet struct {
 	MinHeight          *string           `xml:"minHeight,attr"`
 	MaxHeight          *string           `xml:"maxHeight,attr"`
 	ContentType        *string           `xml:"contentType,attr"`
+	SelectionPriority  *uint64           `xml:"selectionPriority,attr"`
 	Roles              []*Role           `xml:"Role,omitempty"`
 	SegmentBase        *SegmentBase      `xml:"SegmentBase,omitempty"`
 	SegmentList        *SegmentList      `xml:"SegmentList,omitempty"`

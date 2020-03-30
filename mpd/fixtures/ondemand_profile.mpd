@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT30S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="7357" segmentAlignment="true" lang="und">
+    <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="7357" segmentAlignment="true" lang="und" selectionPriority="3">
       <ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" xmlns:cenc="urn:mpeg:cenc:2013" cenc:default_KID="08e36702-8f33-436c-a5dd-60ffe5571e60" value="cenc"></ContentProtection>
       <ContentProtection schemeIdUri="urn:uuid:edef8ba9-79d6-4ace-a3c8-27dcd51d21ed" xmlns:cenc="urn:mpeg:cenc:2013">
         <cenc:pssh>AAAAYXBzc2gAAAAA7e+LqXnWSs6jyCfc1R0h7QAAAEEIARIQWr3VL1VKTyq40GH3YUJRVRoIY2FzdGxhYnMiGFdyM1ZMMVZLVHlxNDBHSDNZVUpSVlE9PTIHZGVmYXVsdA==</cenc:pssh>
