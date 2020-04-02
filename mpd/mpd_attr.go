@@ -42,3 +42,16 @@ func (attr *attrMediaPresentationDuration) GetStrptr() *string {
 func AttrMediaPresentationDuration(value string) AttrMPD {
 	return &attrMediaPresentationDuration{strptr: &value}
 }
+
+type attrSuggestedPresentationDelay struct {
+	strptr *string
+}
+
+func (attr *attrSuggestedPresentationDelay) GetStrptr() *string {
+	return attr.strptr
+}
+
+// AttrSuggestedPresentationDelay returns AttrMPD object for NewMPD
+func AttrSuggestedPresentationDelay(value string) AttrMPD {
+	return &attrSuggestedPresentationDelay{strptr: &value}
+}

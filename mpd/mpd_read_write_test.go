@@ -217,7 +217,8 @@ func TestFullLiveProfileWriteToFile(t *testing.T) {
 func LiveProfileDynamic() *MPD {
 	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
 		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
-		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD),
+		AttrSuggestedPresentationDelay(VALID_SUGGESTED_PRESENTATION_DELAY))
 
 	audioAS, _ := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, VALID_LANG)
 
