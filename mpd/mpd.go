@@ -5,10 +5,11 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
-	"github.com/Comcast/gots/scte35"
-	. "github.com/jgert/go-dash/helpers/ptrs"
 	"strings"
 	"time"
+
+	"github.com/Comcast/gots/scte35"
+	. "github.com/jgert/go-dash/helpers/ptrs"
 )
 
 // Type definition for DASH profiles
@@ -60,21 +61,22 @@ var (
 )
 
 type MPD struct {
-	XMLNs                     *string `xml:"xmlns,attr"`
-	Profiles                  *string `xml:"profiles,attr"`
-	Type                      *string `xml:"type,attr"`
-	MediaPresentationDuration *string `xml:"mediaPresentationDuration,attr"`
-	MinBufferTime             *string `xml:"minBufferTime,attr"`
-	AvailabilityStartTime     *string `xml:"availabilityStartTime,attr,omitempty"`
-	MinimumUpdatePeriod       *string `xml:"minimumUpdatePeriod,attr"`
-	PublishTime               *string `xml:"publishTime,attr"`
-	TimeShiftBufferDepth      *string `xml:"timeShiftBufferDepth,attr"`
-	MaxSegmentDuration        *string `xml:"maxSegmentDuration,attr"`
-	BaseURL                   string  `xml:"BaseURL,omitempty"`
-	ID                        *string `xml:"id,attr,omitempty"`
-	period                    *Period
-	Periods                   []*Period       `xml:"Period,omitempty"`
-	UTCTiming                 *DescriptorType `xml:"UTCTiming,omitempty"`
+	XMLNs                      *string `xml:"xmlns,attr"`
+	Profiles                   *string `xml:"profiles,attr"`
+	Type                       *string `xml:"type,attr"`
+	MediaPresentationDuration  *string `xml:"mediaPresentationDuration,attr"`
+	MinBufferTime              *string `xml:"minBufferTime,attr"`
+	AvailabilityStartTime      *string `xml:"availabilityStartTime,attr,omitempty"`
+	MinimumUpdatePeriod        *string `xml:"minimumUpdatePeriod,attr"`
+	PublishTime                *string `xml:"publishTime,attr"`
+	TimeShiftBufferDepth       *string `xml:"timeShiftBufferDepth,attr"`
+	MaxSegmentDuration         *string `xml:"maxSegmentDuration,attr"`
+	BaseURL                    string  `xml:"BaseURL,omitempty"`
+	ID                         *string `xml:"id,attr,omitempty"`
+	SuggestedPresentationDelay *string `xml:"suggestedPresentationDelay,attr,omitempty"`
+	period                     *Period
+	Periods                    []*Period       `xml:"Period,omitempty"`
+	UTCTiming                  *DescriptorType `xml:"UTCTiming,omitempty"`
 }
 
 type Period struct {
@@ -565,6 +567,8 @@ func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime str
 			mpd.MinimumUpdatePeriod = attr.GetStrptr()
 		case *attrMediaPresentationDuration:
 			mpd.MediaPresentationDuration = attr.GetStrptr()
+		case *attrSuggestedPresentationDelay:
+			mpd.SuggestedPresentationDelay = attr.GetStrptr()
 		}
 	}
 
