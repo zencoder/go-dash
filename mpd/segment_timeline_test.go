@@ -61,7 +61,8 @@ func getMultiPeriodSegmentTimelineMPD() *MPD {
 		}
 		p := m.GetCurrentPeriod()
 		p.ID = strconv.Itoa(i)
-		p.Duration = Duration(30 * time.Second)
+		duration := Duration(30 * time.Second)
+		p.Duration = &duration
 		aas, _ := p.AddNewAdaptationSetAudioWithID("1", "audio/mp4", true, 1, "en")
 		_, _ = aas.AddNewRepresentationAudio(48000, 92000, "mp4a.40.2", "audio_1")
 		aas.SegmentTemplate = &SegmentTemplate{
