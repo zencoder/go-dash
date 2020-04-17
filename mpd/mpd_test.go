@@ -31,8 +31,8 @@ const (
 	VALID_VIDEO_CODEC                  string = "avc1.4d401f"
 	VALID_VIDEO_ID                     string = "800"
 	VALID_VIDEO_FRAMERATE              string = "30000/1001"
-	VALID_VIDEO_WIDTH                  int64  = 960
-	VALID_VIDEO_HEIGHT                 int64  = 540
+	VALID_VIDEO_WIDTH                  uint32 = 960
+	VALID_VIDEO_HEIGHT                 uint32 = 540
 	VALID_BASE_URL_VIDEO               string = "800k/output-video-1.mp4"
 	VALID_INDEX_RANGE                  string = "629-756"
 	VALID_INIT_RANGE                   string = "0-628"
@@ -82,7 +82,7 @@ func TestNewDynamicMPDLive(t *testing.T) {
 		MinimumUpdatePeriod:       Strptr(VALID_MINIMUM_UPDATE_PERIOD),
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
-		UTCTiming:                 &DescriptorType{},
+		UTCTiming:                 &Descriptor{},
 	}
 
 	expectedString, err := expectedMPD.WriteToString()

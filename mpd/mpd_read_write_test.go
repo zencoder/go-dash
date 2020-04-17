@@ -108,7 +108,7 @@ func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true"></AdaptationSet>
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="7357" segmentAlignment="true"></AdaptationSet>
   </Period>
 </MPD>
 `
@@ -382,4 +382,20 @@ func TestWriteToFileInvalidFilePath(t *testing.T) {
 	require.NotNil(t, m)
 	err := m.WriteToFile("")
 	require.NotNil(t, err)
+}
+
+func TestMPDRewrite(t *testing.T) {
+	m, err := ReadFromFile("fixtures/linear-channel.mpd")
+	require.Nil(t, err)
+	require.NotNil(t, m)
+
+	err = m.WriteToFile("test-linear-channel.mpd")
+	require.Nil(t, err)
+
+	xmlStr, err := m.WriteToString()
+	require.Nil(t, err)
+
+	testfixtures.CompareFixture(t, "fixtures/ondemand_profile.mpd", xmlStr)
+	defer os.Remove("test-ondemand.mpd")
+	require.NoError(t, err)
 }

@@ -3,7 +3,7 @@
   <Period>
     <BaseURL>http://localhost:8002/public/</BaseURL>
     <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="1" segmentAlignment="true" lang="English">
-      <Representation audioSamplingRate="48000" bandwidth="255000" codecs="mp4a.40.2" id="audio_1">
+      <Representation audioSamplingRate="48000" codecs="mp4a.40.2" bandwidth="255000" id="audio_1">
         <SegmentTemplate initialization="audio/init.m4f" media="audio/segment$Number$.m4f" timescale="48000">
           <SegmentTimeline>
             <S t="0" d="231424"></S>
@@ -16,8 +16,8 @@
         </SegmentTemplate>
       </Representation>
     </AdaptationSet>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
-      <Representation bandwidth="4172274" codecs="avc1.640028" frameRate="30000/1001" height="720" id="video_1" width="1280">
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="2" segmentAlignment="true">
+      <Representation codecs="avc1.640028" frameRate="30000/1001" height="720" width="1280" bandwidth="4172274" id="video_1">
         <SegmentTemplate initialization="video/init.m4f" media="video/segment$Number$.m4f" timescale="30000">
           <SegmentTimeline>
             <S t="0" d="145145"></S>

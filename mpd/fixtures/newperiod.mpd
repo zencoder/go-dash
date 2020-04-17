@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="1" segmentAlignment="true">
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="1" segmentAlignment="true">
       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-1.mp4" media="$RepresentationID$/video-1/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
     </AdaptationSet>
     <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="1" segmentAlignment="true" lang="en">
@@ -9,7 +9,7 @@
     </AdaptationSet>
   </Period>
   <Period duration="PT3M0S">
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="2" segmentAlignment="true">
       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-2.mp4" media="$RepresentationID$/video-2/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
     </AdaptationSet>
     <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="2" segmentAlignment="true" lang="en">

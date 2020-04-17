@@ -125,7 +125,7 @@ func getSegmentTimelineMPD() *MPD {
 	}
 
 	vas, _ := m.AddNewAdaptationSetVideoWithID("2", "video/mp4", "progressive", true, 1)
-	va, _ := vas.AddNewRepresentationVideo(int64(4172274), "avc1.640028", "video_1", "30000/1001", int64(1280), int64(720))
+	va, _ := vas.AddNewRepresentationVideo(int64(4172274), "avc1.640028", "video_1", "30000/1001", 1280, 720)
 
 	va.SegmentTemplate = &SegmentTemplate{
 		Timescale:      ptrs.Int64ptr(30000),

@@ -8,17 +8,17 @@
           <S d="15360"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation audioSamplingRate="48000" bandwidth="92000" codecs="mp4a.40.2" id="audio_1"></Representation>
+      <Representation audioSamplingRate="48000" codecs="mp4a.40.2" bandwidth="92000" id="audio_1"></Representation>
     </AdaptationSet>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="2" segmentAlignment="true">
       <SegmentTemplate initialization="video/$RepresentationID$/init.m4f" media="video/$RepresentationID$/segment$Number$.m4f" timescale="30000">
         <SegmentTimeline>
           <S d="58058" r="14"></S>
           <S d="31031"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation bandwidth="3532000" codecs="avc1.640028" frameRate="2997/100" height="854" id="video_1" width="2048"></Representation>
-      <Representation bandwidth="453000" codecs="avc1.420016" frameRate="2997/100" height="270" id="video_2" width="648"></Representation>
+      <Representation codecs="avc1.640028" frameRate="2997/100" height="854" width="2048" bandwidth="3532000" id="video_1"></Representation>
+      <Representation codecs="avc1.420016" frameRate="2997/100" height="270" width="648" bandwidth="453000" id="video_2"></Representation>
     </AdaptationSet>
   </Period>
   <Period id="1" duration="PT30S">
@@ -29,17 +29,17 @@
           <S d="15360"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation audioSamplingRate="48000" bandwidth="92000" codecs="mp4a.40.2" id="audio_1"></Representation>
+      <Representation audioSamplingRate="48000" codecs="mp4a.40.2" bandwidth="92000" id="audio_1"></Representation>
     </AdaptationSet>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="2" segmentAlignment="true">
       <SegmentTemplate initialization="video/$RepresentationID$/init.m4f" media="video/$RepresentationID$/segment$Number$.m4f" timescale="30000">
         <SegmentTimeline>
           <S d="58058" r="14"></S>
           <S d="31031"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation bandwidth="3532000" codecs="avc1.640028" frameRate="2997/100" height="854" id="video_1" width="2048"></Representation>
-      <Representation bandwidth="453000" codecs="avc1.420016" frameRate="2997/100" height="270" id="video_2" width="648"></Representation>
+      <Representation codecs="avc1.640028" frameRate="2997/100" height="854" width="2048" bandwidth="3532000" id="video_1"></Representation>
+      <Representation codecs="avc1.420016" frameRate="2997/100" height="270" width="648" bandwidth="453000" id="video_2"></Representation>
     </AdaptationSet>
   </Period>
   <Period id="2" duration="PT30S">
@@ -50,17 +50,17 @@
           <S d="15360"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation audioSamplingRate="48000" bandwidth="92000" codecs="mp4a.40.2" id="audio_1"></Representation>
+      <Representation audioSamplingRate="48000" codecs="mp4a.40.2" bandwidth="92000" id="audio_1"></Representation>
     </AdaptationSet>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="2" segmentAlignment="true">
       <SegmentTemplate presentationTimeOffset="464464" initialization="video/$RepresentationID$/init.m4f" media="video/$RepresentationID$/segment$Number$.m4f" startNumber="17" timescale="30000">
         <SegmentTimeline>
           <S d="58058" r="14"></S>
           <S d="31031"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation bandwidth="3532000" codecs="avc1.640028" frameRate="2997/100" height="854" id="video_1" width="2048"></Representation>
-      <Representation bandwidth="453000" codecs="avc1.420016" frameRate="2997/100" height="270" id="video_2" width="648"></Representation>
+      <Representation codecs="avc1.640028" frameRate="2997/100" height="854" width="2048" bandwidth="3532000" id="video_1"></Representation>
+      <Representation codecs="avc1.420016" frameRate="2997/100" height="270" width="648" bandwidth="453000" id="video_2"></Representation>
     </AdaptationSet>
   </Period>
   <Period id="3" duration="PT30S">
@@ -71,17 +71,17 @@
           <S d="15360"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation audioSamplingRate="48000" bandwidth="92000" codecs="mp4a.40.2" id="audio_1"></Representation>
+      <Representation audioSamplingRate="48000" codecs="mp4a.40.2" bandwidth="92000" id="audio_1"></Representation>
     </AdaptationSet>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
+    <AdaptationSet mimeType="video/mp4" scanType="progressive" startWithSAP="1" id="2" segmentAlignment="true">
       <SegmentTemplate initialization="video/$RepresentationID$/init.m4f" media="video/$RepresentationID$/segment$Number$.m4f" timescale="30000">
         <SegmentTimeline>
           <S d="58058" r="14"></S>
           <S d="31031"></S>
         </SegmentTimeline>
       </SegmentTemplate>
-      <Representation bandwidth="3532000" codecs="avc1.640028" frameRate="2997/100" height="854" id="video_1" width="2048"></Representation>
-      <Representation bandwidth="453000" codecs="avc1.420016" frameRate="2997/100" height="270" id="video_2" width="648"></Representation>
+      <Representation codecs="avc1.640028" frameRate="2997/100" height="854" width="2048" bandwidth="3532000" id="video_1"></Representation>
+      <Representation codecs="avc1.420016" frameRate="2997/100" height="270" width="648" bandwidth="453000" id="video_2"></Representation>
     </AdaptationSet>
   </Period>
 </MPD>
