@@ -75,6 +75,7 @@ func (m *MPD) WriteToString() (string, error) {
 // Writes an MPD object to an io.Writer interface
 // w - Must implement the io.Writer interface.
 func (m *MPD) Write(w io.Writer) error {
+	m.NSCENC = ptrs.Strptr(CENC_XMLNS)
 	b, err := xml.MarshalIndent(m, "", "  ")
 	if err != nil {
 		return err

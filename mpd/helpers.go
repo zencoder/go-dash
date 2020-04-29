@@ -1,12 +1,6 @@
 package mpd
 
-import (
-	"encoding/base64"
-	"encoding/hex"
-	. "github.com/jgert/go-dash/helpers/ptrs"
-	"strings"
-	"time"
-)
+/*
 
 // Creates a new static MPD object.
 // profile - DASH Profile (Live or OnDemand).
@@ -269,7 +263,7 @@ func (period *Period) addAdaptationSet(as *AdaptationSet) error {
 // defaultKIDHex - Default Key ID as a Hex String.
 //
 // NOTE: this is only here for Legacy purposes. This will create an invalid UUID.
-func (as *AdaptationSet) AddNewContentProtectionRootLegacyUUID(defaultKIDHex string) (*CENCContentProtection, error) {
+func (as *AdaptationSet) AddNewContentProtectionRootLegacyUUID(defaultKIDHex string) (*ContentProtection, error) {
 	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
 		return nil, ErrInvalidDefaultKID
 	}
@@ -277,14 +271,14 @@ func (as *AdaptationSet) AddNewContentProtectionRootLegacyUUID(defaultKIDHex str
 	// Convert the KID into the correct format
 	defaultKID := strings.ToLower(defaultKIDHex[0:8] + "-" + defaultKIDHex[8:12] + "-" + defaultKIDHex[12:16] + "-" + defaultKIDHex[16:32])
 
-	cp := &CENCContentProtection{
-		ContentProtection: ContentProtection{
+	cp := &ContentProtection{
+		CENC: ContentProtectionCENC{
 			Descriptor: Descriptor{
 				Value:       Strptr(CONTENT_PROTECTION_ROOT_VALUE),
 				SchemeIDURI: Strptr(CONTENT_PROTECTION_ROOT_SCHEME_ID_URI),
 			},
+			DefaultKID: Strptr(defaultKID),
 		},
-		DefaultKID: Strptr(defaultKID),
 	}
 
 	err := as.AddContentProtection(cp)
@@ -297,7 +291,7 @@ func (as *AdaptationSet) AddNewContentProtectionRootLegacyUUID(defaultKIDHex str
 // Adds a ContentProtection tag at the root level of an AdaptationSet.
 // This ContentProtection tag does not include signaling for any particular DRM scheme.
 // defaultKIDHex - Default Key ID as a Hex String.
-func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*CENCContentProtection, error) {
+func (as *AdaptationSet) AddNewContentProtectionRoot(defaultKIDHex string) (*ContentProtectionCenc, error) {
 	if len(defaultKIDHex) != 32 || defaultKIDHex == "" {
 		return nil, ErrInvalidDefaultKID
 	}
@@ -478,13 +472,13 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10WithPSSH(pro s
 }
 
 // Internal helper method for adding a ContentProtection to an AdaptationSet.
-func (as *AdaptationSet) AddContentProtection(cp ContentProtectioner) error {
+func (as *AdaptationSet) AddContentProtection(cp Protection) error {
 	if cp == nil {
 		return ErrContentProtectionNil
 	}
 
 	cpc := ContentProtectionContainer{
-		ContentProtectioner: cp,
+		Protection: cp,
 	}
 	as.ContentProtection = append(as.ContentProtection, cpc)
 	return nil
@@ -674,3 +668,4 @@ func (r *Representation) setAudioChannelConfiguration(acc *Descriptor) error {
 	r.AudioChannelConfiguration = append(r.AudioChannelConfiguration, acc)
 	return nil
 }
+*/

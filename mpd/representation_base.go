@@ -1,12 +1,12 @@
 package mpd
 
 type RepresentationBase struct {
-	AudioChannelConfiguration []*Descriptor                 `xml:"AudioChannelConfiguration"`
-	ContentProtection         []*ContentProtectionContainer `xml:"ContentProtection,omitempty"`
-	EssentialProperty         []*Descriptor                 `xml:"EssentialProperty"`
-	FramePacking              []*Descriptor                 `xml:"FramePacking"`
-	InbandEventStream         []*Descriptor                 `xml:"InbandEventStream"`
-	SupplementalProperty      []*Descriptor                 `xml:"SupplementalProperty"`
+	AudioChannelConfiguration []*Descriptor        `xml:"AudioChannelConfiguration"`
+	ContentProtection         []*ContentProtection `xml:"ContentProtection,omitempty"`
+	EssentialProperty         []*Descriptor        `xml:"EssentialProperty"`
+	FramePacking              []*Descriptor        `xml:"FramePacking"`
+	InbandEventStream         []*Descriptor        `xml:"InbandEventStream"`
+	SupplementalProperty      []*Descriptor        `xml:"SupplementalProperty"`
 
 	AudioSamplingRate *int64  `xml:"audioSamplingRate,attr"`
 	Codecs            *string `xml:"codecs,attr"`

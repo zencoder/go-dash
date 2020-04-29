@@ -1,6 +1,9 @@
 package mpd
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"strings"
+)
 
 // Constants for DRM / ContentProtection
 const (
@@ -16,15 +19,18 @@ const (
 	CONTENT_PROTECTION_PLAYREADY_XMLNS          = "urn:microsoft:playready"
 )
 
-type ContentProtectionContainer struct {
-	XMLName             xml.Name `xml:"ContentProtection"`
-	ContentProtectioner ContentProtectioner
+type ContentProtection struct {
+	XMLName   xml.Name `xml:"ContentProtection"`
+	CENC      *ContentProtectionCENC
+	Playready *ContentProtectionPlayready
+	Widevine  *ContentProtectionWidevine
+	Unknown   *Descriptor
 }
 
-func (c *ContentProtectionContainer) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+func (c *ContentProtection) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+
 	var (
 		schemeUri string
-		cp        ContentProtectioner
 	)
 
 	for _, attr := range start.Attr {
@@ -32,156 +38,40 @@ func (c *ContentProtectionContainer) UnmarshalXML(d *xml.Decoder, start xml.Star
 			schemeUri = attr.Value
 		}
 	}
-	switch schemeUri {
+	switch strings.ToLower(schemeUri) {
 	case CONTENT_PROTECTION_ROOT_SCHEME_ID_URI:
-		cp = new(CENCContentProtection)
+		cp := new(ContentProtectionCENC)
+		err := d.DecodeElement(cp, &start)
+		c.CENC = cp
+		return err
 	case CONTENT_PROTECTION_PLAYREADY_SCHEME_ID:
-		cp = new(PlayreadyContentProtection)
+		cp := new(ContentProtectionPlayready)
+		err := d.DecodeElement(cp, &start)
+		c.Playready = cp
+		return err
 	case CONTENT_PROTECTION_WIDEVINE_SCHEME_ID:
-		cp = new(WidevineContentProtection)
+		cp := new(ContentProtectionWidevine)
+		err := d.DecodeElement(cp, &start)
+		c.Widevine = cp
+		return err
 	default:
-		cp = new(ContentProtection)
-	}
-
-	err := d.DecodeElement(cp, &start)
-	if err != nil {
+		cp := new(Descriptor)
+		err := d.DecodeElement(cp, &start)
+		c.Unknown = cp
 		return err
 	}
-	c.ContentProtectioner = cp
-	//*c = ContentProtectionContainer{ContentProtectioner:cp}
-	return nil
 }
 
-func (c *ContentProtectionContainer) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	return e.Encode(c.ContentProtectioner)
-}
+func (c *ContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 
-type ContentProtectioner interface {
-	ContentProtected()
-}
-
-//
-//type ContentProtection struct {
-//	Descriptor
-//	XMLName       xml.Name       `xml:"ContentProtection"`
-//}
-
-type ContentProtection struct {
-	Descriptor
-	XMLName xml.Name `xml:"ContentProtection"`
-	//AdaptationSet *AdaptationSet `xml:"-"`
-	//
-	//SchemeIDURI   *string        `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	//XMLNS         *string        `xml:"cenc,attr"`        // Default: urn:mpeg:cenc:2013
-	//Attrs         []*xml.Attr    `xml:",any,attr"`
-}
-
-type CENCContentProtection struct {
-	ContentProtection
-	DefaultKID *string `xml:"default_KID,attr"`
-}
-
-type PlayreadyContentProtection struct {
-	ContentProtection
-	PlayreadyXMLNS *string `xml:"mspr,attr,omitempty"`
-	PRO            *string `xml:"pro,omitempty"`
-	PSSH           *string `xml:"pssh,omitempty"`
-}
-
-type WidevineContentProtection struct {
-	ContentProtection
-	PSSH *string `xml:"pssh,omitempty"`
-}
-
-type ContentProtectionMarshal struct {
-	//XMLName     xml.Name    `xml:"ContentProtection"`
-	//SchemeIDURI *string     `xml:"schemeIdUri,attr"` // Default: urn:mpeg:dash:mp4protection:2011
-	//XMLNS       *string     `xml:"xmlns:cenc,attr"`  // Default: urn:mpeg:cenc:2013
-	//Attrs       []*xml.Attr `xml:",any,attr"`
-}
-
-type CENCContentProtectionMarshal struct {
-	ContentProtectionMarshal
-	DefaultKID *string `xml:"cenc:default_KID,attr"`
-	Value      *string `xml:"value,attr"` // Default: cenc
-}
-
-type PlayreadyContentProtectionMarshal struct {
-	ContentProtectionMarshal
-	PlayreadyXMLNS *string `xml:"xmlns:mspr,attr,omitempty"`
-	PRO            *string `xml:"mspr:pro,omitempty"`
-	PSSH           *string `xml:"cenc:pssh,omitempty"`
-}
-
-type WidevineContentProtectionMarshal struct {
-	ContentProtectionMarshal
-	PSSH *string `xml:"cenc:pssh,omitempty"`
-}
-
-func (s ContentProtection) ContentProtected() {}
-
-func (s ContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	//err := e.Encode(&ContentProtectionMarshal{
-	//	s.XMLName,
-	//	s.SchemeIDURI,
-	//	//s.XMLNS,
-	//	s.Attrs,
-	//})
-	//if err != nil {
-	//	return err
-	//}
-	return nil
-}
-
-func (s CENCContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	//err := e.Encode(&CENCContentProtectionMarshal{
-	//	ContentProtectionMarshal{
-	//		s.XMLName,
-	//		s.SchemeIDURI,
-	//		//s.XMLNS,
-	//		s.Attrs,
-	//	},
-	//	s.DefaultKID,
-	//	s.Value,
-	//})
-	//if err != nil {
-	//	return err
-	//}
-	return nil
-}
-
-func (s PlayreadyContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	//err := e.Encode(&PlayreadyContentProtectionMarshal{
-	//	ContentProtectionMarshal{
-	//		s.AdaptationSet,
-	//		s.XMLName,
-	//		s.SchemeIDURI,
-	//		s.XMLNS,
-	//		s.Attrs,
-	//	},
-	//	s.PlayreadyXMLNS,
-	//	s.PRO,
-	//	s.PSSH,
-	//})
-	//if err != nil {
-	//	return err
-	//}
-	return nil
-}
-
-func (s WidevineContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
-	//err := e.Encode(&WidevineContentProtectionMarshal{
-	//	ContentProtectionMarshal{
-	//		s.AdaptationSet,
-	//		s.XMLName,
-	//		s.SchemeIDURI,
-	//		s.XMLNS,
-	//		s.Attrs,
-	//	},
-	//	s.PSSH,
-	//})
-	//if err != nil {
-	//	return err
+	//if c.CENC != nil {
+	//	return e.EncodeElement(c.CENC.asMarshal(), start)
+	//} else if c.Playready != nil {
+	//	return e.EncodeElement(c.Playready.asMarshal(), start)
+	//} else if c.Widevine != nil {
+	//	return e.EncodeElement(c.Widevine.asMarshal(), start)
+	//} else {
+	//	return nil
 	//}
 	return nil
 }
