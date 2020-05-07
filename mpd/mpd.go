@@ -33,8 +33,8 @@ const (
 )
 
 type MPD struct {
-	XMLNs *string `xml:"xmlns,attr"`
-	//NSCENC                     *string `xml:"xmlns:cenc,attr"`
+	XMLNs                      *string `xml:"xmlns,attr"`
+	NSCENC                     *string `xml:"xmlns:cenc,attr"`
 	Profiles                   *string `xml:"profiles,attr"`
 	Type                       *string `xml:"type,attr"`
 	MediaPresentationDuration  *string `xml:"mediaPresentationDuration,attr"`

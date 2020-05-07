@@ -64,14 +64,13 @@ func (c *ContentProtection) UnmarshalXML(d *xml.Decoder, start xml.StartElement)
 
 func (c *ContentProtection) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 
-	//if c.CENC != nil {
-	//	return e.EncodeElement(c.CENC.asMarshal(), start)
-	//} else if c.Playready != nil {
-	//	return e.EncodeElement(c.Playready.asMarshal(), start)
-	//} else if c.Widevine != nil {
-	//	return e.EncodeElement(c.Widevine.asMarshal(), start)
-	//} else {
-	//	return nil
-	//}
-	return nil
+	if c.CENC != nil {
+		return e.EncodeElement(c.CENC.asMarshal(), start)
+	} else if c.Playready != nil {
+		return e.EncodeElement(c.Playready.asMarshal(), start)
+	} else if c.Widevine != nil {
+		return e.EncodeElement(c.Widevine.asMarshal(), start)
+	} else {
+		return nil
+	}
 }
