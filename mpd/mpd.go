@@ -104,25 +104,25 @@ type DescriptorType struct {
 
 // ISO 23009-1-2014 5.3.7
 type CommonAttributesAndElements struct {
-	Profiles                  *string               `xml:"profiles,attr"`
-	Width                     *string               `xml:"width,attr"`
-	Height                    *string               `xml:"height,attr"`
-	Sar                       *string               `xml:"sar,attr"`
-	FrameRate                 *string               `xml:"frameRate,attr"`
-	AudioSamplingRate         *string               `xml:"audioSamplingRate,attr"`
-	MimeType                  *string               `xml:"mimeType,attr"`
-	SegmentProfiles           *string               `xml:"segmentProfiles,attr"`
-	Codecs                    *string               `xml:"codecs,attr"`
-	MaximumSAPPeriod          *string               `xml:"maximumSAPPeriod,attr"`
-	StartWithSAP              *int64                `xml:"startWithSAP,attr"`
-	MaxPlayoutRate            *string               `xml:"maxPlayoutRate,attr"`
-	ScanType                  *string               `xml:"scanType,attr"`
-	FramePacking              []DescriptorType      `xml:"FramePacking,omitempty"`
-	AudioChannelConfiguration []DescriptorType      `xml:"AudioChannelConfiguration,omitempty"`
-	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
-	EssentialProperty         []DescriptorType      `xml:"EssentialProperty,omitempty"`
-	SupplementalProperty      []DescriptorType      `xml:"SupplementalProperty,omitempty"`
-	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
+	Profiles                  *string            `xml:"profiles,attr"`
+	Width                     *string            `xml:"width,attr"`
+	Height                    *string            `xml:"height,attr"`
+	Sar                       *string            `xml:"sar,attr"`
+	FrameRate                 *string            `xml:"frameRate,attr"`
+	AudioSamplingRate         *string            `xml:"audioSamplingRate,attr"`
+	MimeType                  *string            `xml:"mimeType,attr"`
+	SegmentProfiles           *string            `xml:"segmentProfiles,attr"`
+	Codecs                    *string            `xml:"codecs,attr"`
+	MaximumSAPPeriod          *string            `xml:"maximumSAPPeriod,attr"`
+	StartWithSAP              *int64             `xml:"startWithSAP,attr"`
+	MaxPlayoutRate            *string            `xml:"maxPlayoutRate,attr"`
+	ScanType                  *string            `xml:"scanType,attr"`
+	FramePacking              []DescriptorType   `xml:"FramePacking,omitempty"`
+	AudioChannelConfiguration []DescriptorType   `xml:"AudioChannelConfiguration,omitempty"`
+	ContentProtection         contentProtections `xml:"ContentProtection,omitempty"`
+	EssentialProperty         []DescriptorType   `xml:"EssentialProperty,omitempty"`
+	SupplementalProperty      []DescriptorType   `xml:"SupplementalProperty,omitempty"`
+	InbandEventStream         *DescriptorType    `xml:"inbandEventStream,attr"`
 }
 
 type contentProtections []ContentProtectioner
