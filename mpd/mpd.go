@@ -234,16 +234,21 @@ type CENCContentProtection struct {
 	Value      *string `xml:"value,attr"` // Default: cenc
 }
 
+type PSSH struct {
+	XMLNS *string `xml:"cenc,attr"`
+	Value *string `xml:",chardata"`
+}
+
 type PlayreadyContentProtection struct {
 	ContentProtection
 	PlayreadyXMLNS *string `xml:"mspr,attr,omitempty"`
 	PRO            *string `xml:"pro,omitempty"`
-	PSSH           *string `xml:"pssh,omitempty"`
+	PSSH           *PSSH   `xml:"pssh,omitempty"`
 }
 
 type WidevineContentProtection struct {
 	ContentProtection
-	PSSH *string `xml:"pssh,omitempty"`
+	PSSH *PSSH `xml:"pssh,omitempty"`
 }
 
 type ContentProtectionMarshal struct {
@@ -260,16 +265,29 @@ type CENCContentProtectionMarshal struct {
 	Value      *string `xml:"value,attr"` // Default: cenc
 }
 
+type PSSHMarshal struct {
+	XMLNS *string `xml:"xmlns:cenc,attr"`
+	Value *string `xml:",chardata"`
+}
+
+func psshToMarshal(pssh *PSSH) *PSSHMarshal {
+	if pssh == nil {
+		return nil
+	}
+
+	return &PSSHMarshal{XMLNS: pssh.XMLNS, Value: pssh.Value}
+}
+
 type PlayreadyContentProtectionMarshal struct {
 	ContentProtectionMarshal
-	PlayreadyXMLNS *string `xml:"xmlns:mspr,attr,omitempty"`
-	PRO            *string `xml:"mspr:pro,omitempty"`
-	PSSH           *string `xml:"cenc:pssh,omitempty"`
+	PlayreadyXMLNS *string      `xml:"xmlns:mspr,attr,omitempty"`
+	PRO            *string      `xml:"mspr:pro,omitempty"`
+	PSSH           *PSSHMarshal `xml:"cenc:pssh,omitempty"`
 }
 
 type WidevineContentProtectionMarshal struct {
 	ContentProtectionMarshal
-	PSSH *string `xml:"cenc:pssh,omitempty"`
+	PSSH *PSSHMarshal `xml:"cenc:pssh,omitempty"`
 }
 
 func (s ContentProtection) ContentProtected() {}
@@ -317,8 +335,9 @@ func (s PlayreadyContentProtection) MarshalXML(e *xml.Encoder, start xml.StartEl
 		},
 		s.PlayreadyXMLNS,
 		s.PRO,
-		s.PSSH,
+		psshToMarshal(s.PSSH),
 	})
+
 	if err != nil {
 		return err
 	}
@@ -334,7 +353,7 @@ func (s WidevineContentProtection) MarshalXML(e *xml.Encoder, start xml.StartEle
 			s.XMLNS,
 			s.Attrs,
 		},
-		s.PSSH,
+		psshToMarshal(s.PSSH),
 	})
 	if err != nil {
 		return err
@@ -742,7 +761,7 @@ func NewWidevineContentProtection(wvHeader []byte) (*WidevineContentProtection, 
 		}
 
 		psshB64 := base64.StdEncoding.EncodeToString(psshBox)
-		cp.PSSH = &psshB64
+		cp.PSSH = &PSSH{Value: &psshB64, XMLNS: Strptr(CENC_XMLNS)}
 	}
 	return cp, nil
 }
@@ -814,7 +833,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyWithPSSH(pro stri
 	if err != nil {
 		return nil, err
 	}
-	cp.PSSH = Strptr(base64.StdEncoding.EncodeToString(psshBox))
+	cp.PSSH = &PSSH{Value: Strptr(base64.StdEncoding.EncodeToString(psshBox)), XMLNS: Strptr(CENC_XMLNS)}
 
 	err = as.AddContentProtection(cp)
 	if err != nil {
@@ -846,7 +865,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10WithPSSH(pro s
 	if err != nil {
 		return nil, err
 	}
-	cp.PSSH = Strptr(base64.StdEncoding.EncodeToString(psshBox))
+	cp.PSSH = &PSSH{Value: Strptr(base64.StdEncoding.EncodeToString(psshBox)), XMLNS: Strptr(CENC_XMLNS)}
 
 	err = as.AddContentProtection(cp)
 	if err != nil {

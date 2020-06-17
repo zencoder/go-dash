@@ -95,6 +95,7 @@ func EqualStringPtr(t *testing.T, expected, actual *string, msgs ...string) {
 }
 
 func EqualString(t *testing.T, expected, actual string, msgs ...string) {
+	t.Helper()
 	if expected != actual {
 		t.Errorf("Expected %s but got %s", expected, actual)
 		for _, msg := range msgs {
