@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	VALID_EVENT_STREAM_SCHEME_ID_URI       = "urn:example:eventstream"
-	VALID_EVENT_STREAM_VALUE               = "eventstream"
-	VALID_EVENT_STREAM_TIMESCALE     int64 = 10
+	VALID_EVENT_STREAM_SCHEME_ID_URI      = "urn:example:eventstream"
+	VALID_EVENT_STREAM_VALUE              = "eventstream"
+	VALID_EVENT_STREAM_TIMESCALE     uint = 10
 )
 
 func newEventStreamMPD() *MPD {
@@ -25,19 +25,19 @@ func newEventStreamMPD() *MPD {
 	es := EventStream{
 		SchemeIDURI: ptrs.Strptr(VALID_EVENT_STREAM_SCHEME_ID_URI),
 		Value:       ptrs.Strptr(VALID_EVENT_STREAM_VALUE),
-		Timescale:   ptrs.Int64ptr(VALID_EVENT_STREAM_TIMESCALE),
+		Timescale:   ptrs.Uintptr(VALID_EVENT_STREAM_TIMESCALE),
 	}
 
 	e0 := Event{
 		ID:               ptrs.Strptr("event-0"),
-		PresentationTime: ptrs.Int64ptr(100),
-		Duration:         ptrs.Int64ptr(50),
+		PresentationTime: ptrs.Uint64ptr(100),
+		Duration:         ptrs.Uint64ptr(50),
 	}
 
 	e1 := Event{
 		ID:               ptrs.Strptr("event-1"),
-		PresentationTime: ptrs.Int64ptr(200),
-		Duration:         ptrs.Int64ptr(50),
+		PresentationTime: ptrs.Uint64ptr(200),
+		Duration:         ptrs.Uint64ptr(50),
 	}
 
 	es.Events = append(es.Events, e0, e1)
