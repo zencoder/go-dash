@@ -6,7 +6,7 @@ import (
 	"github.com/zencoder/go-dash/mpd"
 )
 
-func exampleLive() {
+func main() {
 	m := mpd.NewMPD(mpd.DASH_PROFILE_LIVE, "PT6M16S", "PT1.97S")
 
 	audioAS, _ := m.AddNewAdaptationSetAudio(mpd.DASH_MIME_TYPE_AUDIO_MP4, true, 1, "und")

@@ -42,7 +42,3 @@ func exampleOndemand() {
 	mpdStr, _ := m.WriteToString()
 	fmt.Println(mpdStr)
 }
-
-func main() {
-	exampleOndemand()
-}
