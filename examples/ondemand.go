@@ -36,8 +36,8 @@ func exampleOndemand() {
 	_ = subtitleRep.SetNewBaseURL("http://example.com/content/sintel/subtitles/subtitles_en.vtt")
 
 	thumbnailsAS, _ := m.AddNewAdaptationSetThumbnails(mpd.DASH_MIME_TYPE_IMAGE_JPEG)
-	_,_ = thumbnailsAS.SetNewSegmentTemplateThumbnails(1801800, "$RepresentationID$/$Number$.jpg", 0, 30000)
-	_,_ = thumbnailsAS.AddNewRepresentationThumbnails(50000, "5x4", 1600, 720, "http://dashif.org/guidelines/thumbnail_tile")
+	_, _ = thumbnailsAS.SetNewSegmentTemplateThumbnails(1801800, "$RepresentationID$/$Number$.jpg", 0, 30000)
+	_, _ = thumbnailsAS.AddNewRepresentationThumbnails(50000, "5x4", 1600, 720, "http://dashif.org/guidelines/thumbnail_tile")
 
 	mpdStr, _ := m.WriteToString()
 	fmt.Println(mpdStr)

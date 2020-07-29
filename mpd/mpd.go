@@ -47,8 +47,8 @@ const (
 	DASH_MIME_TYPE_SUBTITLE_TTML string = "application/ttaf+xml"
 	DASH_MIME_TYPE_SUBTITLE_SRT  string = "application/x-subrip"
 	DASH_MIME_TYPE_SUBTITLE_DFXP string = "application/ttaf+xml"
-	DASH_MIME_TYPE_IMAGE_JPEG string = "image/jpeg"
-	DASH_CONTENT_TYPE_IMAGE string = "image"
+	DASH_MIME_TYPE_IMAGE_JPEG    string = "image/jpeg"
+	DASH_CONTENT_TYPE_IMAGE      string = "image"
 )
 
 // Known error variables
@@ -472,9 +472,9 @@ func (m *MPD) AddNewAdaptationSetThumbnails(mimeType string) (*AdaptationSet, er
 
 func (period *Period) AddNewAdaptationSetThumbnails(mimeType string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		ContentType:             Strptr(DASH_CONTENT_TYPE_IMAGE),
+		ContentType: Strptr(DASH_CONTENT_TYPE_IMAGE),
 		CommonAttributesAndElements: CommonAttributesAndElements{
-			MimeType:     Strptr(mimeType),
+			MimeType: Strptr(mimeType),
 		},
 	}
 	err := period.addAdaptationSet(as)
@@ -925,10 +925,10 @@ func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
 // timescale - sets the timescale for duration (i.e. 1000, represents milliseconds).
 func (as *AdaptationSet) SetNewSegmentTemplateThumbnails(duration int64, media string, startNumber int64, timescale int64) (*SegmentTemplate, error) {
 	st := &SegmentTemplate{
-		Duration:       Int64ptr(duration),
-		Media:          Strptr(media),
-		StartNumber:    Int64ptr(startNumber),
-		Timescale:      Int64ptr(timescale),
+		Duration:    Int64ptr(duration),
+		Media:       Strptr(media),
+		StartNumber: Int64ptr(startNumber),
+		Timescale:   Int64ptr(timescale),
 	}
 
 	err := as.setSegmentTemplate(st)
@@ -954,7 +954,7 @@ func (as *AdaptationSet) AddNewRepresentationThumbnails(bandwidth int64, id stri
 			EssentialProperty: []DescriptorType{
 				{
 					SchemeIDURI: Strptr(uri),
-					Value: Strptr(id),
+					Value:       Strptr(id),
 				},
 			},
 		},
