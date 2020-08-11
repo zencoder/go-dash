@@ -484,6 +484,25 @@ func (period *Period) AddNewAdaptationSetThumbnails(mimeType string) (*Adaptatio
 	return as, nil
 }
 
+func (m *MPD) AddNewAdaptationSetThumbnailsWithID(id, mimeType string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetThumbnailsWithID(id, mimeType)
+}
+
+func (period *Period) AddNewAdaptationSetThumbnailsWithID(id, mimeType string) (*AdaptationSet, error) {
+	as := &AdaptationSet{
+		ID: Strptr(id),
+		ContentType: Strptr(DASH_CONTENT_TYPE_IMAGE),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			MimeType: Strptr(mimeType),
+		},
+	}
+	err := period.addAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
+}
+
 // Create a new Adaptation Set for Audio Assets.
 // mimeType - MIME Type (i.e. audio/mp4).
 // segmentAlignment - Segment Alignment(i.e. true).
@@ -944,7 +963,7 @@ func (as *AdaptationSet) SetNewSegmentTemplateThumbnails(duration int64, media s
 // width - width of the video (i.e. 1280).
 // height - height of the video (i.e 720).
 // uri -
-func (as *AdaptationSet) AddNewRepresentationThumbnails(bandwidth int64, id string, width int64, height int64, uri string) (*Representation, error) {
+func (as *AdaptationSet) AddNewRepresentationThumbnails(id, val, uri string,bandwidth, width, height int64) (*Representation, error) {
 	r := &Representation{
 		Bandwidth: Int64ptr(bandwidth),
 		ID:        Strptr(id),
@@ -954,7 +973,7 @@ func (as *AdaptationSet) AddNewRepresentationThumbnails(bandwidth int64, id stri
 			EssentialProperty: []DescriptorType{
 				{
 					SchemeIDURI: Strptr(uri),
-					Value:       Strptr(id),
+					Value:       Strptr(val),
 				},
 			},
 		},
