@@ -16,6 +16,7 @@
           <Initialization range="0-628"></Initialization>
         </SegmentBase>
       </Representation>
+      <Accessibility schemeIdUri="urn:tva:metadata:cs:AudioPurposeCS:2007" value="1"></Accessibility>
     </AdaptationSet>
     <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true">
       <ContentProtection schemeIdUri="urn:mpeg:dash:mp4protection:2011" xmlns:cenc="urn:mpeg:cenc:2013" cenc:default_KID="08e36702-8f33-436c-a5dd-60ffe5571e60" value="cenc"></ContentProtection>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S" publishTime="1970-01-01T00:00:00Z">
+  <Location>https://example.com/location.mpd</Location>
+</MPD>

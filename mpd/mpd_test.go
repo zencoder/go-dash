@@ -2,10 +2,12 @@ package mpd
 
 import (
 	"encoding/base64"
+	"path/filepath"
 	"testing"
 
 	. "github.com/zencoder/go-dash/v3/helpers/ptrs"
 	"github.com/zencoder/go-dash/v3/helpers/require"
+	"github.com/zencoder/go-dash/v3/helpers/testfixtures"
 )
 
 const (
@@ -41,6 +43,7 @@ const (
 	VALID_SUBTITLE_ID                 string = "subtitle_en"
 	VALID_SUBTITLE_URL                string = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
 	VALID_ROLE                        string = "main"
+	VALID_LOCATION                    string = "https://example.com/location.mpd"
 )
 
 func TestNewMPDLive(t *testing.T) {
@@ -456,4 +459,70 @@ func getValidWVHeaderBytes() []byte {
 		panic(err.Error())
 	}
 	return wvHeader
+}
+
+func TestAddNewAccessibilityElement(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, err := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT,
+		VALID_START_WITH_SAP, VALID_LANG)
+	if err != nil {
+		t.Errorf("AddNewAccessibilityElement() error adding audio adaptation set: %v", err)
+		return
+	}
+
+	_, err = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
+	if err != nil {
+		t.Errorf("AddNewAccessibilityElement() error adding accessibility element: %v", err)
+		return
+	}
+
+	if g, e := len(audioAS.AccessibilityElems), 1; g != e {
+		t.Errorf("AddNewAccessibilityElement() wrong number of accessibility elements, got: %d, expected: %d",
+			g, e)
+		return
+	}
+
+	elem := audioAS.AccessibilityElems[0]
+
+	require.EqualStringPtr(t, Strptr((string)(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO)), elem.SchemeIdUri)
+	require.EqualStringPtr(t, Strptr("1"), elem.Value)
+}
+
+func TestLocationWriteToString(t *testing.T) {
+	m := &MPD{
+		XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:              Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                  Strptr("dynamic"),
+		AvailabilityStartTime: Strptr(VALID_AVAILABILITY_START_TIME),
+		MinimumUpdatePeriod:   Strptr(VALID_MINIMUM_UPDATE_PERIOD),
+		PublishTime:           Strptr(VALID_AVAILABILITY_START_TIME),
+		Location:              VALID_LOCATION,
+	}
+
+	got, err := m.WriteToString()
+	require.NoError(t, err)
+
+	testfixtures.CompareFixture(t, "fixtures/location.mpd", got)
+}
+
+func TestReadWriteIdentical(t *testing.T) {
+	const fixtures = "fixtures/"
+	var (
+		skipFixtures = map[string]struct{}{"invalid.mpd": {}}
+		matches, err = filepath.Glob(fixtures + "*.mpd")
+	)
+	require.NoError(t, err)
+	for _, file := range matches {
+		file := filepath.Base(file)
+		if _, ok := skipFixtures[file]; ok {
+			continue
+		}
+		t.Run(file, func(t *testing.T) {
+			m, err := ReadFromFile(fixtures + file)
+			require.NoError(t, err)
+			got, err := m.WriteToString()
+			require.NoError(t, err)
+			testfixtures.CompareFixture(t, fixtures+file, got)
+		})
+	}
 }

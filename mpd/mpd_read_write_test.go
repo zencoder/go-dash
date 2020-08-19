@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/zencoder/go-dash/v3/helpers/ptrs"
 	"github.com/zencoder/go-dash/v3/helpers/require"
 	"github.com/zencoder/go-dash/v3/helpers/testfixtures"
 )
@@ -89,6 +90,26 @@ func TestNewDynamicMPDLiveWithPeriodStartWriteToString(t *testing.T) {
 	require.EqualString(t, expectedXML, xmlStr)
 }
 
+func TestNewDynamicMPDLiveWithSuggestedPresentationDelayToString(t *testing.T) {
+	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
+		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+
+	// Set first period start time to PT0S
+	spd := Duration(time.Duration(18) * time.Second)
+	m.SuggestedPresentationDelay = &spd
+
+	xmlStr, err := m.WriteToString()
+	require.NoError(t, err)
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z" minimumUpdatePeriod="PT5S" suggestedPresentationDelay="PT18S">
+  <Period></Period>
+  <UTCTiming></UTCTiming>
+</MPD>
+`
+	require.EqualString(t, expectedXML, xmlStr)
+}
+
 func TestNewMPDOnDemandWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
@@ -122,14 +143,20 @@ func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
 func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	_, _ = m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	as, err := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	require.NoError(t, err)
+
+	as.MinWidth = ptrs.Strptr("720")
+	as.MaxWidth = ptrs.Strptr("720")
+	as.MinHeight = ptrs.Strptr("480")
+	as.MaxHeight = ptrs.Strptr("480")
 
 	xmlStr, err := m.WriteToString()
 	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true"></AdaptationSet>
+    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true" minWidth="720" maxWidth="720" minHeight="480" maxHeight="480"></AdaptationSet>
   </Period>
 </MPD>
 `
@@ -180,6 +207,35 @@ func TestExampleAddNewPeriod(t *testing.T) {
 	testfixtures.CompareFixture(t, "fixtures/newperiod.mpd", xmlStr)
 }
 
+func TestAddNewAccessibilityElementWriteToString(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	audioAS, err := m.AddNewAdaptationSetAudioWithID("7357", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT,
+		VALID_START_WITH_SAP, VALID_LANG)
+	if err != nil {
+		t.Errorf("AddNewAccessibilityElement() error adding audio adaptation set: %v", err)
+		return
+	}
+
+	_, err = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
+	if err != nil {
+		t.Errorf("AddNewAccessibilityElement() error adding accessibility element: %v", err)
+		return
+	}
+
+	xmlStr, err := m.WriteToString()
+	require.NoError(t, err)
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period>
+    <AdaptationSet mimeType="audio/mp4" startWithSAP="1" id="7357" segmentAlignment="true" lang="en">
+      <Accessibility schemeIdUri="urn:tva:metadata:cs:AudioPurposeCS:2007" value="1"></Accessibility>
+    </AdaptationSet>
+  </Period>
+</MPD>
+`
+	require.EqualString(t, expectedXML, xmlStr)
+}
+
 func LiveProfile() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME,
 		AttrAvailabilityStartTime(VALID_AVAILABILITY_START_TIME))
@@ -194,6 +250,7 @@ func LiveProfile() *MPD {
 
 	_, _ = audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
 	_, _ = audioAS.AddNewRepresentationAudio(44100, 67095, "mp4a.40.2", "800")
+	_, _ = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
 
 	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -250,6 +307,7 @@ func LiveProfileDynamic() *MPD {
 
 	_, _ = audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
 	_, _ = audioAS.AddNewRepresentationAudio(44100, 67095, "mp4a.40.2", "800")
+	_, _ = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
 
 	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -305,6 +363,7 @@ func HbbTVProfile() *MPD {
 	_, _ = audioAS.SetNewSegmentTemplate(1968, "$RepresentationID$/audio/en/init.mp4", "$RepresentationID$/audio/en/seg-$Number$.m4f", 0, 1000)
 	r, _ := audioAS.AddNewRepresentationAudio(44100, 67095, "mp4a.40.2", "800")
 	_, _ = r.AddNewAudioChannelConfiguration(AUDIO_CHANNEL_CONFIGURATION_MPEG_DASH, "2")
+	_, _ = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
 
 	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
 
@@ -353,6 +412,7 @@ func OnDemandProfile() *MPD {
 	_, _ = audioAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
 	_, _ = audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	_, _ = audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+	_, _ = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
 
 	audioRep, _ := audioAS.AddNewRepresentationAudio(44100, 128558, "mp4a.40.5", "800k/audio-und")
 	_ = audioRep.SetNewBaseURL("800k/output-audio-und.mp4")
