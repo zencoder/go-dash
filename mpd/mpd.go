@@ -47,6 +47,8 @@ const (
 	DASH_MIME_TYPE_SUBTITLE_TTML string = "application/ttaf+xml"
 	DASH_MIME_TYPE_SUBTITLE_SRT  string = "application/x-subrip"
 	DASH_MIME_TYPE_SUBTITLE_DFXP string = "application/ttaf+xml"
+	DASH_MIME_TYPE_IMAGE_JPEG    string = "image/jpeg"
+	DASH_CONTENT_TYPE_IMAGE      string = "image"
 )
 
 // Known error variables
@@ -460,6 +462,45 @@ func (m *MPD) GetCurrentPeriod() *Period {
 
 func (period *Period) SetDuration(d time.Duration) {
 	period.Duration = Duration(d)
+}
+
+// Create a new Adaptation Set for thumbnails.
+// mimeType - e.g. (image/jpeg)
+func (m *MPD) AddNewAdaptationSetThumbnails(mimeType string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetThumbnails(mimeType)
+}
+
+func (period *Period) AddNewAdaptationSetThumbnails(mimeType string) (*AdaptationSet, error) {
+	as := &AdaptationSet{
+		ContentType: Strptr(DASH_CONTENT_TYPE_IMAGE),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			MimeType: Strptr(mimeType),
+		},
+	}
+	err := period.addAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
+}
+
+func (m *MPD) AddNewAdaptationSetThumbnailsWithID(id, mimeType string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetThumbnailsWithID(id, mimeType)
+}
+
+func (period *Period) AddNewAdaptationSetThumbnailsWithID(id, mimeType string) (*AdaptationSet, error) {
+	as := &AdaptationSet{
+		ID: Strptr(id),
+		ContentType: Strptr(DASH_CONTENT_TYPE_IMAGE),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			MimeType: Strptr(mimeType),
+		},
+	}
+	err := period.addAdaptationSet(as)
+	if err != nil {
+		return nil, err
+	}
+	return as, nil
 }
 
 // Create a new Adaptation Set for Audio Assets.
@@ -894,6 +935,55 @@ func (as *AdaptationSet) setSegmentTemplate(st *SegmentTemplate) error {
 	st.AdaptationSet = as
 	as.SegmentTemplate = st
 	return nil
+}
+
+// Adds a new SegmentTemplate to a thumbnail AdaptationSet
+// duration - relative to timescale (i.e. 2000).
+// media - template string for media segments.
+// startNumber - the number to start segments from ($Number$) (i.e. 0).
+// timescale - sets the timescale for duration (i.e. 1000, represents milliseconds).
+func (as *AdaptationSet) SetNewSegmentTemplateThumbnails(duration int64, media string, startNumber int64, timescale int64) (*SegmentTemplate, error) {
+	st := &SegmentTemplate{
+		Duration:    Int64ptr(duration),
+		Media:       Strptr(media),
+		StartNumber: Int64ptr(startNumber),
+		Timescale:   Int64ptr(timescale),
+	}
+
+	err := as.setSegmentTemplate(st)
+	if err != nil {
+		return nil, err
+	}
+	return st, nil
+}
+
+// Adds a new Thumbnail representation to an AdaptationSet.
+// bandwidth - in Bits/s (i.e. 1518664).
+// id - ID for this representation, will get used as $RepresentationID$ in template strings.
+// width - width of the video (i.e. 1280).
+// height - height of the video (i.e 720).
+// uri -
+func (as *AdaptationSet) AddNewRepresentationThumbnails(id, val, uri string,bandwidth, width, height int64) (*Representation, error) {
+	r := &Representation{
+		Bandwidth: Int64ptr(bandwidth),
+		ID:        Strptr(id),
+		Width:     Int64ptr(width),
+		Height:    Int64ptr(height),
+		CommonAttributesAndElements: CommonAttributesAndElements{
+			EssentialProperty: []DescriptorType{
+				{
+					SchemeIDURI: Strptr(uri),
+					Value:       Strptr(val),
+				},
+			},
+		},
+	}
+
+	err := as.addRepresentation(r)
+	if err != nil {
+		return nil, err
+	}
+	return r, nil
 }
 
 // Adds a new Audio representation to an AdaptationSet.
