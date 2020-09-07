@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/zencoder/go-dash/helpers/ptrs"
+	. "github.com/liuyanhit/go-dash/helpers/ptrs"
 )
 
 // Type definition for DASH profiles
@@ -960,7 +960,10 @@ func (as *AdaptationSet) SetNewSegmentTemplate(duration int64, init string, medi
 		Initialization: Strptr(init),
 		Media:          Strptr(media),
 		StartNumber:    Int64ptr(startNumber),
-		Timescale:      Int64ptr(timescale),
+
+	}
+	if timescale!=0{
+		st.Timescale = Int64ptr(timescale)
 	}
 
 	err := as.setSegmentTemplate(st)
