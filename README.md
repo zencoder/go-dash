@@ -5,7 +5,7 @@ A [Go](https://golang.org) library for generating [MPEG-DASH](https://en.wikiped
 ## Install
 
 ```
-go get -u github.com/zencoder/go-dash
+go get -u github.com/liuyanhit/go-dash
 ```
 
 ## Supported Features
@@ -21,6 +21,9 @@ go get -u github.com/zencoder/go-dash
 * DRM (ContentProtection)
   * PlayReady
   * Widevine
+
+## Original Code
+  * https://github.com/zencoder/go-dash
 
 ## Known Limitations (for now) (PRs welcome)
 

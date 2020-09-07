@@ -3,9 +3,9 @@ package mpd
 import (
 	"testing"
 
-	"github.com/zencoder/go-dash/helpers/ptrs"
-	"github.com/zencoder/go-dash/helpers/require"
-	"github.com/zencoder/go-dash/helpers/testfixtures"
+	"github.com/liuyanhit/go-dash/helpers/ptrs"
+	"github.com/liuyanhit/go-dash/helpers/require"
+	"github.com/liuyanhit/go-dash/helpers/testfixtures"
 )
 
 const (
