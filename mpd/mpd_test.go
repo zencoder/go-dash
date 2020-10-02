@@ -3,6 +3,7 @@ package mpd
 import (
 	"encoding/base64"
 	"path/filepath"
+	"strconv"
 	"testing"
 
 	. "github.com/zencoder/go-dash/helpers/ptrs"
@@ -85,6 +86,34 @@ func TestNewDynamicMPDLive(t *testing.T) {
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
 		UTCTiming:                 &DescriptorType{},
+	}
+
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
+
+	require.EqualString(t, expectedString, actualString)
+}
+
+func TestNewMPDMultiPeriod(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME,
+		AttrAvailabilityStartTime(VALID_AVAILABILITY_START_TIME))
+	require.NotNil(t, m)
+	for i := 0; i < 2; i++ {
+		period := m.AddNewPeriod()
+		period.ID = strconv.Itoa(i)
+	}
+
+	expectedMPD := &MPD{
+		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_LIVE)),
+		Type:                      Strptr("static"),
+		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
+		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
+		AvailabilityStartTime:     Strptr(VALID_AVAILABILITY_START_TIME),
+		period:                    nil,
+		Periods:                   []*Period{{ID: "0"}, {ID: "1"}},
 	}
 
 	expectedString, err := expectedMPD.WriteToString()

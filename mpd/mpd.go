@@ -449,6 +449,9 @@ func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime str
 
 // AddNewPeriod creates a new Period and make it the currently active one.
 func (m *MPD) AddNewPeriod() *Period {
+	if m.period != nil && m.period.ID == "" && m.period.AdaptationSets == nil {
+		return m.GetCurrentPeriod()
+	}
 	period := &Period{}
 	m.Periods = append(m.Periods, period)
 	m.period = period
@@ -490,7 +493,7 @@ func (m *MPD) AddNewAdaptationSetThumbnailsWithID(id, mimeType string) (*Adaptat
 
 func (period *Period) AddNewAdaptationSetThumbnailsWithID(id, mimeType string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		ID: Strptr(id),
+		ID:          Strptr(id),
 		ContentType: Strptr(DASH_CONTENT_TYPE_IMAGE),
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			MimeType: Strptr(mimeType),
@@ -963,7 +966,7 @@ func (as *AdaptationSet) SetNewSegmentTemplateThumbnails(duration int64, media s
 // width - width of the video (i.e. 1280).
 // height - height of the video (i.e 720).
 // uri -
-func (as *AdaptationSet) AddNewRepresentationThumbnails(id, val, uri string,bandwidth, width, height int64) (*Representation, error) {
+func (as *AdaptationSet) AddNewRepresentationThumbnails(id, val, uri string, bandwidth, width, height int64) (*Representation, error) {
 	r := &Representation{
 		Bandwidth: Int64ptr(bandwidth),
 		ID:        Strptr(id),
