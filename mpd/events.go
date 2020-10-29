@@ -11,8 +11,9 @@ type EventStream struct {
 }
 
 type Event struct {
-	XMLName          xml.Name `xml:"Event"`
-	ID               *string  `xml:"id,attr,omitempty"`
-	PresentationTime *int64   `xml:"presentationTime,attr,omitempty"`
-	Duration         *int64   `xml:"duration,attr,omitempty"`
+	XMLName           xml.Name                 `xml:"Event"`
+	ID                *string                  `xml:"id,attr,omitempty"`
+	SpliceInfoSection *Scte35SpliceInfoSection `xml:"SpliceInfoSection,omitempty"`
+	PresentationTime  *int64                   `xml:"presentationTime,attr,omitempty"`
+	Duration          *int64                   `xml:"duration,attr,omitempty"`
 }

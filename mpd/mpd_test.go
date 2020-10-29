@@ -11,39 +11,39 @@ import (
 )
 
 const (
-	VALID_MEDIA_PRESENTATION_DURATION string = "PT6M16S"
-	VALID_MIN_BUFFER_TIME             string = "PT1.97S"
-	VALID_AVAILABILITY_START_TIME     string = "1970-01-01T00:00:00Z"
-	VALID_MINIMUM_UPDATE_PERIOD       string = "PT5S"
-	VALID_SCAN_TYPE                   string = "progressive"
-	VALID_SEGMENT_ALIGNMENT           bool   = true
-	VALID_START_WITH_SAP              int64  = 1
-	VALID_LANG                        string = "en"
-	VALID_DURATION                    int64  = 1968
-	VALID_INIT_PATH_AUDIO             string = "$RepresentationID$/audio/en/init.mp4"
-	VALID_MEDIA_PATH_AUDIO            string = "$RepresentationID$/audio/en/seg-$Number$.m4f"
-	VALID_START_NUMBER                int64  = 0
-	VALID_TIMESCALE                   int64  = 1000
-	VALID_AUDIO_SAMPLE_RATE           int64  = 44100
-	VALID_AUDIO_BITRATE               int64  = 67095
-	VALID_AUDIO_CODEC                 string = "mp4a.40.2"
-	VALID_AUDIO_ID                    string = "800"
-	VALID_VIDEO_BITRATE               int64  = 1518664
-	VALID_VIDEO_CODEC                 string = "avc1.4d401f"
-	VALID_VIDEO_ID                    string = "800"
-	VALID_VIDEO_FRAMERATE             string = "30000/1001"
-	VALID_VIDEO_WIDTH                 int64  = 960
-	VALID_VIDEO_HEIGHT                int64  = 540
-	VALID_BASE_URL_VIDEO              string = "800k/output-video-1.mp4"
-	VALID_INDEX_RANGE                 string = "629-756"
-	VALID_INIT_RANGE                  string = "0-628"
-	VALID_PLAYREADY_PRO               string = "BgIAAAEAAQD8ATwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4ATAA5AFcAOQBXAGsAcABWAEsAawArADQAMABHAEgAMwBZAFUASgBSAFYAUQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBJAEsAegBZADIASABaAEwAQQBsAEkAPQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APAAvAEQAQQBUAEEAPgA8AC8AVwBSAE0ASABFAEEARABFAFIAPgA="
-	VALID_WV_HEADER                   string = "CAESEFq91S9VSk8quNBh92FCUVUaCGNhc3RsYWJzIhhXcjNWTDFWS1R5cTQwR0gzWVVKUlZRPT0yB2RlZmF1bHQ="
-	VALID_SUBTITLE_BANDWIDTH          int64  = 256
-	VALID_SUBTITLE_ID                 string = "subtitle_en"
-	VALID_SUBTITLE_URL                string = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
-	VALID_ROLE                        string = "main"
-	VALID_LOCATION                    string = "https://example.com/location.mpd"
+	VALID_MEDIA_PRESENTATION_DURATION string  = "PT6M16S"
+	VALID_MIN_BUFFER_TIME             string  = "PT1.97S"
+	VALID_AVAILABILITY_START_TIME     string  = "1970-01-01T00:00:00Z"
+	VALID_MINIMUM_UPDATE_PERIOD       string  = "PT5S"
+	VALID_SCAN_TYPE                   string  = "progressive"
+	VALID_SEGMENT_ALIGNMENT           bool    = true
+	VALID_START_WITH_SAP              int64   = 1
+	VALID_LANG                        string  = "en"
+	VALID_DURATION                    float64 = 1968.0
+	VALID_INIT_PATH_AUDIO             string  = "$RepresentationID$/audio/en/init.mp4"
+	VALID_MEDIA_PATH_AUDIO            string  = "$RepresentationID$/audio/en/seg-$Number$.m4f"
+	VALID_START_NUMBER                int64   = 0
+	VALID_TIMESCALE                   int64   = 1000
+	VALID_AUDIO_SAMPLE_RATE           int64   = 44100
+	VALID_AUDIO_BITRATE               int64   = 67095
+	VALID_AUDIO_CODEC                 string  = "mp4a.40.2"
+	VALID_AUDIO_ID                    string  = "800"
+	VALID_VIDEO_BITRATE               int64   = 1518664
+	VALID_VIDEO_CODEC                 string  = "avc1.4d401f"
+	VALID_VIDEO_ID                    string  = "800"
+	VALID_VIDEO_FRAMERATE             string  = "30000/1001"
+	VALID_VIDEO_WIDTH                 int64   = 960
+	VALID_VIDEO_HEIGHT                int64   = 540
+	VALID_BASE_URL_VIDEO              string  = "800k/output-video-1.mp4"
+	VALID_INDEX_RANGE                 string  = "629-756"
+	VALID_INIT_RANGE                  string  = "0-628"
+	VALID_PLAYREADY_PRO               string  = "BgIAAAEAAQD8ATwAVwBSAE0ASABFAEEARABFAFIAIAB4AG0AbABuAHMAPQAiAGgAdAB0AHAAOgAvAC8AcwBjAGgAZQBtAGEAcwAuAG0AaQBjAHIAbwBzAG8AZgB0AC4AYwBvAG0ALwBEAFIATQAvADIAMAAwADcALwAwADMALwBQAGwAYQB5AFIAZQBhAGQAeQBIAGUAYQBkAGUAcgAiACAAdgBlAHIAcwBpAG8AbgA9ACIANAAuADAALgAwAC4AMAAiAD4APABEAEEAVABBAD4APABQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsARQBZAEwARQBOAD4AMQA2ADwALwBLAEUAWQBMAEUATgA+ADwAQQBMAEcASQBEAD4AQQBFAFMAQwBUAFIAPAAvAEEATABHAEkARAA+ADwALwBQAFIATwBUAEUAQwBUAEkATgBGAE8APgA8AEsASQBEAD4ATAA5AFcAOQBXAGsAcABWAEsAawArADQAMABHAEgAMwBZAFUASgBSAFYAUQA9AD0APAAvAEsASQBEAD4APABDAEgARQBDAEsAUwBVAE0APgBJAEsAegBZADIASABaAEwAQQBsAEkAPQA8AC8AQwBIAEUAQwBLAFMAVQBNAD4APAAvAEQAQQBUAEEAPgA8AC8AVwBSAE0ASABFAEEARABFAFIAPgA="
+	VALID_WV_HEADER                   string  = "CAESEFq91S9VSk8quNBh92FCUVUaCGNhc3RsYWJzIhhXcjNWTDFWS1R5cTQwR0gzWVVKUlZRPT0yB2RlZmF1bHQ="
+	VALID_SUBTITLE_BANDWIDTH          int64   = 256
+	VALID_SUBTITLE_ID                 string  = "subtitle_en"
+	VALID_SUBTITLE_URL                string  = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
+	VALID_ROLE                        string  = "main"
+	VALID_LOCATION                    string  = "https://example.com/location.mpd"
 )
 
 func TestNewMPDLive(t *testing.T) {
