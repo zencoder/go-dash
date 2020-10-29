@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:scte35="urn:scte:scte35:2013:xml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-DASH_schema_files/DASH-MPD.xsd" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" minBufferTime="PT30S" availabilityStartTime="2020-10-26T20:23:21.839000+00:00" minimumUpdatePeriod="PT15S" publishTime="2020-10-26T21:31:19" timeShiftBufferDepth="PT118.999S" suggestedPresentationDelay="PT25S" id="201">
+  <Period id="545" start="PT32.808S">
+    <SupplementalProperty schemeIdUri="urn:scte:dash:utc-time" value="2020-10-26T00:54:05.508Z"></SupplementalProperty>
+    <AdaptationSet mimeType="video/mp4" startWithSAP="1" subsegmentStartsWithSAP="1" segmentAlignment="true" subsegmentAlignment="true" bitstreamSwitching="true">
+      <Representation bandwidth="249984" codecs="avc1.64000D" frameRate="30000/1001" height="224" id="1" width="400">
+        <SegmentTemplate presentationTimeOffset="97434268" initialization="manifest_video_1_0_init.mp4?m=1603743253" media="manifest_video_1_0_$Number$.mp4?m=1603743253" startNumber="665" timescale="30000">
+          <SegmentTimeline>
+            <S t="118867680" d="180180" r="19"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+    <AdaptationSet mimeType="audio/mp4" segmentAlignment="false" lang="und">
+      <Representation audioSamplingRate="48000" bandwidth="66574" codecs="mp4a.40.2" id="8">
+        <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"></AudioChannelConfiguration>
+        <SegmentTemplate presentationTimeOffset="155895040" initialization="manifest_audio_2_0_init.mp4?m=1603743253" media="manifest_audio_2_0_$Number$.mp4?m=1603743253" startNumber="665" timescale="48000">
+          <SegmentTimeline>
+            <S t="190188800" d="288768"></S>
+            <S t="190477568" d="287744"></S>
+            <S t="190765312" d="288768"></S>
+            <S t="191054080" d="287744"></S>
+            <S t="191341824" d="288768"></S>
+            <S t="191630592" d="287744"></S>
+            <S t="191918336" d="288768"></S>
+            <S t="192207104" d="287744"></S>
+            <S t="192494848" d="288768"></S>
+            <S t="192783616" d="287744"></S>
+            <S t="193071360" d="288768"></S>
+            <S t="193360128" d="287744"></S>
+            <S t="193647872" d="288768"></S>
+            <S t="193936640" d="287744"></S>
+            <S t="194224384" d="288768"></S>
+            <S t="194513152" d="287744"></S>
+            <S t="194800896" d="288768" r="1"></S>
+            <S t="195378432" d="287744"></S>
+            <S t="195666176" d="288768"></S>
+          </SegmentTimeline>
+        </SegmentTemplate>
+      </Representation>
+    </AdaptationSet>
+    <EventStream schemeIdUri="urn:scte:scte35:2013:xml" timescale="90000">
+      <Event duration="4051047">
+        <scte35:SpliceInfoSection protocolVersion="0" ptsAdjustment="207000" tier="4095">
+          <scte35:SpliceInsert spliceEventId="1603904856" spliceEventCancelIndicator="false" outOfNetworkIndicator="true" spliceImmediateFlag="false" uniqueProgramId="1" availNum="1" availsExpected="1">
+            <scte35:Program>
+              <scte35:SpliceTime ptsTime="5905840702"></scte35:SpliceTime>
+            </scte35:Program>
+            <scte35:BreakDuration autoReturn="true" duration="4051047"></scte35:BreakDuration>
+          </scte35:SpliceInsert>
+        </scte35:SpliceInfoSection>
+      </Event>
+    </EventStream>
+  </Period>
+</MPD>
