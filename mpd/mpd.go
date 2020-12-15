@@ -124,7 +124,7 @@ type CommonAttributesAndElements struct {
 	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	EssentialProperty         []DescriptorType      `xml:"EssentialProperty,omitempty"`
 	SupplementalProperty      []DescriptorType      `xml:"SupplementalProperty,omitempty"`
-	InbandEventStream         []DescriptorType      `xml:"inbandEventStream,omitempty"`
+	InbandEventStream         []DescriptorType      `xml:"InbandEventStream,omitempty"`
 }
 
 type contentProtections []ContentProtectioner
