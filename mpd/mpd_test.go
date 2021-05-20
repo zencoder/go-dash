@@ -15,6 +15,7 @@ const (
 	VALID_MEDIA_PRESENTATION_DURATION string = "PT6M16S"
 	VALID_MIN_BUFFER_TIME             string = "PT1.97S"
 	VALID_AVAILABILITY_START_TIME     string = "1970-01-01T00:00:00Z"
+	VALID_PUBLISH_TIME                string = "2020-03-12T10:39:45Z"
 	VALID_MINIMUM_UPDATE_PERIOD       string = "PT5S"
 	VALID_SCAN_TYPE                   string = "progressive"
 	VALID_SEGMENT_ALIGNMENT           bool   = true
@@ -73,7 +74,8 @@ func TestNewMPDLive(t *testing.T) {
 func TestNewDynamicMPDLive(t *testing.T) {
 	m := NewDynamicMPD(DASH_PROFILE_LIVE, VALID_AVAILABILITY_START_TIME, VALID_MIN_BUFFER_TIME,
 		AttrMediaPresentationDuration(VALID_MEDIA_PRESENTATION_DURATION),
-		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD))
+		AttrMinimumUpdatePeriod(VALID_MINIMUM_UPDATE_PERIOD),
+		AttrPublishTime(VALID_PUBLISH_TIME))
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -86,6 +88,7 @@ func TestNewDynamicMPDLive(t *testing.T) {
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
 		UTCTiming:                 &DescriptorType{},
+		PublishTime:               Strptr(VALID_PUBLISH_TIME),
 	}
 
 	expectedString, err := expectedMPD.WriteToString()
