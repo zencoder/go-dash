@@ -19,7 +19,7 @@ const (
 	VALID_SEGMENT_ALIGNMENT           bool    = true
 	VALID_START_WITH_SAP              int64   = 1
 	VALID_LANG                        string  = "en"
-	VALID_DURATION                    float64 = 1968
+	VALID_DURATION                    float64 = 1968.0
 	VALID_INIT_PATH_AUDIO             string  = "$RepresentationID$/audio/en/init.mp4"
 	VALID_MEDIA_PATH_AUDIO            string  = "$RepresentationID$/audio/en/seg-$Number$.m4f"
 	VALID_START_NUMBER                int64   = 0
