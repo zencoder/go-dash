@@ -3,15 +3,15 @@ package mpd
 import (
 	"testing"
 
-	"github.com/zencoder/go-dash/helpers/ptrs"
-	"github.com/zencoder/go-dash/helpers/require"
-	"github.com/zencoder/go-dash/helpers/testfixtures"
+	"github.com/zencoder/go-dash/v3/helpers/ptrs"
+	"github.com/zencoder/go-dash/v3/helpers/require"
+	"github.com/zencoder/go-dash/v3/helpers/testfixtures"
 )
 
 const (
-	VALID_EVENT_STREAM_SCHEME_ID_URI       = "urn:example:eventstream"
-	VALID_EVENT_STREAM_VALUE               = "eventstream"
-	VALID_EVENT_STREAM_TIMESCALE     int64 = 10
+	VALID_EVENT_STREAM_SCHEME_ID_URI        = "urn:example:eventstream"
+	VALID_EVENT_STREAM_VALUE                = "eventstream"
+	VALID_EVENT_STREAM_TIMESCALE     uint64 = 10
 )
 
 func newEventStreamMPD() *MPD {
@@ -25,7 +25,7 @@ func newEventStreamMPD() *MPD {
 	es := EventStream{
 		SchemeIDURI: ptrs.Strptr(VALID_EVENT_STREAM_SCHEME_ID_URI),
 		Value:       ptrs.Strptr(VALID_EVENT_STREAM_VALUE),
-		Timescale:   ptrs.Int64ptr(VALID_EVENT_STREAM_TIMESCALE),
+		Timescale:   ptrs.Uint64ptr(VALID_EVENT_STREAM_TIMESCALE),
 	}
 
 	e0 := Event{
