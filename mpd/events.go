@@ -6,7 +6,7 @@ type EventStream struct {
 	XMLName     xml.Name `xml:"EventStream"`
 	SchemeIDURI *string  `xml:"schemeIdUri,attr"`
 	Value       *string  `xml:"value,attr,omitempty"`
-	Timescale   *int64   `xml:"timescale,attr"`
+	Timescale   *uint64  `xml:"timescale,attr"`
 	Events      []Event  `xml:"Event,omitempty"`
 }
 
