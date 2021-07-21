@@ -27,7 +27,7 @@ type Scte35SpliceInfoSection struct {
 	ProtocolVersion    *string             `xml:"protocolVersion,attr,omitempty"`
 	PtsAdjustment      *int64              `xml:"ptsAdjustment,attr,omitempty"`
 	Tier               *int64              `xml:"tier,attr,omitempty"`
-	Scte35SpliceInsert *Scte35SpliceInsert `xml:"SpliceInsert",omitempty"`
+	Scte35SpliceInsert *Scte35SpliceInsert `xml:"SpliceInsert,omitempty"`
 }
 
 type Scte35SpliceInsert struct {
@@ -104,7 +104,7 @@ type Scte35SpliceInfoSectionMarshal struct {
 	ProtocolVersion    *string             `xml:"protocolVersion,attr,omitempty"`
 	PtsAdjustment      *int64              `xml:"ptsAdjustment,attr,omitempty"`
 	Tier               *int64              `xml:"tier,attr,omitempty"`
-	Scte35SpliceInsert *Scte35SpliceInsert `xml:"SpliceInsert",omitempty"`
+	Scte35SpliceInsert *Scte35SpliceInsert `xml:"SpliceInsert,omitempty"`
 }
 
 type Scte35SpliceInsertMarshal struct {
