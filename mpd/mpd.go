@@ -73,6 +73,8 @@ type MPD struct {
 	Scte35NS                   *Scte35NS `xml:"scte35,attr,omitempty"`
 	XsiNS                      *XsiNS    `xml:"xsi,attr,omitempty"`
 	XsiSchemaLocation          *XsiSL    `xml:"schemaLocation,attr,omitempty"`
+	XsiCENC                    *XsiNS    `xml:"cenc,attr,omitempty"`
+	XsiMSPR                    *XsiNS    `xml:"mspr,attr,omitempty"`
 	Profiles                   *string   `xml:"profiles,attr"`
 	Type                       *string   `xml:"type,attr"`
 	MediaPresentationDuration  *string   `xml:"mediaPresentationDuration,attr"`
