@@ -133,7 +133,7 @@ func (as *contentProtections) UnmarshalXML(d *xml.Decoder, start xml.StartElemen
 	var scheme string
 	for _, a := range start.Attr {
 		if a.Name.Local == "schemeIdUri" {
-			scheme = a.Value
+			scheme = strings.ToLower(a.Value)
 			break
 		}
 	}
