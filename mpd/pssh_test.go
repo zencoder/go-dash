@@ -23,7 +23,7 @@ func TestMakePSSHBox_Widevine(t *testing.T) {
 		panic(err.Error())
 	}
 
-	psshBox, err := makePSSHBox(wvSystemID, payload)
+	psshBox, err := MakePSSHBox(wvSystemID, payload)
 	require.NoError(t, err)
 
 	require.EqualString(t, string(expectedPSSH), string(psshBox))
@@ -46,18 +46,18 @@ func TestMakePSSHBox_Playready(t *testing.T) {
 		panic(err.Error())
 	}
 
-	psshBox, err := makePSSHBox(wvSystemID, payload)
+	psshBox, err := MakePSSHBox(wvSystemID, payload)
 	require.NoError(t, err)
 
 	require.EqualString(t, string(expectedPSSH), string(psshBox))
 }
 
 func TestMakePSSHBox_BadSystemID(t *testing.T) {
-	_, err := makePSSHBox([]byte("meaningless byte array"), nil)
+	_, err := MakePSSHBox([]byte("meaningless byte array"), nil)
 	require.EqualError(t, err, "SystemID must be 16 bytes, was: 22")
 }
 
 func TestMakePSSHBox_NilSystemID(t *testing.T) {
-	_, err := makePSSHBox(nil, nil)
+	_, err := MakePSSHBox(nil, nil)
 	require.EqualError(t, err, "SystemID must be 16 bytes, was: 0")
 }
