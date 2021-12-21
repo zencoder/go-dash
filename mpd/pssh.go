@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-func makePSSHBox(systemID, payload []byte) ([]byte, error) {
+func MakePSSHBox(systemID, payload []byte) ([]byte, error) {
 	if len(systemID) != 16 {
 		return nil, fmt.Errorf("SystemID must be 16 bytes, was: %d", len(systemID))
 	}

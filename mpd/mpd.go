@@ -779,7 +779,7 @@ func NewWidevineContentProtection(wvHeader []byte) (*WidevineContentProtection, 
 		if err != nil {
 			panic(err.Error())
 		}
-		psshBox, err := makePSSHBox(wvSystemID, wvHeader)
+		psshBox, err := MakePSSHBox(wvSystemID, wvHeader)
 		if err != nil {
 			return nil, err
 		}
@@ -853,7 +853,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyWithPSSH(pro stri
 		return nil, err
 	}
 
-	psshBox, err := makePSSHBox(prSystemID, proBin)
+	psshBox, err := MakePSSHBox(prSystemID, proBin)
 	if err != nil {
 		return nil, err
 	}
@@ -885,7 +885,7 @@ func (as *AdaptationSet) AddNewContentProtectionSchemePlayreadyV10WithPSSH(pro s
 		return nil, err
 	}
 
-	psshBox, err := makePSSHBox(prSystemID, proBin)
+	psshBox, err := MakePSSHBox(prSystemID, proBin)
 	if err != nil {
 		return nil, err
 	}
