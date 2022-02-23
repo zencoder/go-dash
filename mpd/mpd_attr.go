@@ -42,3 +42,16 @@ func (attr *attrMediaPresentationDuration) GetStrptr() *string {
 func AttrMediaPresentationDuration(value string) AttrMPD {
 	return &attrMediaPresentationDuration{strptr: &value}
 }
+
+type attrPublishTime struct {
+	strptr *string
+}
+
+func (attr *attrPublishTime) GetStrptr() *string {
+	return attr.strptr
+}
+
+// AttrPublishTime returns AttrMPD object for NewMPD
+func AttrPublishTime(value string) AttrMPD {
+	return &attrPublishTime{strptr: &value}
+}

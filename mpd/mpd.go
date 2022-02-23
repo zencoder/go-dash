@@ -441,6 +441,8 @@ func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime str
 			mpd.MinimumUpdatePeriod = attr.GetStrptr()
 		case *attrMediaPresentationDuration:
 			mpd.MediaPresentationDuration = attr.GetStrptr()
+		case *attrPublishTime:
+			mpd.PublishTime = attr.GetStrptr()
 		}
 	}
 
