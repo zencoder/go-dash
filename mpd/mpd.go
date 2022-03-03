@@ -66,6 +66,7 @@ var (
 	ErrInvalidDefaultKID                    = errors.New("Invalid Default KID string, should be 32 characters")
 	ErrPROEmpty                             = errors.New("PlayReady PRO empty")
 	ErrContentProtectionNil                 = errors.New("Content Protection nil")
+	ErrInbandEventStreamSchemeUriNil        = errors.New("Inband Event Stream schemeIdUri nil")
 )
 
 type MPD struct {
@@ -124,7 +125,7 @@ type CommonAttributesAndElements struct {
 	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	EssentialProperty         []DescriptorType      `xml:"EssentialProperty,omitempty"`
 	SupplementalProperty      []DescriptorType      `xml:"SupplementalProperty,omitempty"`
-	InbandEventStream         *DescriptorType       `xml:"InbandEventStream,omitempty"`
+	InbandEventStream         []DescriptorType      `xml:"InbandEventStream,omitempty"`
 }
 
 type contentProtections []ContentProtectioner
@@ -1099,6 +1100,21 @@ func (as *AdaptationSet) AddNewAccessibilityElement(scheme AccessibilityElementS
 	return accessibility, nil
 }
 
+// AddNewInbandEventStream - Adds a new InbandEventStream Descriptor to an adaptation set
+// uri - Scheme ID URI for the inband event stream
+// val - value for inband event stream
+func (as *AdaptationSet) AddNewInbandEventStream(uri *string, val *string) error {
+	if uri == nil {
+		return ErrInbandEventStreamSchemeUriNil
+	}
+	evt := DescriptorType{
+		SchemeIDURI: uri,
+		Value:       val,
+	}
+	as.InbandEventStream = append(as.InbandEventStream, evt)
+	return nil
+}
+
 // Sets the BaseURL for a Representation.
 // baseURL - Base URL as a string (i.e. 800k/output-audio-und.mp4)
 func (r *Representation) SetNewBaseURL(baseURL string) error {
@@ -1162,5 +1178,20 @@ func (r *Representation) setAudioChannelConfiguration(acc *AudioChannelConfigura
 		return ErrAudioChannelConfigurationNil
 	}
 	r.AudioChannelConfiguration = acc
+	return nil
+}
+
+// AddNewInbandEventStream - Adds a new InbandEventStream Descriptor to a Representation
+// uri - Scheme ID URI for the inband event stream
+// val - value for inband event stream
+func (r *Representation) AddNewInbandEventStream(uri *string, val *string) error {
+	if uri == nil {
+		return ErrInbandEventStreamSchemeUriNil
+	}
+	evt := DescriptorType{
+		SchemeIDURI: uri,
+		Value:       val,
+	}
+	r.InbandEventStream = append(r.InbandEventStream, evt)
 	return nil
 }
