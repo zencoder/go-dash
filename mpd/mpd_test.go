@@ -565,12 +565,12 @@ func TestSetInbandEventStream(t *testing.T) {
 
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-	err = videoAS.AddNewInbandEventStream(Strptr(VALID_SCHEME_ID_URI), Strptr("0"))
+	err = videoAS.AddNewInbandEventStream(VALID_SCHEME_ID_URI, "0")
 
 	require.NoError(t, err)
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
-	err = r.AddNewInbandEventStream(Strptr(VALID_SCHEME_ID_URI), Strptr("1"))
+	err = r.AddNewInbandEventStream(VALID_SCHEME_ID_URI, "1")
 
 	require.NoError(t, err)
 
@@ -583,7 +583,7 @@ func TestSetInbandEventStream(t *testing.T) {
 func TestSetInbandEventStreamError(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
-	err := videoAS.AddNewInbandEventStream(nil, nil)
+	err := videoAS.AddNewInbandEventStream("", "")
 
-	require.EqualErr(t, ErrInbandEventStreamSchemeUriNil, err)
+	require.EqualErr(t, ErrInbandEventStreamSchemeUriEmpty, err)
 }

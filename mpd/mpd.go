@@ -53,20 +53,20 @@ const (
 
 // Known error variables
 var (
-	ErrNoDASHProfileSet               error = errors.New("No DASH profile set")
-	ErrAdaptationSetNil                     = errors.New("Adaptation Set nil")
-	ErrSegmentTemplateLiveProfileOnly       = errors.New("Segment template can only be used with Live Profile")
-	ErrSegmentTemplateNil                   = errors.New("Segment Template nil ")
-	ErrRepresentationNil                    = errors.New("Representation nil")
-	ErrAccessibilityNil                     = errors.New("Accessibility nil")
-	ErrBaseURLEmpty                         = errors.New("Base URL empty")
-	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
-	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
-	ErrAudioChannelConfigurationNil         = errors.New("Audio Channel Configuration nil")
-	ErrInvalidDefaultKID                    = errors.New("Invalid Default KID string, should be 32 characters")
-	ErrPROEmpty                             = errors.New("PlayReady PRO empty")
-	ErrContentProtectionNil                 = errors.New("Content Protection nil")
-	ErrInbandEventStreamSchemeUriNil        = errors.New("Inband Event Stream schemeIdUri nil")
+	ErrNoDASHProfileSet                error = errors.New("No DASH profile set")
+	ErrAdaptationSetNil                      = errors.New("Adaptation Set nil")
+	ErrSegmentTemplateLiveProfileOnly        = errors.New("Segment template can only be used with Live Profile")
+	ErrSegmentTemplateNil                    = errors.New("Segment Template nil ")
+	ErrRepresentationNil                     = errors.New("Representation nil")
+	ErrAccessibilityNil                      = errors.New("Accessibility nil")
+	ErrBaseURLEmpty                          = errors.New("Base URL empty")
+	ErrSegmentBaseOnDemandProfileOnly        = errors.New("Segment Base can only be used with On-Demand Profile")
+	ErrSegmentBaseNil                        = errors.New("Segment Base nil")
+	ErrAudioChannelConfigurationNil          = errors.New("Audio Channel Configuration nil")
+	ErrInvalidDefaultKID                     = errors.New("Invalid Default KID string, should be 32 characters")
+	ErrPROEmpty                              = errors.New("PlayReady PRO empty")
+	ErrContentProtectionNil                  = errors.New("Content Protection nil")
+	ErrInbandEventStreamSchemeUriEmpty       = errors.New("Inband Event Stream schemeIdUri Empty")
 )
 
 type MPD struct {
@@ -1103,13 +1103,13 @@ func (as *AdaptationSet) AddNewAccessibilityElement(scheme AccessibilityElementS
 // AddNewInbandEventStream - Adds a new InbandEventStream Descriptor to an adaptation set
 // uri - Scheme ID URI for the inband event stream
 // val - value for inband event stream
-func (as *AdaptationSet) AddNewInbandEventStream(uri *string, val *string) error {
-	if uri == nil {
-		return ErrInbandEventStreamSchemeUriNil
+func (as *AdaptationSet) AddNewInbandEventStream(uri string, val string) error {
+	if len(uri) <= 0 {
+		return ErrInbandEventStreamSchemeUriEmpty
 	}
 	evt := DescriptorType{
-		SchemeIDURI: uri,
-		Value:       val,
+		SchemeIDURI: Strptr(uri),
+		Value:       Strptr(val),
 	}
 	as.InbandEventStream = append(as.InbandEventStream, evt)
 	return nil
@@ -1184,13 +1184,13 @@ func (r *Representation) setAudioChannelConfiguration(acc *AudioChannelConfigura
 // AddNewInbandEventStream - Adds a new InbandEventStream Descriptor to a Representation
 // uri - Scheme ID URI for the inband event stream
 // val - value for inband event stream
-func (r *Representation) AddNewInbandEventStream(uri *string, val *string) error {
-	if uri == nil {
-		return ErrInbandEventStreamSchemeUriNil
+func (r *Representation) AddNewInbandEventStream(uri string, val string) error {
+	if len(uri) <= 0 {
+		return ErrInbandEventStreamSchemeUriEmpty
 	}
 	evt := DescriptorType{
-		SchemeIDURI: uri,
-		Value:       val,
+		SchemeIDURI: Strptr(uri),
+		Value:       Strptr(val),
 	}
 	r.InbandEventStream = append(r.InbandEventStream, evt)
 	return nil
