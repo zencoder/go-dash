@@ -53,19 +53,20 @@ const (
 
 // Known error variables
 var (
-	ErrNoDASHProfileSet               error = errors.New("No DASH profile set")
-	ErrAdaptationSetNil                     = errors.New("Adaptation Set nil")
-	ErrSegmentTemplateLiveProfileOnly       = errors.New("Segment template can only be used with Live Profile")
-	ErrSegmentTemplateNil                   = errors.New("Segment Template nil ")
-	ErrRepresentationNil                    = errors.New("Representation nil")
-	ErrAccessibilityNil                     = errors.New("Accessibility nil")
-	ErrBaseURLEmpty                         = errors.New("Base URL empty")
-	ErrSegmentBaseOnDemandProfileOnly       = errors.New("Segment Base can only be used with On-Demand Profile")
-	ErrSegmentBaseNil                       = errors.New("Segment Base nil")
-	ErrAudioChannelConfigurationNil         = errors.New("Audio Channel Configuration nil")
-	ErrInvalidDefaultKID                    = errors.New("Invalid Default KID string, should be 32 characters")
-	ErrPROEmpty                             = errors.New("PlayReady PRO empty")
-	ErrContentProtectionNil                 = errors.New("Content Protection nil")
+	ErrNoDASHProfileSet                error = errors.New("No DASH profile set")
+	ErrAdaptationSetNil                      = errors.New("Adaptation Set nil")
+	ErrSegmentTemplateLiveProfileOnly        = errors.New("Segment template can only be used with Live Profile")
+	ErrSegmentTemplateNil                    = errors.New("Segment Template nil ")
+	ErrRepresentationNil                     = errors.New("Representation nil")
+	ErrAccessibilityNil                      = errors.New("Accessibility nil")
+	ErrBaseURLEmpty                          = errors.New("Base URL empty")
+	ErrSegmentBaseOnDemandProfileOnly        = errors.New("Segment Base can only be used with On-Demand Profile")
+	ErrSegmentBaseNil                        = errors.New("Segment Base nil")
+	ErrAudioChannelConfigurationNil          = errors.New("Audio Channel Configuration nil")
+	ErrInvalidDefaultKID                     = errors.New("Invalid Default KID string, should be 32 characters")
+	ErrPROEmpty                              = errors.New("PlayReady PRO empty")
+	ErrContentProtectionNil                  = errors.New("Content Protection nil")
+	ErrInbandEventStreamSchemeUriEmpty       = errors.New("Inband Event Stream schemeIdUri Empty")
 )
 
 type MPD struct {
@@ -124,7 +125,7 @@ type CommonAttributesAndElements struct {
 	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
 	EssentialProperty         []DescriptorType      `xml:"EssentialProperty,omitempty"`
 	SupplementalProperty      []DescriptorType      `xml:"SupplementalProperty,omitempty"`
-	InbandEventStream         *DescriptorType       `xml:"inbandEventStream,attr"`
+	InbandEventStream         []DescriptorType      `xml:"InbandEventStream,omitempty"`
 }
 
 type contentProtections []ContentProtectioner
@@ -1101,6 +1102,21 @@ func (as *AdaptationSet) AddNewAccessibilityElement(scheme AccessibilityElementS
 	return accessibility, nil
 }
 
+// AddNewInbandEventStream - Adds a new InbandEventStream Descriptor to an adaptation set
+// uri - Scheme ID URI for the inband event stream
+// val - value for inband event stream
+func (as *AdaptationSet) AddNewInbandEventStream(uri string, val string) error {
+	if len(uri) <= 0 {
+		return ErrInbandEventStreamSchemeUriEmpty
+	}
+	evt := DescriptorType{
+		SchemeIDURI: Strptr(uri),
+		Value:       Strptr(val),
+	}
+	as.InbandEventStream = append(as.InbandEventStream, evt)
+	return nil
+}
+
 // Sets the BaseURL for a Representation.
 // baseURL - Base URL as a string (i.e. 800k/output-audio-und.mp4)
 func (r *Representation) SetNewBaseURL(baseURL string) error {
@@ -1164,5 +1180,20 @@ func (r *Representation) setAudioChannelConfiguration(acc *AudioChannelConfigura
 		return ErrAudioChannelConfigurationNil
 	}
 	r.AudioChannelConfiguration = acc
+	return nil
+}
+
+// AddNewInbandEventStream - Adds a new InbandEventStream Descriptor to a Representation
+// uri - Scheme ID URI for the inband event stream
+// val - value for inband event stream
+func (r *Representation) AddNewInbandEventStream(uri string, val string) error {
+	if len(uri) <= 0 {
+		return ErrInbandEventStreamSchemeUriEmpty
+	}
+	evt := DescriptorType{
+		SchemeIDURI: Strptr(uri),
+		Value:       Strptr(val),
+	}
+	r.InbandEventStream = append(r.InbandEventStream, evt)
 	return nil
 }

@@ -46,6 +46,7 @@ const (
 	VALID_SUBTITLE_URL                string = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
 	VALID_ROLE                        string = "main"
 	VALID_LOCATION                    string = "https://example.com/location.mpd"
+	VALID_SCHEME_ID_URI               string = "https://aomedia.org/emsg/ID3"
 )
 
 func TestNewMPDLive(t *testing.T) {
@@ -557,4 +558,35 @@ func TestReadWriteIdentical(t *testing.T) {
 			testfixtures.CompareFixture(t, fixtures+file, got)
 		})
 	}
+}
+
+func TestSetInbandEventStream(t *testing.T) {
+	var (
+		err error
+		got string
+	)
+
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	err = videoAS.AddNewInbandEventStream(VALID_SCHEME_ID_URI, "0")
+
+	require.NoError(t, err)
+
+	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
+	err = r.AddNewInbandEventStream(VALID_SCHEME_ID_URI, "1")
+
+	require.NoError(t, err)
+
+	got, err = m.WriteToString()
+	require.NoError(t, err)
+
+	testfixtures.CompareFixture(t, "fixtures/inband_event_stream.mpd", got)
+}
+
+func TestSetInbandEventStreamError(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	err := videoAS.AddNewInbandEventStream("", "")
+
+	require.EqualErr(t, ErrInbandEventStreamSchemeUriEmpty, err)
 }
