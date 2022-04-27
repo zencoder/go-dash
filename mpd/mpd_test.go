@@ -408,9 +408,16 @@ func TestAddNewBaseURLVideo(t *testing.T) {
 
 	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
 
-	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
-
+	err := r.AddNewBaseURL("./")
 	require.NoError(t, err)
+
+	err = r.AddNewBaseURL("../a/")
+	require.NoError(t, err)
+
+	err = r.AddNewBaseURL("../b/")
+	require.NoError(t, err)
+
+	require.EqualStringSlice(t, []string{"./", "../a/", "../b/"}, r.BaseURL)
 }
 
 func TestSetNewBaseURLSubtitle(t *testing.T) {
