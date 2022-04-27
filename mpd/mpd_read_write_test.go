@@ -281,6 +281,17 @@ func TestFullLiveProfileWriteToString(t *testing.T) {
 	testfixtures.CompareFixture(t, "fixtures/live_profile.mpd", xmlStr)
 }
 
+func TestFullLiveProfileMultiBaseURLWriteToString(t *testing.T) {
+	m := LiveProfile()
+	require.NotNil(t, m)
+
+	m.BaseURL = []string{"./", "../a/", "../b/"}
+
+	xmlStr, err := m.WriteToString()
+	require.NoError(t, err)
+	testfixtures.CompareFixture(t, "fixtures/live_profile_multi_base_url.mpd", xmlStr)
+}
+
 func TestFullLiveProfileWriteToFile(t *testing.T) {
 	m := LiveProfile()
 	require.NotNil(t, m)
