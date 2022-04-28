@@ -154,7 +154,7 @@ func TestWidevineContentProtection_ImplementsInterface(t *testing.T) {
 
 func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	m.BaseURL = VALID_BASE_URL_VIDEO
+	m.BaseURL = []string{VALID_BASE_URL_VIDEO}
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -164,7 +164,7 @@ func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
 		period:                    &Period{},
 		Periods:                   []*Period{{}},
-		BaseURL:                   VALID_BASE_URL_VIDEO,
+		BaseURL:                   []string{VALID_BASE_URL_VIDEO},
 	}
 
 	expectedString, err := expectedMPD.WriteToString()
@@ -177,10 +177,10 @@ func TestNewMPDLiveWithBaseURLInMPD(t *testing.T) {
 
 func TestNewMPDLiveWithBaseURLInPeriod(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	m.period.BaseURL = VALID_BASE_URL_VIDEO
+	m.period.BaseURL = []string{VALID_BASE_URL_VIDEO}
 	require.NotNil(t, m)
 	period := &Period{
-		BaseURL: VALID_BASE_URL_VIDEO,
+		BaseURL: []string{VALID_BASE_URL_VIDEO},
 	}
 	expectedMPD := &MPD{
 		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
@@ -400,6 +400,24 @@ func TestSetNewBaseURLVideo(t *testing.T) {
 	err := r.SetNewBaseURL(VALID_BASE_URL_VIDEO)
 
 	require.NoError(t, err)
+}
+
+func TestAddNewBaseURLVideo(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	videoAS, _ := m.AddNewAdaptationSetVideoWithID("7357", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+
+	r, _ := videoAS.AddNewRepresentationVideo(VALID_VIDEO_BITRATE, VALID_VIDEO_CODEC, VALID_VIDEO_ID, VALID_VIDEO_FRAMERATE, VALID_VIDEO_WIDTH, VALID_VIDEO_HEIGHT)
+
+	err := r.AddNewBaseURL("./")
+	require.NoError(t, err)
+
+	err = r.AddNewBaseURL("../a/")
+	require.NoError(t, err)
+
+	err = r.AddNewBaseURL("../b/")
+	require.NoError(t, err)
+
+	require.EqualStringSlice(t, []string{"./", "../a/", "../b/"}, r.BaseURL)
 }
 
 func TestSetNewBaseURLSubtitle(t *testing.T) {

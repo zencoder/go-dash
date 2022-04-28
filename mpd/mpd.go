@@ -80,7 +80,7 @@ type MPD struct {
 	PublishTime                *string   `xml:"publishTime,attr"`
 	TimeShiftBufferDepth       *string   `xml:"timeShiftBufferDepth,attr"`
 	SuggestedPresentationDelay *Duration `xml:"suggestedPresentationDelay,attr,omitempty"`
-	BaseURL                    string    `xml:"BaseURL,omitempty"`
+	BaseURL                    []string  `xml:"BaseURL,omitempty"`
 	Location                   string    `xml:"Location,omitempty"`
 	period                     *Period
 	Periods                    []*Period       `xml:"Period,omitempty"`
@@ -91,7 +91,7 @@ type Period struct {
 	ID              string           `xml:"id,attr,omitempty"`
 	Duration        Duration         `xml:"duration,attr,omitempty"`
 	Start           *Duration        `xml:"start,attr,omitempty"`
-	BaseURL         string           `xml:"BaseURL,omitempty"`
+	BaseURL         []string         `xml:"BaseURL,omitempty"`
 	SegmentBase     *SegmentBase     `xml:"SegmentBase,omitempty"`
 	SegmentList     *SegmentList     `xml:"SegmentList,omitempty"`
 	SegmentTemplate *SegmentTemplate `xml:"SegmentTemplate,omitempty"`
@@ -373,7 +373,7 @@ type Representation struct {
 	Height                    *int64                     `xml:"height,attr"`              // Video
 	ID                        *string                    `xml:"id,attr"`                  // Audio + Video
 	Width                     *int64                     `xml:"width,attr"`               // Video
-	BaseURL                   *string                    `xml:"BaseURL,omitempty"`        // On-Demand Profile
+	BaseURL                   []string                   `xml:"BaseURL,omitempty"`        // On-Demand Profile
 	SegmentBase               *SegmentBase               `xml:"SegmentBase,omitempty"`    // On-Demand Profile
 	SegmentList               *SegmentList               `xml:"SegmentList,omitempty"`
 	SegmentTemplate           *SegmentTemplate           `xml:"SegmentTemplate,omitempty"`
@@ -1123,7 +1123,18 @@ func (r *Representation) SetNewBaseURL(baseURL string) error {
 	if baseURL == "" {
 		return ErrBaseURLEmpty
 	}
-	r.BaseURL = Strptr(baseURL)
+	// overwrite for backwards compatability
+	r.BaseURL = []string{baseURL}
+	return nil
+}
+
+// Sets the BaseURL for a Representation.
+// baseURL - Base URL as a string (i.e. 800k/output-audio-und.mp4)
+func (r *Representation) AddNewBaseURL(baseURL string) error {
+	if baseURL == "" {
+		return ErrBaseURLEmpty
+	}
+	r.BaseURL = append(r.BaseURL, baseURL)
 	return nil
 }
 

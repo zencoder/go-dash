@@ -23,7 +23,7 @@ func TestSegmentListDeserialization(t *testing.T) {
 	if err == nil {
 		expected := getSegmentListMPD()
 
-		require.EqualString(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
+		require.EqualStringSlice(t, expected.Periods[0].BaseURL, m.Periods[0].BaseURL)
 
 		expectedAudioSegList := expected.Periods[0].AdaptationSets[0].Representations[0].SegmentList
 		audioSegList := m.Periods[0].AdaptationSets[0].Representations[0].SegmentList
@@ -59,7 +59,7 @@ func TestSegmentListDeserialization(t *testing.T) {
 
 func getSegmentListMPD() *MPD {
 	m := NewMPD(DASH_PROFILE_LIVE, "PT30.016S", "PT2.000S")
-	m.period.BaseURL = "http://localhost:8002/dash/"
+	m.period.BaseURL = []string{"http://localhost:8002/dash/"}
 
 	aas, _ := m.AddNewAdaptationSetAudioWithID("1", "audio/mp4", true, 1, "English")
 	ra, _ := aas.AddNewRepresentationAudio(48000, 255000, "mp4a.40.2", "audio_1")
