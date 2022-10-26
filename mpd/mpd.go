@@ -71,7 +71,7 @@ var (
 
 type MPD struct {
 	XMLNs                      *string   `xml:"xmlns,attr"`
-	XMLNsDolby                 *string   `xml:"xmlns:dolby"`
+	XMLNsDolby                 *string   `xml:"xmlns:dolby,attr"`
 	Profiles                   *string   `xml:"profiles,attr"`
 	Type                       *string   `xml:"type,attr"`
 	MediaPresentationDuration  *string   `xml:"mediaPresentationDuration,attr"`
