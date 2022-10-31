@@ -71,6 +71,7 @@ var (
 
 type MPD struct {
 	XMLNs                      *string   `xml:"xmlns,attr"`
+	XMLNsDolby                 *string   `xml:"xmlns:dolby,attr"`
 	Profiles                   *string   `xml:"profiles,attr"`
 	Type                       *string   `xml:"type,attr"`
 	MediaPresentationDuration  *string   `xml:"mediaPresentationDuration,attr"`
@@ -389,6 +390,10 @@ type AudioChannelConfiguration struct {
 	SchemeIDURI *string `xml:"schemeIdUri,attr"`
 	// Value will be an int for non-Dolby Schemes, and a hexstring for Dolby Schemes, hence we make it a string
 	Value *string `xml:"value,attr"`
+}
+
+func (m *MPD) SetDolbyXMLNs() {
+	m.XMLNsDolby = Strptr("http://www.dolby.com/ns/online/DASH")
 }
 
 // Creates a new static MPD object.
