@@ -190,6 +190,7 @@ type AdaptationSet struct {
 	SegmentTemplate    *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
 	Representations    []*Representation `xml:"Representation,omitempty"`
 	AccessibilityElems []*Accessibility  `xml:"Accessibility,omitempty"`
+	Label              *string           `xml:"label,attr"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
@@ -665,6 +666,10 @@ func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string) 
 		return nil, err
 	}
 	return as, nil
+}
+
+func (as *AdaptationSet) SetLabel(label string) {
+	as.Label = Strptr(label)
 }
 
 // Create a new Adaptation Set for Subtitle Assets.
