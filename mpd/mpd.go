@@ -640,23 +640,24 @@ func (period *Period) AddNewAdaptationSetVideoWithID(id string, mimeType string,
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
-func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
-	return m.period.AddNewAdaptationSetSubtitle(mimeType, lang)
+func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string, label string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetSubtitle(mimeType, lang, label)
 }
 
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
-func (m *MPD) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string) (*AdaptationSet, error) {
-	return m.period.AddNewAdaptationSetSubtitleWithID(id, mimeType, lang)
+func (m *MPD) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string, label string) (*AdaptationSet, error) {
+	return m.period.AddNewAdaptationSetSubtitleWithID(id, mimeType, lang, label)
 }
 
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
-func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string) (*AdaptationSet, error) {
+func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		Lang: Strptr(lang),
+		Lang:  Strptr(lang),
+		Label: Strptr(label),
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			MimeType: Strptr(mimeType),
 		},
@@ -668,17 +669,14 @@ func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string) 
 	return as, nil
 }
 
-func (as *AdaptationSet) SetLabel(label string) {
-	as.Label = Strptr(label)
-}
-
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
-func (period *Period) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string) (*AdaptationSet, error) {
+func (period *Period) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		ID:   Strptr(id),
-		Lang: Strptr(lang),
+		ID:    Strptr(id),
+		Lang:  Strptr(lang),
+		Label: Strptr(label),
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			MimeType: Strptr(mimeType),
 		},
