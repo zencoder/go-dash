@@ -26,7 +26,7 @@ func main() {
 	_, _ = videoAS.AddNewRepresentationVideo(2295158, "avc1.4d401f", "1200", "30000/1001", 1024, 576)
 	_, _ = videoAS.AddNewRepresentationVideo(2780732, "avc1.4d401f", "1500", "30000/1001", 1280, 720)
 
-	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(mpd.DASH_MIME_TYPE_SUBTITLE_VTT, "en")
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitle(mpd.DASH_MIME_TYPE_SUBTITLE_VTT, "en", "Subtitle (En)")
 	subtitleRep, _ := subtitleAS.AddNewRepresentationSubtitle(256, "subtitle_en")
 	_ = subtitleRep.SetNewBaseURL("http://example.com/content/sintel/subtitles/subtitles_en.vtt")
 	schemeIDURI := "urn:mpeg:dash:utc:direct:2014"

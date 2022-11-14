@@ -43,6 +43,7 @@ const (
 	VALID_WV_HEADER                   string = "CAESEFq91S9VSk8quNBh92FCUVUaCGNhc3RsYWJzIhhXcjNWTDFWS1R5cTQwR0gzWVVKUlZRPT0yB2RlZmF1bHQ="
 	VALID_SUBTITLE_BANDWIDTH          int64  = 256
 	VALID_SUBTITLE_ID                 string = "subtitle_en"
+	VALID_SUBTITLE_LABEL              string = "Subtitle (En)"
 	VALID_SUBTITLE_URL                string = "http://example.com/content/sintel/subtitles/subtitles_en.vtt"
 	VALID_ROLE                        string = "main"
 	VALID_LOCATION                    string = "https://example.com/location.mpd"
@@ -356,7 +357,7 @@ func TestAddRepresentationVideo(t *testing.T) {
 func TestAddRepresentationSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
-	subtitleAS, _ := m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG, VALID_SUBTITLE_LABEL)
 
 	r, err := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
 
@@ -422,7 +423,7 @@ func TestAddNewBaseURLVideo(t *testing.T) {
 
 func TestSetNewBaseURLSubtitle(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
-	subtitleAS, _ := m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG)
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitleWithID("7357", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG, VALID_SUBTITLE_LABEL)
 
 	r, _ := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
 
