@@ -640,6 +640,7 @@ func (period *Period) AddNewAdaptationSetVideoWithID(id string, mimeType string,
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
+// label - Label for the subtitle from Studio (i.e. American)
 func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string, label string) (*AdaptationSet, error) {
 	return m.period.AddNewAdaptationSetSubtitle(mimeType, lang, label)
 }
@@ -647,6 +648,7 @@ func (m *MPD) AddNewAdaptationSetSubtitle(mimeType string, lang string, label st
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
+// label - Label for the subtitle from Studio (i.e. American)
 func (m *MPD) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string, label string) (*AdaptationSet, error) {
 	return m.period.AddNewAdaptationSetSubtitleWithID(id, mimeType, lang, label)
 }
@@ -654,6 +656,7 @@ func (m *MPD) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
+// label - Label for the subtitle from Studio (i.e. American)
 func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		Lang:  Strptr(lang),
@@ -672,6 +675,7 @@ func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string, 
 // Create a new Adaptation Set for Subtitle Assets.
 // mimeType - MIME Type (i.e. text/vtt).
 // lang - Language (i.e. en).
+// label - Label for the subtitle from Studio (i.e. American)
 func (period *Period) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
 		ID:    Strptr(id),
