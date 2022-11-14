@@ -31,7 +31,7 @@
       <Representation bandwidth="2295158" codecs="avc1.4d401f" frameRate="30000/1001" height="576" id="1200" width="1024"></Representation>
       <Representation bandwidth="2780732" codecs="avc1.4d401f" frameRate="30000/1001" height="720" id="1500" width="1280"></Representation>
     </AdaptationSet>
-    <AdaptationSet mimeType="text/vtt" id="7357" lang="en">
+    <AdaptationSet mimeType="text/vtt" id="7357" lang="en" label="Subtitle (En)">
       <Representation bandwidth="256" id="subtitle_en">
         <BaseURL>http://example.com/content/sintel/subtitles/subtitles_en.vtt</BaseURL>
       </Representation>
