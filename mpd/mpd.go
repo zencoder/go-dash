@@ -191,6 +191,7 @@ type AdaptationSet struct {
 	Representations    []*Representation `xml:"Representation,omitempty"`
 	AccessibilityElems []*Accessibility  `xml:"Accessibility,omitempty"`
 	Label              *string           `xml:"label,attr"`
+	BaseURL            []string          `xml:"BaseURL,omitempty"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
