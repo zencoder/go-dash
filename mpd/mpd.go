@@ -88,6 +88,7 @@ type MPD struct {
 	Periods                    []*Period       `xml:"Period,omitempty"`
 	UTCTiming                  *DescriptorType `xml:"UTCTiming,omitempty"`
 	ID                         string          `xml:"id,attr,omitempty"`
+	Comment                    string          `xml:"-"`
 }
 
 type XsiNS struct {
