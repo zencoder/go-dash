@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -69,43 +70,42 @@ var (
 )
 
 type MPD struct {
-	XMLNs                      *string   `xml:"xmlns,attr"`
-	Scte35NS                   *Scte35NS `xml:"scte35,attr,omitempty"`
-	XsiNS                      *XsiNS    `xml:"xsi,attr,omitempty"`
-	XsiSchemaLocation          *XsiSL    `xml:"schemaLocation,attr,omitempty"`
-	Profiles                   *string   `xml:"profiles,attr"`
-	Type                       *string   `xml:"type,attr"`
-	MediaPresentationDuration  *string   `xml:"mediaPresentationDuration,attr"`
-	MinBufferTime              *string   `xml:"minBufferTime,attr"`
-	AvailabilityStartTime      *string   `xml:"availabilityStartTime,attr,omitempty"`
-	MinimumUpdatePeriod        *string   `xml:"minimumUpdatePeriod,attr"`
-	PublishTime                *string   `xml:"publishTime,attr"`
-	TimeShiftBufferDepth       *string   `xml:"timeShiftBufferDepth,attr"`
-	SuggestedPresentationDelay *Duration `xml:"suggestedPresentationDelay,attr,omitempty"`
-	BaseURL                    string    `xml:"BaseURL,omitempty"`
-	Location                   string    `xml:"Location,omitempty"`
+	XMLNs                      *string    `xml:"xmlns,attr"`
+	Scte35NS                   *Scte35NS  `xml:"scte35,attr,omitempty"`
+	XsiNS                      *XmlnsAttr `xml:"xsi,attr,omitempty"`
+	XsiSchemaLocation          *XsiSL     `xml:"schemaLocation,attr,omitempty"`
+	XsiCENC                    *XmlnsAttr `xml:"cenc,attr,omitempty"`
+	XsiMSPR                    *XmlnsAttr `xml:"mspr,attr,omitempty"`
+	Profiles                   *string    `xml:"profiles,attr"`
+	Type                       *string    `xml:"type,attr"`
+	MediaPresentationDuration  *string    `xml:"mediaPresentationDuration,attr"`
+	MinBufferTime              *string    `xml:"minBufferTime,attr"`
+	AvailabilityStartTime      *string    `xml:"availabilityStartTime,attr,omitempty"`
+	MinimumUpdatePeriod        *string    `xml:"minimumUpdatePeriod,attr"`
+	PublishTime                *string    `xml:"publishTime,attr"`
+	TimeShiftBufferDepth       *string    `xml:"timeShiftBufferDepth,attr"`
+	SuggestedPresentationDelay *Duration  `xml:"suggestedPresentationDelay,attr,omitempty"`
+	BaseURL                    string     `xml:"BaseURL,omitempty"`
+	Location                   string     `xml:"Location,omitempty"`
 	period                     *Period
 	Periods                    []*Period       `xml:"Period,omitempty"`
 	UTCTiming                  *DescriptorType `xml:"UTCTiming,omitempty"`
 	ID                         string          `xml:"id,attr,omitempty"`
 }
 
-type XsiNS struct {
+type XmlnsAttr struct {
 	XmlName xml.Name
 	Value   string
 }
 
-func (s *XsiNS) UnmarshalXMLAttr(attr xml.Attr) error {
+func (s *XmlnsAttr) UnmarshalXMLAttr(attr xml.Attr) error {
 	s.XmlName = attr.Name
 	s.Value = attr.Value
 	return nil
 }
 
-func (s *XsiNS) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
-	if strings.Contains(s.XmlName.Local, "xsi") {
-		return xml.Attr{Name: xml.Name{Local: "xmlns:xsi"}, Value: s.Value}, nil
-	}
-	return xml.Attr{}, nil
+func (s *XmlnsAttr) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	return xml.Attr{Name: xml.Name{Local: fmt.Sprintf("xmlns:%s", s.XmlName.Local)}, Value: s.Value}, nil
 }
 
 type XsiSL struct {
