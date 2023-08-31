@@ -32,7 +32,24 @@ func ReadFromString(xmlStr string) (*MPD, error) {
 func Read(r io.Reader) (*MPD, error) {
 	var mpd MPD
 	d := xml.NewDecoder(r)
-	err := d.Decode(&mpd)
+	var start *xml.StartElement
+	for {
+		token, err := d.Token()
+		if err != nil {
+			return nil, err
+		}
+		switch token := token.(type) {
+		case xml.Comment:
+			mpd.Comment = string(token.Copy())
+		case xml.StartElement:
+			start = &token
+		default:
+		}
+		if start != nil {
+			break
+		}
+	}
+	err := d.DecodeElement(&mpd, start)
 	if err != nil {
 		return nil, err
 	}
@@ -75,13 +92,26 @@ func (m *MPD) WriteToString() (string, error) {
 // Writes an MPD object to an io.Writer interface
 // w - Must implement the io.Writer interface.
 func (m *MPD) Write(w io.Writer) error {
-	b, err := xml.MarshalIndent(m, "", "  ")
+	_, err := w.Write([]byte(xml.Header))
 	if err != nil {
 		return err
 	}
-
-	_, _ = w.Write([]byte(xml.Header))
-	_, _ = w.Write(b)
-	_, _ = w.Write([]byte("\n"))
-	return nil
+	e := xml.NewEncoder(w)
+	e.Indent("", "  ")
+	if string(m.Comment) != "" {
+		if err := e.EncodeToken(xml.Comment(m.Comment)); err != nil {
+			return err
+		}
+		if err := e.Flush(); err != nil {
+			return err
+		}
+		if _, err := w.Write([]byte("\n")); err != nil {
+			return err
+		}
+	}
+	if err := e.Encode(m); err != nil {
+		return err
+	}
+	_, err = w.Write([]byte("\n"))
+	return err
 }

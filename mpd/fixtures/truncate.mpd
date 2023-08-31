@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--Generated with https://github.com/shaka-project/shaka-packager version 288eddc863-release-->
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="dynamic" minBufferTime="PT2S" availabilityStartTime="2019-12-03T20:57:14Z" minimumUpdatePeriod="PT5S" publishTime="2019-12-03T21:05:05Z" timeShiftBufferDepth="PT120S">
   <Period id="0">
     <AdaptationSet frameRate="90000/3000" id="0" segmentAlignment="true" maxWidth="720" contentType="video">
