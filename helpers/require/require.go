@@ -105,6 +105,20 @@ func EqualString(t *testing.T, expected, actual string, msgs ...string) {
 	}
 }
 
+func EqualStringSlice(t *testing.T, expected, actual []string, msgs ...string) {
+	if len(expected) != len(actual) {
+		t.Errorf("Expected %v but got %v", expected, actual)
+		for _, msg := range msgs {
+			t.Errorf("\n" + msg)
+		}
+		t.FailNow()
+	}
+	for i, e := range expected {
+		a := actual[i]
+		EqualString(t, e, a, msgs...)
+	}
+}
+
 func EqualUInt32(t *testing.T, expected, actual uint32, msgs ...string) {
 	if expected != actual {
 		t.Errorf("Expected %d but got %d", expected, actual)
