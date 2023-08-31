@@ -502,3 +502,20 @@ func TestWriteToFileTruncate(t *testing.T) {
 	xmlStr = testfixtures.LoadFixture(out)
 	testfixtures.CompareFixture(t, "fixtures/truncate_short.mpd", xmlStr)
 }
+
+func TestReadComment(t *testing.T) {
+	m, err := ReadFromFile("fixtures/comment.mpd")
+	require.NoError(t, err)
+	require.EqualString(t, "Generated with https://github.com/shaka-project/shaka-packager version 288eddc863-release", string(m.Comment))
+}
+
+func TestWriteComment(t *testing.T) {
+	m := MPD{Comment: "Leading Comment"}
+	s, err := m.WriteToString()
+	require.NoError(t, err)
+	answer := `<?xml version="1.0" encoding="UTF-8"?>
+<!--Leading Comment-->
+<MPD></MPD>
+`
+	require.EqualString(t, answer, s)
+}
