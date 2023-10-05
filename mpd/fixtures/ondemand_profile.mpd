@@ -40,7 +40,7 @@
         </SegmentBase>
       </Representation>
     </AdaptationSet>
-    <AdaptationSet mimeType="text/vtt" id="7357" lang="en" label="Subtitle (En)">
+    <AdaptationSet mimeType="text/vtt" id="7357" lang="en">
       <Representation bandwidth="256" id="subtitle_en">
         <BaseURL>http://example.com/content/sintel/subtitles/subtitles_en.vtt</BaseURL>
       </Representation>

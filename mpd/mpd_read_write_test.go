@@ -173,7 +173,7 @@ func TestAddNewAdaptationSetSubtitleWriteToString(t *testing.T) {
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet mimeType="text/vtt" id="7357" lang="en" label="Subtitle (En)"></AdaptationSet>
+    <AdaptationSet mimeType="text/vtt" id="7357" lang="en"></AdaptationSet>
   </Period>
 </MPD>
 `
