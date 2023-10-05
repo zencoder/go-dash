@@ -190,9 +190,8 @@ type AdaptationSet struct {
 	SegmentTemplate    *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
 	Representations    []*Representation `xml:"Representation,omitempty"`
 	AccessibilityElems []*Accessibility  `xml:"Accessibility,omitempty"`
-	//Label              *string           `xml:"label,attr"` //remove?
-	Labels  []string `xml:"Label,omitempty"`
-	BaseURL []string `xml:"BaseURL,omitempty"`
+	Labels             []string          `xml:"Label,omitempty"`
+	BaseURL            []string          `xml:"BaseURL,omitempty"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
