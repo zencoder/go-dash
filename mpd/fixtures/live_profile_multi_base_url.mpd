@@ -38,6 +38,7 @@
       <Representation bandwidth="256" id="subtitle_en">
         <BaseURL>http://example.com/content/sintel/subtitles/subtitles_en.vtt</BaseURL>
       </Representation>
+      <Label>Subtitle (En)</Label>
     </AdaptationSet>
   </Period>
 </MPD>

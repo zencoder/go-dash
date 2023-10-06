@@ -660,7 +660,8 @@ func (m *MPD) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang
 // label - Label for the subtitle from Studio (i.e. American)
 func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		Lang: Strptr(lang),
+		Lang:   Strptr(lang),
+		Labels: []string{label},
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			MimeType: Strptr(mimeType),
 		},
@@ -678,8 +679,9 @@ func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string, 
 // label - Label for the subtitle from Studio (i.e. American)
 func (period *Period) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		ID:   Strptr(id),
-		Lang: Strptr(lang),
+		ID:     Strptr(id),
+		Lang:   Strptr(lang),
+		Labels: []string{label},
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			MimeType: Strptr(mimeType),
 		},
