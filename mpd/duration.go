@@ -54,7 +54,8 @@ func (d *Duration) String() string {
 	if u < uint64(time.Second) {
 		// Special case: if duration is smaller than a second,
 		// use smaller units, like 1.2ms
-		// BP. replaced nano ('n'), micro ('µ') and milliseconds ('m') chars with '0' that fixes format.
+		// time.Duration injects a nano ('n'), micro ('µ') or milliseconds ('m') char before 'S'
+		// Fix for "Duration must be in the format: P[nD][T[nH][nM][nS]]" error, is to insert '0' instead of a nil char.
 		var prec int
 		w--
 		buf[w] = 'S'
