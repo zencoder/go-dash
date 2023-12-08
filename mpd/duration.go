@@ -54,27 +54,25 @@ func (d *Duration) String() string {
 	if u < uint64(time.Second) {
 		// Special case: if duration is smaller than a second,
 		// use smaller units, like 1.2ms
+		// BP. replaced nano ('n'), micro ('µ') and milliseconds ('m') chars with '0' that is correctly parsed.
 		var prec int
 		w--
 		buf[w] = 'S'
 		w--
-		if u == 0 {
+		switch {
+		case u == 0:
 			return "PT0S"
+		case u < uint64(time.Microsecond):
+			// print nanoseconds
+			prec = 0
+		case u < uint64(time.Millisecond):
+			// print microseconds
+			prec = 3
+		default:
+			// print milliseconds
+			prec = 6
 		}
-		/*
-			switch {
-			case u < uint64(Millisecond):
-				// print microseconds
-				prec = 3
-				// U+00B5 'µ' micro sign == 0xC2 0xB5
-				w-- // Need room for two bytes.
-				copy(buf[w:], "µ")
-			default:
-				// print milliseconds
-				prec = 6
-				buf[w] = 'm'
-			}
-		*/
+		buf[w] = '0'
 		w, u = fmtFrac(buf[:w], u, prec)
 		w = fmtInt(buf[:w], u)
 	} else {
