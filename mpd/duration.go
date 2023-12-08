@@ -54,7 +54,7 @@ func (d *Duration) String() string {
 	if u < uint64(time.Second) {
 		// Special case: if duration is smaller than a second,
 		// use smaller units, like 1.2ms
-		// BP. replaced nano ('n'), micro ('µ') and milliseconds ('m') chars with '0' that is correctly parsed.
+		// BP. replaced nano ('n'), micro ('µ') and milliseconds ('m') chars with '0' that fixes format.
 		var prec int
 		w--
 		buf[w] = 'S'
