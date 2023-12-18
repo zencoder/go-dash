@@ -54,28 +54,16 @@ func (d *Duration) String() string {
 	if u < uint64(time.Second) {
 		// Special case: if duration is smaller than a second,
 		// use smaller units, like 1.2ms
-		// time.Duration injects a nano ('n'), micro ('µ') or milliseconds ('m') char before 'S'
-		// Fix for "Duration must be in the format: P[nD][T[nH][nM][nS]]" error, is to insert '0' instead of a nil char.
-		var prec int
-		w--
-		buf[w] = 'S'
-		w--
-		switch {
-		case u == 0:
+		// time.Duration & zerocoder packages convert seconds to nano ('nS'), micro ('µS') or milliseconds ('mS') with corresponding designation
+		// Fix for "Duration must be in the format: P[nD][T[nH][nM][nS]]" error is to keep seconds.
+		if u == 0 {
 			return "PT0S"
-		case u < uint64(time.Microsecond):
-			// print nanoseconds
-			prec = 0
-		case u < uint64(time.Millisecond):
-			// print microseconds
-			prec = 3
-		default:
-			// print milliseconds
-			prec = 6
+		} else {
+			du := float64(u) / float64(time.Second)
+			s := fmt.Sprintf("%2f", du)
+			sf := strings.TrimRight(s, "0")
+			return fmt.Sprintf("PT%sS", sf)
 		}
-		buf[w] = '0'
-		w, u = fmtFrac(buf[:w], u, prec)
-		w = fmtInt(buf[:w], u)
 	} else {
 		w--
 		buf[w] = 'S'
