@@ -51,7 +51,7 @@ func (d *Duration) String() string {
 		u = -u
 	}
 
-	if u < uint64(time.Second) {
+	if u <= uint64(time.Second) {
 		// Special case: if duration is smaller than a second,
 		// use smaller units, like 1.2ms
 		// time.Duration & zerocoder packages convert seconds to nano ('nS'), micro ('µS') or milliseconds ('mS') with corresponding designation
