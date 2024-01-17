@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/zencoder/go-dash/v3/helpers/require"
+	"github.com/cbsinteractive/go-dash/v3/helpers/require"
 )
 
 // Load test fixture from path relative to fixtures directory
