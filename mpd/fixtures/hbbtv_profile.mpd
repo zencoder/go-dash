@@ -37,7 +37,7 @@
       <Label>Subtitle (En)</Label>
       <Representation bandwidth="256" id="subtitle_en">
         <BaseURL>http://example.com/content/sintel/subtitles/subtitles_en.vtt</BaseURL>
-      </Representation>      
+      </Representation>
     </AdaptationSet>
   </Period>
 </MPD>
