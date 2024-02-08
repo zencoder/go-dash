@@ -234,7 +234,7 @@ type AdaptationSet struct {
 	SegmentBase         *SegmentBase      `xml:"SegmentBase,omitempty"`
 	SegmentList         *SegmentList      `xml:"SegmentList,omitempty"`
 	SegmentTemplate     *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Label               *string           `xml:"Label,omitempty"`
+	Labels              []string          `xml:"Label,omitempty"`
 	Representations     []*Representation `xml:"Representation,omitempty"`
 	AccessibilityElems  []*Accessibility  `xml:"Accessibility,omitempty"`
 	BaseURL             []string          `xml:"BaseURL,omitempty"`
@@ -725,8 +725,8 @@ func (m *MPD) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang
 // label - Label for the subtitle from Studio (i.e. American)
 func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		Lang:  Strptr(lang),
-		Label: Strptr(label),
+		Lang:   Strptr(lang),
+		Labels: []string{label},
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			MimeType: Strptr(mimeType),
 		},
@@ -744,9 +744,9 @@ func (period *Period) AddNewAdaptationSetSubtitle(mimeType string, lang string, 
 // label - Label for the subtitle from Studio (i.e. American)
 func (period *Period) AddNewAdaptationSetSubtitleWithID(id string, mimeType string, lang string, label string) (*AdaptationSet, error) {
 	as := &AdaptationSet{
-		ID:    Strptr(id),
-		Lang:  Strptr(lang),
-		Label: Strptr(label),
+		ID:     Strptr(id),
+		Lang:   Strptr(lang),
+		Labels: []string{label},
 		CommonAttributesAndElements: CommonAttributesAndElements{
 			MimeType: Strptr(mimeType),
 		},
