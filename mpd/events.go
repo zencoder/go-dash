@@ -16,4 +16,5 @@ type Event struct {
 	SpliceInfoSection *Scte35SpliceInfoSection `xml:"SpliceInfoSection,omitempty"`
 	PresentationTime  *int64                   `xml:"presentationTime,attr,omitempty"`
 	Duration          *int64                   `xml:"duration,attr,omitempty"`
+	MessageData       *string                  `xml:"messageData,attr,omitempty"`
 }
