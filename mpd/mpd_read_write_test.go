@@ -123,6 +123,21 @@ func TestNewMPDOnDemandWriteToString(t *testing.T) {
 	require.EqualString(t, expectedXML, xmlStr)
 }
 
+func TestNewMPDOnDemandwithDolbyWriteToString(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m.SetDolbyXMLNs()
+	m.SetScte214XMLNs()
+
+	xmlStr, err := m.WriteToString()
+	require.NoError(t, err)
+	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" xmlns:dolby="http://www.dolby.com/ns/online/DASH" xmlns:scte214="urn:scte:dash:scte214-extensions" profiles="urn:mpeg:dash:profile:isoff-on-demand:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
+  <Period></Period>
+</MPD>
+`
+	require.EqualString(t, expectedXML, xmlStr)
+}
+
 func TestAddNewAdaptationSetAudioWriteToString(t *testing.T) {
 	m := NewMPD(DASH_PROFILE_LIVE, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
 
@@ -499,4 +514,97 @@ func TestWriteToFileTruncate(t *testing.T) {
 
 	xmlStr = testfixtures.LoadFixture(out)
 	testfixtures.CompareFixture(t, "fixtures/truncate_short.mpd", xmlStr)
+}
+
+func OnDemandProfileWithDolby() *MPD {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, "PT30S", VALID_MIN_BUFFER_TIME)
+	m.SetDolbyXMLNs()
+	m.SetScte214XMLNs()
+
+	// Main audio adaptation set
+	audioAS, _ := m.AddNewAdaptationSetAudioWithID("1", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "en-US")
+	_, _ = audioAS.AddNewRole("urn:mpeg:dash:role:2011", "main")
+
+	_, _ = audioAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
+	_, _ = audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	_, _ = audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+	_, _ = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
+
+	audioRep, _ := audioAS.AddNewRepresentationAudio(44100, 128558, "mp4a.40.5", "800k/audio-en-US")
+	_ = audioRep.SetNewBaseURL("800k/output-audio-en-US.mp4")
+	_, _ = audioRep.AddNewSegmentBase("629-756", "0-628")
+
+	// audio description adaptation set
+	audioAD, _ := m.AddNewAdaptationSetAudioWithID("2", DASH_MIME_TYPE_AUDIO_MP4, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP, "en-US")
+	_, _ = audioAD.AddNewRole("urn:mpeg:dash:role:2011", "description")
+	_, _ = audioAD.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
+
+	_, _ = audioAD.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
+	_, _ = audioAD.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	_, _ = audioAD.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+	_, _ = audioAD.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
+
+	audioADRep, _ := audioAD.AddNewRepresentationAudio(44100, 128558, "mp4a.40.5", "800k/audio-AD-en-US")
+	_ = audioADRep.SetNewBaseURL("800k/output-audio-AD-en-US.mp4")
+	_, _ = audioADRep.AddNewSegmentBase("629-756", "0-628")
+
+	// video avc adaptation set
+	videoAS, _ := m.AddNewAdaptationSetVideoWithID("3", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	_, _ = videoAS.AddNewRole("urn:mpeg:dash:role:2011", "main")
+
+	_, _ = videoAS.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
+	_, _ = videoAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	_, _ = videoAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+
+	videoRep1, _ := videoAS.AddNewRepresentationVideo(1100690, "avc1.4d401e", "800k/video-1", "30000/1001", 640, 360)
+	_ = videoRep1.SetNewBaseURL("800k/output-video-1.mp4")
+	_, _ = videoRep1.AddNewSegmentBase("686-813", "0-685")
+
+	videoRep2, _ := videoAS.AddNewRepresentationVideo(1633516, "avc1.4d401f", "1200k/video-1", "30000/1001", 960, 540)
+	_ = videoRep2.SetNewBaseURL("1200k/output-video-1.mp4")
+	_, _ = videoRep2.AddNewSegmentBase("686-813", "0-685")
+
+	// video hevc adaptation set with Dolby Vision signaling
+	videoAS1, _ := m.AddNewAdaptationSetVideoWithID("4", DASH_MIME_TYPE_VIDEO_MP4, VALID_SCAN_TYPE, VALID_SEGMENT_ALIGNMENT, VALID_START_WITH_SAP)
+	_, _ = videoAS1.AddNewRole("urn:mpeg:dash:role:2011", "main")
+
+	_, _ = videoAS1.AddNewContentProtectionRoot("08e367028f33436ca5dd60ffe5571e60")
+	_, _ = videoAS1.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
+	_, _ = videoAS1.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
+
+	videoRep3, _ := videoAS1.AddNewRepresentationVideo(1100690, "hev1.2.4.L63.90", "800k/video-1", "30000/1001", 640, 360)
+	_, _ = videoRep3.AddScte214VideoCodecProperties("dvhe.08.07", "db1p")
+	_ = videoRep3.SetNewBaseURL("800k/output-video-1.mp4")
+	_, _ = videoRep3.AddNewSegmentBase("686-813", "0-685")
+
+	videoRep4, _ := videoAS1.AddNewRepresentationVideo(1633516, "hev1.2.4.L93.90", "1200k/video-1", "30000/1001", 960, 540)
+	_, _ = videoRep4.AddScte214VideoCodecProperties("dvhe.08.07", "db4h")
+	_ = videoRep4.SetNewBaseURL("1200k/output-video-1.mp4")
+	_, _ = videoRep4.AddNewSegmentBase("686-813", "0-685")
+
+	// subtitle adaptation set
+	subtitleAS, _ := m.AddNewAdaptationSetSubtitleWithID("5", DASH_MIME_TYPE_SUBTITLE_VTT, VALID_LANG, VALID_SUBTITLE_LABEL)
+	_, _ = subtitleAS.AddNewRole("urn:mpeg:dash:role:2011", "subtitle")
+	subtitleRep, _ := subtitleAS.AddNewRepresentationSubtitle(VALID_SUBTITLE_BANDWIDTH, VALID_SUBTITLE_ID)
+	_ = subtitleRep.SetNewBaseURL(VALID_SUBTITLE_URL)
+
+	return m
+}
+
+func TestOnDemandProfileWithDolbyWriteToString(t *testing.T) {
+	m := OnDemandProfileWithDolby()
+	require.NotNil(t, m)
+	xmlStr, err := m.WriteToString()
+	require.NoError(t, err)
+	testfixtures.CompareFixture(t, "fixtures/ondemand_withdolby.mpd", xmlStr)
+}
+
+func TestOnDemandProfileWithDolbyWriteToFile(t *testing.T) {
+	m := OnDemandProfileWithDolby()
+	require.NotNil(t, m)
+	err := m.WriteToFile("test-withdolby-ondemand.mpd")
+	xmlStr := testfixtures.LoadFixture("test-withdolby-ondemand.mpd")
+	testfixtures.CompareFixture(t, "fixtures/ondemand_withdolby.mpd", xmlStr)
+	defer os.Remove("test-withdolby-ondemand.mpd")
+	require.NoError(t, err)
 }

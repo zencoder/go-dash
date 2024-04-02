@@ -2,6 +2,7 @@ package mpd
 
 import (
 	"encoding/base64"
+	"encoding/xml"
 	"path/filepath"
 	"strconv"
 	"testing"
@@ -227,6 +228,38 @@ func TestNewMPDOnDemand(t *testing.T) {
 	require.NotNil(t, m)
 	expectedMPD := &MPD{
 		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles:                  Strptr((string)(DASH_PROFILE_ONDEMAND)),
+		Type:                      Strptr("static"),
+		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
+		MinBufferTime:             Strptr(VALID_MIN_BUFFER_TIME),
+		period:                    &Period{},
+		Periods:                   []*Period{{}},
+	}
+
+	expectedString, err := expectedMPD.WriteToString()
+	require.NoError(t, err)
+	actualString, err := m.WriteToString()
+	require.NoError(t, err)
+
+	require.EqualString(t, expectedString, actualString)
+}
+
+func TestNewMPDOnDemandWithDolby(t *testing.T) {
+	m := NewMPD(DASH_PROFILE_ONDEMAND, VALID_MEDIA_PRESENTATION_DURATION, VALID_MIN_BUFFER_TIME)
+	m.SetDolbyXMLNs()
+	m.SetScte214XMLNs()
+
+	require.NotNil(t, m)
+	expectedMPD := &MPD{
+		XMLNs: Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		XMLNsDolby: &XmlnsAttr{
+			XmlName: xml.Name{Space: "xmlns", Local: "dolby"},
+			Value:   "http://www.dolby.com/ns/online/DASH",
+		},
+		XMLNsSCTE214: &XmlnsAttr{
+			XmlName: xml.Name{Space: "xmlns", Local: "scte214"},
+			Value:   "urn:scte:dash:scte214-extensions",
+		},
 		Profiles:                  Strptr((string)(DASH_PROFILE_ONDEMAND)),
 		Type:                      Strptr("static"),
 		MediaPresentationDuration: Strptr(VALID_MEDIA_PRESENTATION_DURATION),
