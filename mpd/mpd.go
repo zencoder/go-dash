@@ -132,6 +132,8 @@ func (s *XsiSL) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 type Period struct {
 	SupplementalProperty []DescriptorType `xml:"SupplementalProperty,omitempty"`
 	ID                   string           `xml:"id,attr,omitempty"`
+	XlinkHref            string           `xml:"xlink:href,attr,omitempty"`
+	XlinkActuate         string           `xml:"xlink:actuate,attr,omitempty"`
 	Duration             Duration         `xml:"duration,attr,omitempty"`
 	Start                *Duration        `xml:"start,attr,omitempty"`
 	BaseURL              []string         `xml:"BaseURL,omitempty"`
