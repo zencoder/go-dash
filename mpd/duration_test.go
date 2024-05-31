@@ -5,14 +5,18 @@ import (
 	"testing"
 	"time"
 
-	"github.com/zencoder/go-dash/v3/helpers/require"
+	"github.com/cbsinteractive/go-dash/v3/helpers/require"
 )
 
 func TestDuration(t *testing.T) {
 	in := map[string]string{
-		"0s":    "PT0S",
-		"6m16s": "PT6M16S",
-		"1.97s": "PT1.97S",
+		"0s":         "PT0S",
+		"6m16s":      "PT6M16S",
+		"1.97s":      "PT1.97S",
+		"1.0s":       "PT1S",
+		"0.0021s":    "PT0.0021S",
+		"0.0000021s": "PT0.000002S",
+		"0.021s":     "PT0.021S",
 	}
 	for ins, ex := range in {
 		timeDur, err := time.ParseDuration(ins)

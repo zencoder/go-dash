@@ -21,11 +21,13 @@ go get -u github.com/zencoder/go-dash
 * DRM (ContentProtection)
   * PlayReady
   * Widevine
+* Scte35 Splice Insert
 
 ## Known Limitations (for now) (PRs welcome)
 
 * No PSSH/PRO generation
 * Limited Profile Support
+* Scte35 Time Signal
 
 ## Example Usage
 

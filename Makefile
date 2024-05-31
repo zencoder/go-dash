@@ -8,7 +8,7 @@ endif
 .DEFAULT_GOAL := all
 
 .PHONY: all
-all: test
+all: clean fmt test
 
 .PHONY: test
 test:

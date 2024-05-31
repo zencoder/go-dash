@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/zencoder/go-dash/v3/helpers/require"
+	"github.com/cbsinteractive/go-dash/v3/helpers/require"
 )
 
 // Load test fixture from path relative to fixtures directory
@@ -19,6 +19,7 @@ func LoadFixture(path string) (js string) {
 }
 
 func CompareFixture(t *testing.T, fixturePath string, actualContent string) {
+	t.Helper()
 	expectedContent := LoadFixture(fixturePath)
 	if os.Getenv("GENERATE_FIXTURES") != "" {
 		_ = ioutil.WriteFile(fixturePath, []byte(actualContent), os.ModePerm)

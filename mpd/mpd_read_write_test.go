@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/zencoder/go-dash/v3/helpers/ptrs"
-	"github.com/zencoder/go-dash/v3/helpers/require"
-	"github.com/zencoder/go-dash/v3/helpers/testfixtures"
+	"github.com/cbsinteractive/go-dash/v3/helpers/ptrs"
+	"github.com/cbsinteractive/go-dash/v3/helpers/require"
+	"github.com/cbsinteractive/go-dash/v3/helpers/testfixtures"
 )
 
 func TestReadingManifests(t *testing.T) {
@@ -150,13 +150,14 @@ func TestAddNewAdaptationSetVideoWriteToString(t *testing.T) {
 	as.MaxWidth = ptrs.Strptr("720")
 	as.MinHeight = ptrs.Strptr("480")
 	as.MaxHeight = ptrs.Strptr("480")
+	as.SelectionPriority = ptrs.Uint64ptr(5)
 
 	xmlStr, err := m.WriteToString()
 	require.NoError(t, err)
 	expectedXML := `<?xml version="1.0" encoding="UTF-8"?>
 <MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S">
   <Period>
-    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true" minWidth="720" maxWidth="720" minHeight="480" maxHeight="480"></AdaptationSet>
+    <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="7357" segmentAlignment="true" minWidth="720" maxWidth="720" minHeight="480" maxHeight="480" selectionPriority="5"></AdaptationSet>
   </Period>
 </MPD>
 `
@@ -426,6 +427,7 @@ func OnDemandProfile() *MPD {
 	_, _ = audioAS.AddNewContentProtectionSchemeWidevineWithPSSH(getValidWVHeaderBytes())
 	_, _ = audioAS.AddNewContentProtectionSchemePlayreadyWithPSSH(VALID_PLAYREADY_PRO)
 	_, _ = audioAS.AddNewAccessibilityElement(ACCESSIBILITY_ELEMENT_SCHEME_DESCRIPTIVE_AUDIO, "1")
+	audioAS.SelectionPriority = ptrs.Uint64ptr(3)
 
 	audioRep, _ := audioAS.AddNewRepresentationAudio(44100, 128558, "mp4a.40.5", "800k/audio-und")
 	_ = audioRep.SetNewBaseURL("800k/output-audio-und.mp4")
@@ -499,4 +501,21 @@ func TestWriteToFileTruncate(t *testing.T) {
 
 	xmlStr = testfixtures.LoadFixture(out)
 	testfixtures.CompareFixture(t, "fixtures/truncate_short.mpd", xmlStr)
+}
+
+func TestReadComment(t *testing.T) {
+	m, err := ReadFromFile("fixtures/comment.mpd")
+	require.NoError(t, err)
+	require.EqualString(t, "Generated with https://github.com/shaka-project/shaka-packager version 288eddc863-release", string(m.Comment))
+}
+
+func TestWriteComment(t *testing.T) {
+	m := MPD{Comment: "Leading Comment"}
+	s, err := m.WriteToString()
+	require.NoError(t, err)
+	answer := `<?xml version="1.0" encoding="UTF-8"?>
+<!--Leading Comment-->
+<MPD></MPD>
+`
+	require.EqualString(t, answer, s)
 }
