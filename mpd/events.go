@@ -15,4 +15,5 @@ type Event struct {
 	ID               *string  `xml:"id,attr,omitempty"`
 	PresentationTime *uint64  `xml:"presentationTime,attr,omitempty"`
 	Duration         *uint64  `xml:"duration,attr,omitempty"`
+	Content          *string  `xml:",innerxml"`
 }
