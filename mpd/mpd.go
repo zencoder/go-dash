@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	. "github.com/zencoder/go-dash/v3/helpers/ptrs"
+	. "github.com/garkettleung/go-dash/v3/helpers/ptrs"
 )
 
 // Type definition for DASH profiles
@@ -108,25 +108,25 @@ type DescriptorType struct {
 
 // ISO 23009-1-2014 5.3.7
 type CommonAttributesAndElements struct {
-	Profiles                  *string               `xml:"profiles,attr"`
-	Width                     *string               `xml:"width,attr"`
-	Height                    *string               `xml:"height,attr"`
-	Sar                       *string               `xml:"sar,attr"`
-	FrameRate                 *string               `xml:"frameRate,attr"`
-	AudioSamplingRate         *string               `xml:"audioSamplingRate,attr"`
-	MimeType                  *string               `xml:"mimeType,attr"`
-	SegmentProfiles           *string               `xml:"segmentProfiles,attr"`
-	Codecs                    *string               `xml:"codecs,attr"`
-	MaximumSAPPeriod          *string               `xml:"maximumSAPPeriod,attr"`
-	StartWithSAP              *int64                `xml:"startWithSAP,attr"`
-	MaxPlayoutRate            *string               `xml:"maxPlayoutRate,attr"`
-	ScanType                  *string               `xml:"scanType,attr"`
-	FramePacking              []DescriptorType      `xml:"FramePacking,omitempty"`
-	AudioChannelConfiguration []DescriptorType      `xml:"AudioChannelConfiguration,omitempty"`
-	ContentProtection         []ContentProtectioner `xml:"ContentProtection,omitempty"`
-	EssentialProperty         []DescriptorType      `xml:"EssentialProperty,omitempty"`
-	SupplementalProperty      []DescriptorType      `xml:"SupplementalProperty,omitempty"`
-	InbandEventStream         []DescriptorType      `xml:"InbandEventStream,omitempty"`
+	Profiles                  *string            `xml:"profiles,attr"`
+	Width                     *string            `xml:"width,attr"`
+	Height                    *string            `xml:"height,attr"`
+	Sar                       *string            `xml:"sar,attr"`
+	FrameRate                 *string            `xml:"frameRate,attr"`
+	AudioSamplingRate         *string            `xml:"audioSamplingRate,attr"`
+	MimeType                  *string            `xml:"mimeType,attr"`
+	SegmentProfiles           *string            `xml:"segmentProfiles,attr"`
+	Codecs                    *string            `xml:"codecs,attr"`
+	MaximumSAPPeriod          *string            `xml:"maximumSAPPeriod,attr"`
+	StartWithSAP              *int64             `xml:"startWithSAP,attr"`
+	MaxPlayoutRate            *string            `xml:"maxPlayoutRate,attr"`
+	ScanType                  *string            `xml:"scanType,attr"`
+	FramePacking              []DescriptorType   `xml:"FramePacking,omitempty"`
+	AudioChannelConfiguration []DescriptorType   `xml:"AudioChannelConfiguration,omitempty"`
+	ContentProtection         contentProtections `xml:"ContentProtection,omitempty"`
+	EssentialProperty         []DescriptorType   `xml:"EssentialProperty,omitempty"`
+	SupplementalProperty      []DescriptorType   `xml:"SupplementalProperty,omitempty"`
+	InbandEventStream         []DescriptorType   `xml:"InbandEventStream,omitempty"`
 }
 
 type contentProtections []ContentProtectioner
@@ -171,27 +171,28 @@ type dtoAdaptationSet struct {
 
 type AdaptationSet struct {
 	CommonAttributesAndElements
-	XMLName            xml.Name          `xml:"AdaptationSet"`
-	ID                 *string           `xml:"id,attr"`
-	SegmentAlignment   *bool             `xml:"segmentAlignment,attr"`
-	Lang               *string           `xml:"lang,attr"`
-	Group              *string           `xml:"group,attr"`
-	PAR                *string           `xml:"par,attr"`
-	MinBandwidth       *string           `xml:"minBandwidth,attr"`
-	MaxBandwidth       *string           `xml:"maxBandwidth,attr"`
-	MinWidth           *string           `xml:"minWidth,attr"`
-	MaxWidth           *string           `xml:"maxWidth,attr"`
-	MinHeight          *string           `xml:"minHeight,attr"`
-	MaxHeight          *string           `xml:"maxHeight,attr"`
-	ContentType        *string           `xml:"contentType,attr"`
-	Roles              []*Role           `xml:"Role,omitempty"`
-	SegmentBase        *SegmentBase      `xml:"SegmentBase,omitempty"`
-	SegmentList        *SegmentList      `xml:"SegmentList,omitempty"`
-	SegmentTemplate    *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
-	Representations    []*Representation `xml:"Representation,omitempty"`
-	AccessibilityElems []*Accessibility  `xml:"Accessibility,omitempty"`
-	Labels             []string          `xml:"Label,omitempty"`
-	BaseURL            []string          `xml:"BaseURL,omitempty"`
+	XMLName             xml.Name          `xml:"AdaptationSet"`
+	ID                  *string           `xml:"id,attr"`
+	SegmentAlignment    *bool             `xml:"segmentAlignment,attr"`
+	SubSegmentAlignment *bool             `xml:"subsegmentAlignment,attr"`
+	Lang                *string           `xml:"lang,attr"`
+	Group               *string           `xml:"group,attr"`
+	PAR                 *string           `xml:"par,attr"`
+	MinBandwidth        *string           `xml:"minBandwidth,attr"`
+	MaxBandwidth        *string           `xml:"maxBandwidth,attr"`
+	MinWidth            *string           `xml:"minWidth,attr"`
+	MaxWidth            *string           `xml:"maxWidth,attr"`
+	MinHeight           *string           `xml:"minHeight,attr"`
+	MaxHeight           *string           `xml:"maxHeight,attr"`
+	ContentType         *string           `xml:"contentType,attr"`
+	Roles               []*Role           `xml:"Role,omitempty"`
+	SegmentBase         *SegmentBase      `xml:"SegmentBase,omitempty"`
+	SegmentList         *SegmentList      `xml:"SegmentList,omitempty"`
+	SegmentTemplate     *SegmentTemplate  `xml:"SegmentTemplate,omitempty"` // Live Profile Only
+	Representations     []*Representation `xml:"Representation,omitempty"`
+	AccessibilityElems  []*Accessibility  `xml:"Accessibility,omitempty"`
+	Labels              []string          `xml:"Label,omitempty"`
+	BaseURL             []string          `xml:"BaseURL,omitempty"`
 }
 
 func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
@@ -406,9 +407,9 @@ func (m *MPD) SetDolbyXMLNs() {
 func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:                     Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles:                  Strptr((string)(profile)),
-		Type:                      Strptr("static"),
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: Strptr((string)(profile)),
+		Type:     Strptr("static"),
 		MediaPresentationDuration: Strptr(mediaPresentationDuration),
 		MinBufferTime:             Strptr(minBufferTime),
 		period:                    period,
@@ -433,9 +434,9 @@ func NewMPD(profile DashProfile, mediaPresentationDuration, minBufferTime string
 func NewDynamicMPD(profile DashProfile, availabilityStartTime, minBufferTime string, attributes ...AttrMPD) *MPD {
 	period := &Period{}
 	mpd := &MPD{
-		XMLNs:                 Strptr("urn:mpeg:dash:schema:mpd:2011"),
-		Profiles:              Strptr((string)(profile)),
-		Type:                  Strptr("dynamic"),
+		XMLNs:    Strptr("urn:mpeg:dash:schema:mpd:2011"),
+		Profiles: Strptr((string)(profile)),
+		Type:     Strptr("dynamic"),
 		AvailabilityStartTime: Strptr(availabilityStartTime),
 		MinBufferTime:         Strptr(minBufferTime),
 		period:                period,
