@@ -3,7 +3,7 @@ package mpd
 import (
 	"encoding/base64"
 	"encoding/hex"
-	"github.com/zencoder/go-dash/v3/helpers/require"
+	"github.com/garkettleung/go-dash/v3/helpers/require"
 	"testing"
 )
 
