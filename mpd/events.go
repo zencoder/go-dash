@@ -15,4 +15,19 @@ type Event struct {
 	ID               *string  `xml:"id,attr,omitempty"`
 	PresentationTime *uint64  `xml:"presentationTime,attr,omitempty"`
 	Duration         *uint64  `xml:"duration,attr,omitempty"`
+	Signals          []Signal `xml:"Signal,omitempty"`
+}
+
+type ByPresentationTime []Event
+
+func (p ByPresentationTime) Len() int {
+	return len(p)
+}
+
+func (p ByPresentationTime) Less(i, j int) bool {
+	return *p[i].PresentationTime < *p[j].PresentationTime
+}
+
+func (p ByPresentationTime) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
 }
