@@ -1136,7 +1136,7 @@ func (r *Representation) SetNewBaseURL(baseURL string) error {
 	if baseURL == "" {
 		return ErrBaseURLEmpty
 	}
-	// overwrite for backwards compatability
+	// overwrite for backwards compatibility
 	r.BaseURL = []string{baseURL}
 	return nil
 }
