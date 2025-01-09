@@ -32,7 +32,12 @@ type SCTE35EventOption func(scte35Break *Event)
 // AddNewSCTE35Break will create a new period with an empty SCTE-35 period
 // compliant with urn:scte:scte35:2014:xml+bin. This function accepts optional
 // SCTE35EventOptions to further modify the break.
-func (period *Period) AddNewSCTE35Break(timeScale uint, presentationTime uint64, id string, eventOptions ...SCTE35EventOption) {
+func (period *Period) AddNewSCTE35Break(
+	timeScale uint,
+	presentationTime uint64,
+	id string,
+	eventOptions ...SCTE35EventOption,
+) {
 	var eventStreams []EventStream
 	if period.EventStreams != nil {
 		eventStreams = period.EventStreams
