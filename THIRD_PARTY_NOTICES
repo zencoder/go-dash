@@ -1,0 +1,9 @@
+### Third-Party Libraries
+
+#### Library: scte35-go
+- License: Apache License 2.0
+- URL: https://github.com/Comcast/scte35-go/tree/main
+- Copyright: None explicitly stated.
+- Notes: This library does not include a copyright notice, but it is licensed under the Apache License 2.0.
+
+This library is used in compliance with the Apache License, Version 2.0.

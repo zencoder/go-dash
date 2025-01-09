@@ -1,0 +1,14 @@
+github.com/Comcast/scte35-go v1.4.6 h1:jhYrK8xsKjaEf/JmSVGaz0xYrlsUgyjsYYCRY7TGBy4=
+github.com/Comcast/scte35-go v1.4.6/go.mod h1:556vqw++rwYrL+GcVH6iX/gaPSDCv9LlNdKAlqpN/ZY=
+github.com/bamiaux/iobit v0.0.0-20170418073505-498159a04883 h1:XNtOMwxmV2PI/vuTHDZnFzGIFNUh8MK73q7+Kna7AXs=
+github.com/bamiaux/iobit v0.0.0-20170418073505-498159a04883/go.mod h1:9IjZnSQGh45J46HHS45pxuMJ6WFTtSXbaX0FoHDvxh8=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
+github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+golang.org/x/text v0.16.0 h1:a94ExnEXNtEwYLGJSIUxnWoxoRz/ZcCsV63ROupILh4=
+golang.org/x/text v0.16.0/go.mod h1:GhwF1Be+LQoKShO3cGOHzqOgRrGaYc9AvblQOmPVHnI=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
