@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011" profiles="urn:mpeg:dash:profile:isoff-live:2011" type="static" mediaPresentationDuration="PT6M16S" minBufferTime="PT1.97S" availabilityStartTime="1970-01-01T00:00:00Z">
+  <Period id="0"></Period>
+  <Period id="1">
+    <EventStream schemeIdUri="urn:scte:scte35:2014:xml+bin" timescale="10">
+      <Event id="1" presentationTime="10000"></Event>
+      <Event id="2" presentationTime="15000">
+        <Signal xmlns="urn:scte:scte35:2014:xml+bin">
+          <Binary xmlns="urn:scte:scte35:2014:xml+bin">/AASAAAAAAAAAAAAAQQAAABifGO7</Binary>
+        </Signal>
+      </Event>
+      <Event id="3" presentationTime="20000">
+        <Signal xmlns="urn:scte:scte35:2014:xml+bin" namespace="http://www.scte.org/schemas/35/2016">
+          <Binary xmlns="urn:scte:scte35:2014:xml+bin">/DAgAAAAAAAAAP/wBQb+AABb0AAAABAAAAEAAQCA==</Binary>
+        </Signal>
+      </Event>
+      <Event id="4" presentationTime="20001">
+        <Signal xmlns="urn:scte:scte35:2014:xml+bin" namespace="http://www.scte.org/schemas/35/2016">
+          <Binary xmlns="urn:scte:scte35:2014:xml+bin">/AAcAAAAAAAAAAAACwUAAAAAfw8AAAAAAAAA0q3UPw==</Binary>
+        </Signal>
+      </Event>
+    </EventStream>
+  </Period>
+  <Period id="2"></Period>
+</MPD>

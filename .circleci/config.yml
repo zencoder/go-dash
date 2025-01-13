@@ -3,8 +3,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/golang
-    working_directory: "/go/src/github.com/zencoder/go-dash"
+      - image: cimg/go:1.23.4
     steps:
       - checkout
       - run: make test
