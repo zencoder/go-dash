@@ -201,9 +201,7 @@ func (as *AdaptationSet) UnmarshalXML(d *xml.Decoder, start xml.StartElement) er
 	}
 	*as = AdaptationSet(n.wrappedAdaptationSet)
 	as.ContentProtection = make([]ContentProtectioner, len(n.ContentProtection))
-	for i := range n.ContentProtection {
-		as.ContentProtection[i] = n.ContentProtection[i]
-	}
+	copy(as.ContentProtection, n.ContentProtection)
 	return nil
 }
 
