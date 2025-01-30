@@ -55,7 +55,7 @@ func (d *Duration) String() string {
 		return "PT0S"
 	}
 
-	conversionFunc := toSecond
+	conversionFunc := toSecondOrMore
 	if u < uint64(time.Second) {
 		conversionFunc = toLessThanSecond
 	}
@@ -70,7 +70,7 @@ func (d *Duration) String() string {
 	return "PT" + string(buf[w:])
 }
 
-func toSecond(w int, buf [32]byte, u uint64) (int, [32]byte) {
+func toSecondOrMore(w int, buf [32]byte, u uint64) (int, [32]byte) {
 	w--
 	buf[w] = 'S'
 
