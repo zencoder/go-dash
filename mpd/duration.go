@@ -51,58 +51,16 @@ func (d *Duration) String() string {
 		u = -u
 	}
 
-	if u < uint64(time.Second) {
-		// Special case: if duration is smaller than a second,
-		// use smaller units, like 1.2ms
-		var prec int
-		w--
-		buf[w] = 'S'
-		w--
-		if u == 0 {
-			return "PT0S"
-		}
-		/*
-			switch {
-			case u < uint64(Millisecond):
-				// print microseconds
-				prec = 3
-				// U+00B5 'µ' micro sign == 0xC2 0xB5
-				w-- // Need room for two bytes.
-				copy(buf[w:], "µ")
-			default:
-				// print milliseconds
-				prec = 6
-				buf[w] = 'm'
-			}
-		*/
-		w, u = fmtFrac(buf[:w], u, prec)
-		w = fmtInt(buf[:w], u)
-	} else {
-		w--
-		buf[w] = 'S'
-
-		w, u = fmtFrac(buf[:w], u, 9)
-
-		// u is now integer seconds
-		w = fmtInt(buf[:w], u%60)
-		u /= 60
-
-		// u is now integer minutes
-		if u > 0 {
-			w--
-			buf[w] = 'M'
-			w = fmtInt(buf[:w], u%60)
-			u /= 60
-
-			// u is now integer hours
-			// Stop at hours because days can be different lengths.
-			if u > 0 {
-				w--
-				buf[w] = 'H'
-				w = fmtInt(buf[:w], u)
-			}
-		}
+	if u == 0 {
+		return "PT0S"
 	}
+
+	conversionFunc := toSecond
+	if u < uint64(time.Second) {
+		conversionFunc = toLessThanSecond
+	}
+
+	w, buf = conversionFunc(w, buf, u)
 
 	if neg {
 		w--
@@ -110,6 +68,65 @@ func (d *Duration) String() string {
 	}
 
 	return "PT" + string(buf[w:])
+}
+
+func toSecond(w int, buf [32]byte, u uint64) (int, [32]byte) {
+	w--
+	buf[w] = 'S'
+
+	w, u = fmtFrac(buf[:w], u, 9)
+
+	// u is now integer seconds
+	w = fmtInt(buf[:w], u%60)
+	u /= 60
+
+	if u <= 0 {
+		return w, buf
+	}
+
+	// u is now integer minutes
+	w--
+	buf[w] = 'M'
+	w = fmtInt(buf[:w], u%60)
+	u /= 60
+
+	if u <= 0 {
+		return w, buf
+	}
+
+	// u is now integer hours
+	// Stop at hours because days can be different lengths.
+	w--
+	buf[w] = 'H'
+	w = fmtInt(buf[:w], u)
+
+	return w, buf
+}
+
+func toLessThanSecond(w int, buf [32]byte, u uint64) (int, [32]byte) {
+	// Special case: if duration is smaller than a second,
+	// use smaller units, like 1.2ms
+	var prec int
+	w--
+	buf[w] = 'S'
+	w--
+
+	if u < uint64(time.Millisecond) {
+		// print microseconds
+		prec = 3
+		// U+00B5 'µ' micro sign == 0xC2 0xB5
+		w-- // Need room for two bytes.
+		copy(buf[w:], "µ")
+	} else {
+		// print milliseconds
+		prec = 6
+		buf[w] = 'm'
+	}
+
+	w, u = fmtFrac(buf[:w], u, prec)
+	w = fmtInt(buf[:w], u)
+
+	return w, buf
 }
 
 // fmtFrac formats the fraction of v/10**prec (e.g., ".12345") into the
