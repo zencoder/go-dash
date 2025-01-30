@@ -50,14 +50,14 @@ func TestParseDuration(t *testing.T) {
 
 func TestParseBadDurations(t *testing.T) {
 	in := map[string]string{
-		"P20M":   `Duration must be in the format: P[nD][T[nH][nM][nS]]`, // We don't allow Months (doesn't make sense when converting to duration)
-		"P20Y":   `Duration must be in the format: P[nD][T[nH][nM][nS]]`, // We don't allow Years (doesn't make sense when converting to duration)
-		"P15.5D": `Duration must be in the format: P[nD][T[nH][nM][nS]]`, // Only seconds can be expressed as a decimal
-		"P2H":    `Duration must be in the format: P[nD][T[nH][nM][nS]]`, // "T" must be present to separate days and hours
-		"2DT1H":  `Duration must be in the format: P[nD][T[nH][nM][nS]]`, // "P" must always be present
-		"PT2M1H": `Duration must be in the format: P[nD][T[nH][nM][nS]]`, // Hours must appear before Minutes
-		"P":      `At least one number and designator are required`,      // At least one number and designator are required
-		"-P20H":  `Duration cannot be negative`,                          // Negative duration doesn't make sense
+		"P20M":   `duration must be in the format: P[nD][T[nH][nM][nS]]`, // We don't allow Months (doesn't make sense when converting to duration)
+		"P20Y":   `duration must be in the format: P[nD][T[nH][nM][nS]]`, // We don't allow Years (doesn't make sense when converting to duration)
+		"P15.5D": `duration must be in the format: P[nD][T[nH][nM][nS]]`, // Only seconds can be expressed as a decimal
+		"P2H":    `duration must be in the format: P[nD][T[nH][nM][nS]]`, // "T" must be present to separate days and hours
+		"2DT1H":  `duration must be in the format: P[nD][T[nH][nM][nS]]`, // "P" must always be present
+		"PT2M1H": `duration must be in the format: P[nD][T[nH][nM][nS]]`, // Hours must appear before Minutes
+		"P":      `at least one number and designator are required`,      // At least one number and designator are required
+		"-P20H":  `duration cannot be negative`,                          // Negative duration doesn't make sense
 	}
 	for ins, msg := range in {
 		t.Run(ins, func(t *testing.T) {
