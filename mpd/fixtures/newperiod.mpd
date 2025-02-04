@@ -8,7 +8,7 @@
       <SegmentTemplate duration="1968" initialization="$RepresentationID$/audio-1.mp4" media="$RepresentationID$/audio-1/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
     </AdaptationSet>
   </Period>
-  <Period duration="PT3M0S">
+  <Period duration="PT3M">
     <AdaptationSet mimeType="video/mp4" startWithSAP="1" scanType="progressive" id="2" segmentAlignment="true">
       <SegmentTemplate duration="1968" initialization="$RepresentationID$/video-2.mp4" media="$RepresentationID$/video-2/seg-$Number$.m4f" startNumber="0" timescale="1000"></SegmentTemplate>
     </AdaptationSet>
