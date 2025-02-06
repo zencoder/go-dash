@@ -10,11 +10,13 @@ import (
 
 func TestDuration(t *testing.T) {
 	in := map[string]string{
-		"0.5ms": "PT0.0005S",
-		"7ms":   "PT0.007S",
-		"0s":    "PT0S",
-		"6m16s": "PT6M16S",
-		"1.97s": "PT1.97S",
+		"0.5ms":        "PT0.0005S",
+		"7ms":          "PT0.007S",
+		"0s":           "PT0S",
+		"6m16s":        "PT6M16S",
+		"1.97s":        "PT1.97S",
+		"4988000000ns": "PT4.988S",
+		"2h4m30s7ms":   "PT2H4M30.007S",
 	}
 	for ins, ex := range in {
 		t.Run(ins, func(t *testing.T) {
