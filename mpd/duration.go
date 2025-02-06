@@ -33,6 +33,8 @@ func (d *Duration) String() string {
 		return "PT0S"
 	}
 
+	chrono.Fmt, chrono.Prec = 'g', 11
+
 	return chrono.DurationOf(chrono.Extent(*d)).String()
 }
 
