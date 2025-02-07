@@ -1,5 +1,3 @@
-// based on code from golang src/time/time.go
-
 package mpd
 
 import (
@@ -12,6 +10,9 @@ import (
 	"time"
 )
 
+// Duration is an extension of the original time.Duration. This type is used to
+// re-format the String() output to support the ISO 8601 duration standard. And
+// add the MarshalXMLAttr and UnmarshalXMLAttr functions.
 type Duration time.Duration
 
 var (
@@ -26,7 +27,7 @@ var (
 
 var xmlDurationRegex = regexp.MustCompile(rStart + rDays + rTime + rHours + rMinutes + rSeconds + rEnd)
 
-func (d Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+func (d *Duration) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{Name: name, Value: d.String()}, nil
 }
 
@@ -39,10 +40,28 @@ func (d *Duration) UnmarshalXMLAttr(attr xml.Attr) error {
 	return nil
 }
 
-// String renders a Duration in XML Duration Data Type format
+// String returns a string representing the duration in the form "PT72H3M0.5S".
+// Leading zero units are omitted. The zero duration formats as PT0S.
+// Based on src/time/time.go's time.Duration.String function.
 func (d *Duration) String() string {
+	// This is inlinable to take advantage of "function outlining".
+	// Thus, the caller can decide whether a string must be heap allocated.
+	var arr [32]byte
+
+	if d == nil {
+		return "PT0S"
+	}
+
+	n := d.format(&arr)
+	return "PT" + string(arr[n:])
+}
+
+// format formats the representation of d into the end of buf and returns the
+// offset of the first character. This function is modified to use the iso 1801
+// duration standard. This standard only uses  the "H", "M", "S" characters.
+// // Based on src/time/time.go's time.Duration.Format function.
+func (d *Duration) format(buf *[32]byte) int {
 	// Largest time is 2540400h10m10.000000000s
-	var buf [32]byte
 	w := len(buf)
 
 	u := uint64(*d)
@@ -51,56 +70,28 @@ func (d *Duration) String() string {
 		u = -u
 	}
 
-	if u < uint64(time.Second) {
-		// Special case: if duration is smaller than a second,
-		// use smaller units, like 1.2ms
-		var prec int
-		w--
-		buf[w] = 'S'
-		w--
-		if u == 0 {
-			return "PT0S"
-		}
-		/*
-			switch {
-			case u < uint64(Millisecond):
-				// print microseconds
-				prec = 3
-				// U+00B5 'µ' micro sign == 0xC2 0xB5
-				w-- // Need room for two bytes.
-				copy(buf[w:], "µ")
-			default:
-				// print milliseconds
-				prec = 6
-				buf[w] = 'm'
-			}
-		*/
-		w, u = fmtFrac(buf[:w], u, prec)
-		w = fmtInt(buf[:w], u)
-	} else {
-		w--
-		buf[w] = 'S'
+	w--
+	buf[w] = 'S'
 
-		w, u = fmtFrac(buf[:w], u, 9)
+	w, u = fmtFrac(buf[:w], u, 9)
 
-		// u is now integer seconds
+	// u is now integer seconds
+	w = fmtInt(buf[:w], u%60)
+	u /= 60
+
+	// u is now integer minutes
+	if u > 0 {
+		w--
+		buf[w] = 'M'
 		w = fmtInt(buf[:w], u%60)
 		u /= 60
 
-		// u is now integer minutes
+		// u is now integer hours
+		// Stop at hours because days can be different lengths.
 		if u > 0 {
 			w--
-			buf[w] = 'M'
-			w = fmtInt(buf[:w], u%60)
-			u /= 60
-
-			// u is now integer hours
-			// Stop at hours because days can be different lengths.
-			if u > 0 {
-				w--
-				buf[w] = 'H'
-				w = fmtInt(buf[:w], u)
-			}
+			buf[w] = 'H'
+			w = fmtInt(buf[:w], u)
 		}
 	}
 
@@ -109,13 +100,14 @@ func (d *Duration) String() string {
 		buf[w] = '-'
 	}
 
-	return "PT" + string(buf[w:])
+	return w
 }
 
 // fmtFrac formats the fraction of v/10**prec (e.g., ".12345") into the
 // tail of buf, omitting trailing zeros.  it omits the decimal
 // point too when the fraction is 0.  It returns the index where the
 // output bytes begin and the value v/10**prec.
+// Copied from src/time/time.go.
 func fmtFrac(buf []byte, v uint64, prec int) (nw int, nv uint64) {
 	// Omit trailing zeros up to and including decimal point.
 	w := len(buf)
@@ -138,6 +130,7 @@ func fmtFrac(buf []byte, v uint64, prec int) (nw int, nv uint64) {
 
 // fmtInt formats v into the tail of buf.
 // It returns the index where the output begins.
+// Copied from src/time/time.go.
 func fmtInt(buf []byte, v uint64) int {
 	w := len(buf)
 	if v == 0 {
@@ -155,16 +148,16 @@ func fmtInt(buf []byte, v uint64) int {
 
 func ParseDuration(str string) (time.Duration, error) {
 	if len(str) < 3 {
-		return 0, errors.New("At least one number and designator are required")
+		return 0, errors.New("at least one number and designator are required")
 	}
 
 	if strings.Contains(str, "-") {
-		return 0, errors.New("Duration cannot be negative")
+		return 0, errors.New("duration cannot be negative")
 	}
 
 	// Check that only the parts we expect exist and that everything's in the correct order
 	if !xmlDurationRegex.Match([]byte(str)) {
-		return 0, errors.New("Duration must be in the format: P[nD][T[nH][nM][nS]]")
+		return 0, errors.New("duration must be in the format: P[nD][T[nH][nM][nS]]")
 	}
 
 	var parts = xmlDurationRegex.FindStringSubmatch(str)
@@ -173,7 +166,7 @@ func ParseDuration(str string) (time.Duration, error) {
 	if parts[1] != "" {
 		days, err := strconv.Atoi(strings.TrimRight(parts[1], "D"))
 		if err != nil {
-			return 0, fmt.Errorf("Error parsing Days: %s", err)
+			return 0, fmt.Errorf("error parsing Days: %s", err)
 		}
 		total += time.Duration(days) * time.Hour * 24
 	}
@@ -181,7 +174,7 @@ func ParseDuration(str string) (time.Duration, error) {
 	if parts[2] != "" {
 		hours, err := strconv.Atoi(strings.TrimRight(parts[2], "H"))
 		if err != nil {
-			return 0, fmt.Errorf("Error parsing Hours: %s", err)
+			return 0, fmt.Errorf("error parsing Hours: %s", err)
 		}
 		total += time.Duration(hours) * time.Hour
 	}
@@ -189,7 +182,7 @@ func ParseDuration(str string) (time.Duration, error) {
 	if parts[3] != "" {
 		mins, err := strconv.Atoi(strings.TrimRight(parts[3], "M"))
 		if err != nil {
-			return 0, fmt.Errorf("Error parsing Minutes: %s", err)
+			return 0, fmt.Errorf("error parsing Minutes: %s", err)
 		}
 		total += time.Duration(mins) * time.Minute
 	}
@@ -197,7 +190,7 @@ func ParseDuration(str string) (time.Duration, error) {
 	if parts[4] != "" {
 		secs, err := strconv.ParseFloat(strings.TrimRight(parts[4], "S"), 64)
 		if err != nil {
-			return 0, fmt.Errorf("Error parsing Seconds: %s", err)
+			return 0, fmt.Errorf("error parsing Seconds: %s", err)
 		}
 		total += time.Duration(secs * float64(time.Second))
 	}
